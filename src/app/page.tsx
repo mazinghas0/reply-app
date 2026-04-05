@@ -109,10 +109,10 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-600 flex items-center justify-center">
               <ChatIcon size={14} />
             </div>
-            <span className="font-bold text-lg bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+            <span className="font-bold text-lg text-teal-600">
               리플라이
             </span>
           </div>
@@ -126,7 +126,7 @@ export default function LandingPage() {
             )}
             <Link
               href="/app"
-              className="text-sm font-medium px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 text-white hover:from-teal-700 hover:to-cyan-700 transition-all shadow-sm"
+              className="text-sm font-medium px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-all shadow-sm"
             >
               시작하기
             </Link>
@@ -137,12 +137,12 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="px-4 pt-20 pb-24 text-center">
         <div className="max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-100 text-teal-600 text-xs font-medium mb-6">
+          <p className="text-sm font-semibold text-teal-600 tracking-wide mb-4">
             AI 답장 도우미
-          </div>
+          </p>
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight tracking-tight mb-5">
             받은 메시지,{" "}
-            <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+            <span className="text-teal-600">
               AI가 대신
             </span>{" "}
             답장해 드려요
@@ -152,10 +152,10 @@ export default function LandingPage() {
             <br className="hidden sm:block" />
             비즈니스 메시지도 10초면 끝.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/app"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-xl hover:shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-700 transition-all text-center"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-teal-600 text-white font-semibold shadow-md hover:bg-teal-700 hover:shadow-lg transition-all text-center"
             >
               무료로 시작하기
             </Link>
@@ -173,7 +173,7 @@ export default function LandingPage() {
           <div className="grid sm:grid-cols-3 gap-8">
             {STEPS.map((step) => (
               <div key={step.number} className="text-center">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 text-white text-lg font-bold flex items-center justify-center mx-auto mb-4 shadow-lg shadow-teal-500/20">
+                <div className="w-10 h-10 rounded-full bg-teal-600 text-white text-sm font-bold flex items-center justify-center mx-auto mb-4">
                   {step.number}
                 </div>
                 <h3 className="font-semibold text-slate-900 mb-2">
@@ -194,13 +194,10 @@ export default function LandingPage() {
           <h2 className="text-2xl font-bold text-center text-slate-900 mb-12">
             왜 리플라이인가요?
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8">
             {FEATURES.map((f) => (
-              <div
-                key={f.title}
-                className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <h3 className="font-semibold text-slate-900 mb-1.5">
+              <div key={f.title} className="pl-4 border-l-2 border-teal-300">
+                <h3 className="font-semibold text-slate-900 mb-1">
                   {f.title}
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
@@ -256,7 +253,7 @@ export default function LandingPage() {
               </ul>
               <Link
                 href="/app"
-                className="block mt-6 w-full py-2.5 text-center rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-medium hover:from-teal-700 hover:to-cyan-700 transition-all shadow-sm"
+                className="block mt-6 w-full py-2.5 text-center rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-700 transition-colors"
               >
                 시작하기
               </Link>
@@ -311,7 +308,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/app"
-            className="inline-block px-8 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-xl hover:shadow-teal-500/30 transition-all"
+            className="inline-block px-8 py-3.5 rounded-xl bg-teal-600 text-white font-semibold shadow-md hover:bg-teal-700 hover:shadow-lg transition-all"
           >
             지금 바로 시작하기
           </Link>
@@ -322,7 +319,7 @@ export default function LandingPage() {
       <footer className="px-4 py-8 border-t border-slate-100">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-teal-600 flex items-center justify-center">
               <ChatIcon size={10} />
             </div>
             <span className="text-sm font-semibold text-slate-600">

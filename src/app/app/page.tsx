@@ -334,29 +334,17 @@ export default function Home() {
 
       {/* Hero */}
       <header className="text-center mb-10">
-        <div className="inline-flex items-center gap-3 mb-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+        <div className="inline-flex items-center gap-2.5 mb-3">
+          <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center">
             <IconChat />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             리플라이
           </h1>
         </div>
         <p className="text-slate-500 text-sm sm:text-base">
           받은 메시지를 붙여넣으면, AI가 답장 3개를 만들어 드려요
         </p>
-        {/* B: Feature badges */}
-        <div className="flex flex-wrap justify-center gap-2 mt-4">
-          <span className="text-xs px-3 py-1 rounded-full bg-teal-50 text-teal-600 border border-teal-100">
-            AI 답장 생성
-          </span>
-          <span className="text-xs px-3 py-1 rounded-full bg-cyan-50 text-cyan-600 border border-cyan-100">
-            4가지 톤 선택
-          </span>
-          <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-            매일 무료
-          </span>
-        </div>
       </header>
 
       {/* Mode Tabs */}
@@ -500,7 +488,7 @@ export default function Home() {
         <button
           onClick={handleGenerate}
           disabled={!inputMessage.trim() || loading}
-          className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-xl shadow-md shadow-teal-500/20 hover:shadow-lg hover:shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+          className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-700 hover:shadow-md disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
@@ -539,7 +527,7 @@ export default function Home() {
             >
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 text-white text-xs font-bold flex items-center justify-center">
+                  <span className="w-5 h-5 rounded-full bg-teal-600 text-white text-[10px] font-bold flex items-center justify-center">
                     {index + 1}
                   </span>
                   <span className="text-sm font-semibold text-slate-700">
@@ -689,7 +677,7 @@ export default function Home() {
               </label>
               <textarea value={reviewContext} onChange={(e) => setReviewContext(e.target.value)} placeholder="어떤 메시지에 대한 답장인지 붙여넣으면 더 정확한 검토가 가능해요" maxLength={2000} className="w-full h-20 p-4 bg-slate-50 border border-slate-200 rounded-xl resize-none text-slate-900 placeholder-slate-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400" />
             </div>
-            <button onClick={handleReview} disabled={!reviewDraft.trim() || reviewLoading} className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-xl shadow-md shadow-teal-500/20 hover:shadow-lg hover:shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
+            <button onClick={handleReview} disabled={!reviewDraft.trim() || reviewLoading} className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-700 hover:shadow-md disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
               {reviewLoading ? <span className="inline-flex items-center gap-2"><IconSpinner />AI가 검토하고 있어요</span> : "답장 검토하기"}
             </button>
             {reviewError && (
