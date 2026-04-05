@@ -39,6 +39,11 @@ body {
 }
 
 ::selection {
-  background-color: #818cf8;
+  background-color: #2dd4bf;
   color: white;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
 }

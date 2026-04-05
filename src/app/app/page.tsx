@@ -47,8 +47,8 @@ type ToneId = (typeof TONES)[number]["id"];
 const TONE_STYLES: Record<ToneId, { selected: string; hover: string }> = {
   polite: {
     selected:
-      "border-indigo-400 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200",
-    hover: "hover:border-indigo-200 hover:bg-indigo-50/50",
+      "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200",
+    hover: "hover:border-blue-200 hover:bg-blue-50/50",
   },
   firm: {
     selected:
@@ -195,12 +195,12 @@ function AuthBar() {
     <div className="w-full flex justify-end mb-4">
       {isSignedIn ? (
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">하루 10회</span>
+          <span className="text-xs text-slate-400">하루 10회</span>
           <UserButton />
         </div>
       ) : (
         <SignInButton mode="modal">
-          <button className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer">
+          <button className="text-sm px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer">
             로그인하면 하루 10회
           </button>
         </SignInButton>
@@ -335,22 +335,22 @@ export default function Home() {
       {/* Hero */}
       <header className="text-center mb-10">
         <div className="inline-flex items-center gap-3 mb-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
             <IconChat />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent tracking-tight">
             리플라이
           </h1>
         </div>
-        <p className="text-gray-500 text-sm sm:text-base">
+        <p className="text-slate-500 text-sm sm:text-base">
           받은 메시지를 붙여넣으면, AI가 답장 3개를 만들어 드려요
         </p>
         {/* B: Feature badges */}
         <div className="flex flex-wrap justify-center gap-2 mt-4">
-          <span className="text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
+          <span className="text-xs px-3 py-1 rounded-full bg-teal-50 text-teal-600 border border-teal-100">
             AI 답장 생성
           </span>
-          <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-600 border border-violet-100">
+          <span className="text-xs px-3 py-1 rounded-full bg-cyan-50 text-cyan-600 border border-cyan-100">
             4가지 톤 선택
           </span>
           <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -360,21 +360,21 @@ export default function Home() {
       </header>
 
       {/* Mode Tabs */}
-      <div className="w-full flex rounded-xl border border-gray-200 p-1 bg-gray-50 mb-6">
-        <button onClick={() => setMode("generate")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "generate" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
+      <div className="w-full flex rounded-xl border border-slate-200 p-1 bg-slate-50 mb-6">
+        <button onClick={() => setMode("generate")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "generate" ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-700"}`}>
           답장 만들기
         </button>
-        <button onClick={() => setMode("review")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "review" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
+        <button onClick={() => setMode("review")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "review" ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-700"}`}>
           답장 검토
         </button>
-        <button onClick={() => setMode("refine")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "refine" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
+        <button onClick={() => setMode("refine")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "refine" ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-700"}`}>
           다듬기
         </button>
       </div>
 
       {/* Generate Mode */}
       {mode === "generate" && <>
-      <section className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 space-y-5">
+      <section className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-5">
         {/* A: Usage badge */}
         {remaining !== null && (
           <div className="flex justify-end">
@@ -382,7 +382,7 @@ export default function Home() {
               className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                 remaining <= 3
                   ? "bg-rose-50 text-rose-600 border border-rose-100"
-                  : "bg-gray-50 text-gray-500 border border-gray-100"
+                  : "bg-slate-50 text-slate-500 border border-slate-100"
               }`}
             >
               오늘 {remaining}회 남음
@@ -395,7 +395,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-1.5">
             <label
               htmlFor="message-input"
-              className="text-sm font-semibold text-gray-800"
+              className="text-sm font-semibold text-slate-800"
             >
               받은 메시지
             </label>
@@ -403,7 +403,7 @@ export default function Home() {
               className={`text-xs tabular-nums ${
                 inputMessage.length > 1800
                   ? "text-rose-500"
-                  : "text-gray-400"
+                  : "text-slate-400"
               }`}
             >
               {inputMessage.length} / 2,000
@@ -416,14 +416,14 @@ export default function Home() {
             onKeyDown={handleKeyDown}
             placeholder="답장하고 싶은 메시지를 여기에 붙여넣으세요..."
             maxLength={2000}
-            className="w-full h-36 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none text-gray-900 placeholder-gray-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full h-36 p-4 bg-slate-50 border border-slate-200 rounded-xl resize-none text-slate-900 placeholder-slate-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
-          <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono">
+          <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-mono">
               Ctrl
             </kbd>
             <span>+</span>
-            <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono">
+            <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-mono">
               Enter
             </kbd>
             <span className="ml-0.5">로 바로 생성</span>
@@ -432,7 +432,7 @@ export default function Home() {
 
         {/* Tone Selector */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2.5">
+          <label className="block text-sm font-semibold text-slate-800 mb-2.5">
             답장 톤
           </label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -446,7 +446,7 @@ export default function Home() {
                   className={`px-3 py-3 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer ${
                     isSelected
                       ? styles.selected
-                      : `border-gray-200 bg-white text-gray-600 ${styles.hover}`
+                      : `border-slate-200 bg-white text-slate-600 ${styles.hover}`
                   }`}
                 >
                   <div className="font-semibold">{tone.label}</div>
@@ -465,26 +465,26 @@ export default function Home() {
 
         {/* Intent Hint */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-            원하는 방향 <span className="font-normal text-gray-400">(선택)</span>
+          <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+            원하는 방향 <span className="font-normal text-slate-400">(선택)</span>
           </label>
-          <input type="text" value={intentHint} onChange={(e) => setIntentHint(e.target.value)} placeholder="예: 정중하게 거절, 조건부 수락, 감사 표현, 시간 달라고..." maxLength={100} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-sm transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+          <input type="text" value={intentHint} onChange={(e) => setIntentHint(e.target.value)} placeholder="예: 정중하게 거절, 조건부 수락, 감사 표현, 시간 달라고..." maxLength={100} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400" />
         </div>
 
         {/* C: Speed Toggle */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2.5">
+          <label className="block text-sm font-semibold text-slate-800 mb-2.5">
             답장 품질
           </label>
-          <div className="flex rounded-xl border border-gray-200 p-1 bg-gray-50">
+          <div className="flex rounded-xl border border-slate-200 p-1 bg-slate-50">
             {SPEEDS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setSpeed(s.id)}
                 className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
                   speed === s.id
-                    ? "bg-white text-gray-900 shadow-sm border border-gray-100"
-                    : "text-gray-500 hover:text-gray-700"
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                    : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 <div>{s.label}</div>
@@ -500,7 +500,7 @@ export default function Home() {
         <button
           onClick={handleGenerate}
           disabled={!inputMessage.trim() || loading}
-          className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:from-indigo-700 hover:to-violet-700 disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+          className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-xl shadow-md shadow-teal-500/20 hover:shadow-lg hover:shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
@@ -525,24 +525,24 @@ export default function Home() {
       {replies.length > 0 && (
         <section className="w-full mt-8 space-y-3">
           <div className="flex items-center gap-3 mb-1">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-200" />
-            <h2 className="text-sm font-semibold text-gray-500 tracking-wider">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200" />
+            <h2 className="text-sm font-semibold text-slate-500 tracking-wider">
               답장 제안
             </h2>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-200" />
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200" />
           </div>
           {replies.map((reply, index) => (
             <div
               key={index}
-              className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="animate-fade-in-up p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white text-xs font-bold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 text-white text-xs font-bold flex items-center justify-center">
                     {index + 1}
                   </span>
-                  <span className="text-sm font-semibold text-gray-700">
+                  <span className="text-sm font-semibold text-slate-700">
                     {reply.label}
                   </span>
                 </div>
@@ -551,7 +551,7 @@ export default function Home() {
                   className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
                     copiedKey === `reply-${index}`
                       ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                      : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 hover:text-gray-700"
+                      : "bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 hover:text-slate-700"
                   }`}
                 >
                   {copiedKey === `reply-${index}` ? (
@@ -565,7 +565,7 @@ export default function Home() {
                   )}
                 </button>
               </div>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">
+              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap text-[15px]">
                 {reply.content}
               </p>
             </div>
@@ -577,16 +577,16 @@ export default function Home() {
       {history.length > 0 && (
         <section className="w-full mt-10">
           <div className="flex items-center gap-3 mb-3">
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-slate-200" />
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
             >
               <IconClock />
               최근 기록 ({history.length})
               <IconChevron open={showHistory} />
             </button>
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-slate-200" />
           </div>
 
           {showHistory && (
@@ -598,19 +598,19 @@ export default function Home() {
                 return (
                   <div
                     key={entry.id}
-                    className="bg-white border border-gray-100 rounded-xl overflow-hidden"
+                    className="bg-white border border-slate-100 rounded-xl overflow-hidden"
                   >
                     <button
                       onClick={() =>
                         setExpandedHistoryId(isExpanded ? null : entry.id)
                       }
-                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer"
                     >
                       <div className="flex-1 min-w-0 mr-2">
-                        <p className="text-sm text-gray-800 truncate">
+                        <p className="text-sm text-slate-800 truncate">
                           {entry.inputMessage}
                         </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-slate-400 mt-0.5">
                           {toneLabel} · {SPEED_LABELS[entry.speed]} ·{" "}
                           {formatTime(entry.createdAt)}
                         </p>
@@ -619,11 +619,11 @@ export default function Home() {
                     </button>
 
                     {isExpanded && (
-                      <div className="px-4 pb-3 space-y-2 border-t border-gray-50">
+                      <div className="px-4 pb-3 space-y-2 border-t border-slate-50">
                         {entry.replies.map((reply, i) => (
-                          <div key={i} className="p-3 bg-gray-50 rounded-lg mt-2">
+                          <div key={i} className="p-3 bg-slate-50 rounded-lg mt-2">
                             <div className="flex justify-between items-center mb-1.5">
-                              <span className="text-xs font-semibold text-gray-600">
+                              <span className="text-xs font-semibold text-slate-600">
                                 {reply.label}
                               </span>
                               <button
@@ -637,7 +637,7 @@ export default function Home() {
                                 className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium transition-all cursor-pointer ${
                                   copiedKey === `history-${entry.id}-${i}`
                                     ? "bg-emerald-50 text-emerald-600"
-                                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
                                 }`}
                               >
                                 {copiedKey === `history-${entry.id}-${i}` ? (
@@ -651,7 +651,7 @@ export default function Home() {
                                 )}
                               </button>
                             </div>
-                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
                               {reply.content}
                             </p>
                           </div>
@@ -664,7 +664,7 @@ export default function Home() {
 
               <button
                 onClick={handleClearHistory}
-                className="flex items-center gap-1.5 mx-auto mt-2 text-xs text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 mx-auto mt-2 text-xs text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
               >
                 <IconTrash />
                 기록 모두 삭제
@@ -678,18 +678,18 @@ export default function Home() {
       {/* Review Mode */}
       {mode === "review" && (
         <>
-          <section className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 space-y-5">
+          <section className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1.5">내가 쓴 답장</label>
-              <textarea value={reviewDraft} onChange={(e) => setReviewDraft(e.target.value)} placeholder="검토받고 싶은 답장을 붙여넣으세요..." maxLength={2000} className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none text-gray-900 placeholder-gray-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+              <label className="block text-sm font-semibold text-slate-800 mb-1.5">내가 쓴 답장</label>
+              <textarea value={reviewDraft} onChange={(e) => setReviewDraft(e.target.value)} placeholder="검토받고 싶은 답장을 붙여넣으세요..." maxLength={2000} className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl resize-none text-slate-900 placeholder-slate-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                받은 메시지 <span className="font-normal text-gray-400">(선택)</span>
+              <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+                받은 메시지 <span className="font-normal text-slate-400">(선택)</span>
               </label>
-              <textarea value={reviewContext} onChange={(e) => setReviewContext(e.target.value)} placeholder="어떤 메시지에 대한 답장인지 붙여넣으면 더 정확한 검토가 가능해요" maxLength={2000} className="w-full h-20 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none text-gray-900 placeholder-gray-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+              <textarea value={reviewContext} onChange={(e) => setReviewContext(e.target.value)} placeholder="어떤 메시지에 대한 답장인지 붙여넣으면 더 정확한 검토가 가능해요" maxLength={2000} className="w-full h-20 p-4 bg-slate-50 border border-slate-200 rounded-xl resize-none text-slate-900 placeholder-slate-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400" />
             </div>
-            <button onClick={handleReview} disabled={!reviewDraft.trim() || reviewLoading} className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:from-indigo-700 hover:to-violet-700 disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
+            <button onClick={handleReview} disabled={!reviewDraft.trim() || reviewLoading} className="w-full py-3.5 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold rounded-xl shadow-md shadow-teal-500/20 hover:shadow-lg hover:shadow-teal-500/30 hover:from-teal-700 hover:to-cyan-700 disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
               {reviewLoading ? <span className="inline-flex items-center gap-2"><IconSpinner />AI가 검토하고 있어요</span> : "답장 검토하기"}
             </button>
             {reviewError && (
@@ -702,42 +702,42 @@ export default function Home() {
           {reviewResult && (
             <section className="w-full mt-8 space-y-3">
               <div className="flex items-center gap-3 mb-1">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-200" />
-                <h2 className="text-sm font-semibold text-gray-500 tracking-wider">검토 결과</h2>
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-200" />
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200" />
+                <h2 className="text-sm font-semibold text-slate-500 tracking-wider">검토 결과</h2>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200" />
               </div>
 
               {/* Tone */}
-              <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">톤 분석</h3>
+              <div className="animate-fade-in-up p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                <h3 className="text-sm font-semibold text-slate-700 mb-3">톤 분석</h3>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
-                      <div key={n} className={`w-8 h-2.5 rounded-full ${n <= reviewResult.tone.score ? "bg-indigo-500" : "bg-gray-200"}`} />
+                      <div key={n} className={`w-8 h-2.5 rounded-full ${n <= reviewResult.tone.score ? "bg-teal-500" : "bg-slate-200"}`} />
                     ))}
                   </div>
-                  <span className="text-sm font-medium text-indigo-600">{reviewResult.tone.label}</span>
+                  <span className="text-sm font-medium text-teal-600">{reviewResult.tone.label}</span>
                 </div>
-                <p className="text-sm text-gray-500">{reviewResult.tone.detail}</p>
+                <p className="text-sm text-slate-500">{reviewResult.tone.detail}</p>
               </div>
 
               {/* Impression */}
-              <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm" style={{ animationDelay: "100ms" }}>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">상대방은 이렇게 느껴요</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{reviewResult.impression}</p>
+              <div className="animate-fade-in-up p-5 bg-white border border-slate-100 rounded-2xl shadow-sm" style={{ animationDelay: "100ms" }}>
+                <h3 className="text-sm font-semibold text-slate-700 mb-2">상대방은 이렇게 느껴요</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">{reviewResult.impression}</p>
               </div>
 
               {/* Spelling */}
               {reviewResult.spelling.length > 0 && (
-                <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm" style={{ animationDelay: "200ms" }}>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">맞춤법 ({reviewResult.spelling.length}건)</h3>
+                <div className="animate-fade-in-up p-5 bg-white border border-slate-100 rounded-2xl shadow-sm" style={{ animationDelay: "200ms" }}>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">맞춤법 ({reviewResult.spelling.length}건)</h3>
                   <div className="space-y-2">
                     {reviewResult.spelling.map((s, i) => (
                       <div key={i} className="flex items-baseline gap-2 text-sm">
                         <span className="line-through text-rose-400">{s.original}</span>
-                        <span className="text-gray-400">→</span>
+                        <span className="text-slate-400">→</span>
                         <span className="text-emerald-600 font-medium">{s.corrected}</span>
-                        <span className="text-xs text-gray-400">({s.reason})</span>
+                        <span className="text-xs text-slate-400">({s.reason})</span>
                       </div>
                     ))}
                   </div>
@@ -746,17 +746,17 @@ export default function Home() {
 
               {/* Suggestions */}
               {reviewResult.suggestions.length > 0 && (
-                <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm" style={{ animationDelay: "300ms" }}>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">개선 제안 ({reviewResult.suggestions.length}건)</h3>
+                <div className="animate-fade-in-up p-5 bg-white border border-slate-100 rounded-2xl shadow-sm" style={{ animationDelay: "300ms" }}>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">개선 제안 ({reviewResult.suggestions.length}건)</h3>
                   <div className="space-y-3">
                     {reviewResult.suggestions.map((s, i) => (
-                      <div key={i} className="p-3 bg-gray-50 rounded-lg">
+                      <div key={i} className="p-3 bg-slate-50 rounded-lg">
                         <div className="flex items-baseline gap-2 text-sm mb-1">
-                          <span className="text-gray-500">{s.original}</span>
-                          <span className="text-gray-400">→</span>
-                          <span className="text-indigo-600 font-medium">{s.improved}</span>
+                          <span className="text-slate-500">{s.original}</span>
+                          <span className="text-slate-400">→</span>
+                          <span className="text-teal-600 font-medium">{s.improved}</span>
                         </div>
-                        <p className="text-xs text-gray-400">{s.reason}</p>
+                        <p className="text-xs text-slate-400">{s.reason}</p>
                       </div>
                     ))}
                   </div>
@@ -772,7 +772,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-16 mb-4 text-center">
-        <p className="text-xs text-gray-400">Kevin AI Corp</p>
+        <p className="text-xs text-slate-400">Kevin AI Corp</p>
       </footer>
     </main>
   );
