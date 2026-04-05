@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+import RefineTab from "./refineTab";
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // ─── Types ───────────────────────────────────────
 
-type AppMode = "generate" | "review";
+type AppMode = "generate" | "review" | "refine";
 
 interface Reply {
   label: string;
@@ -363,6 +364,9 @@ export default function Home() {
         </button>
         <button onClick={() => setMode("review")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "review" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
           답장 검토
+        </button>
+        <button onClick={() => setMode("refine")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "refine" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
+          다듬기
         </button>
       </div>
 
@@ -752,6 +756,9 @@ export default function Home() {
           )}
         </>
       )}
+
+      {/* Refine Mode */}
+      {mode === "refine" && <RefineTab />}
 
       {/* Footer */}
       <footer className="mt-16 mb-4 text-center">
