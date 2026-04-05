@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { koKR } from "@clerk/localizations";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -38,7 +39,7 @@ export default function RootLayout({
   );
 
   if (clerkEnabled) {
-    return <ClerkProvider signInUrl="/sign-in" signInFallbackRedirectUrl="/app">{inner}</ClerkProvider>;
+    return <ClerkProvider signInUrl="/sign-in" signInFallbackRedirectUrl="/app" localization={koKR}>{inner}</ClerkProvider>;
   }
 
   return inner;
