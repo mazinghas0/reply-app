@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { SignInButton } from "@clerk/nextjs";
 import HeroDemo from "./heroDemo";
+import LandingAuth from "./landingAuth";
 
 const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -122,13 +122,7 @@ export default function LandingPage() {
             <span className="font-bold text-lg text-white">리플라이</span>
           </div>
           <div className="flex items-center gap-3">
-            {clerkEnabled && (
-              <SignInButton mode="modal">
-                <button className="text-sm font-medium px-4 py-2 text-slate-400 hover:text-white transition-colors cursor-pointer">
-                  로그인
-                </button>
-              </SignInButton>
-            )}
+            {clerkEnabled && <LandingAuth />}
             <Link
               href="/app"
               className="text-sm font-medium px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-500 transition-all"
