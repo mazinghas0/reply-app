@@ -28,6 +28,30 @@ const MAX_MESSAGE_LENGTH = 2000;
 const RATE_LIMIT_PER_IP = 20;
 const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+const ALLOWED_ORIGINS = [
+  "https://reply-app-sepia.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
+
+function isOriginAllowed(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+
+  if (origin && ALLOWED_ORIGINS.some((allowed) => origin.startsWith(allowed))) {
+    return true;
+  }
+
+  if (
+    referer &&
+    ALLOWED_ORIGINS.some((allowed) => referer.startsWith(allowed))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 const ipRequestMap = new Map<string, { count: number; resetAt: number }>();
 
 function getClientIp(request: NextRequest): string {
@@ -56,6 +80,13 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isOriginAllowed(request)) {
+    return Response.json(
+      { error: "허용되지 않은 요청입니다." },
+      { status: 403 }
+    );
+  }
+
   const clientIp = getClientIp(request);
   const { allowed, remaining } = checkRateLimit(clientIp);
 
@@ -110,7 +141,7 @@ export async function POST(request: NextRequest) {
 
   const response = await client.messages.create({
     model,
-    max_tokens: 1024,
+    max_tokens: 512,
     messages: [
       {
         role: "user",
