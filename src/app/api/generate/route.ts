@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 interface GenerateRequest {
   message: string;
   tone: "polite" | "firm" | "flexible" | "friendly";
+  speed?: "fast" | "quality";
 }
 
 interface Reply {
@@ -17,6 +18,11 @@ const TONE_LABELS: Record<GenerateRequest["tone"], string> = {
   flexible: "유연하고 열린 자세의",
   friendly: "친근하고 편안한",
 };
+
+const MODEL_MAP = {
+  fast: "claude-haiku-4-5-20251001",
+  quality: "claude-sonnet-4-20250514",
+} as const;
 
 const MAX_MESSAGE_LENGTH = 2000;
 const RATE_LIMIT_PER_IP = 20;
@@ -32,29 +38,33 @@ function getClientIp(request: NextRequest): string {
   );
 }
 
-function checkRateLimit(ip: string): boolean {
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
   const now = Date.now();
   const record = ipRequestMap.get(ip);
 
   if (!record || now > record.resetAt) {
     ipRequestMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
+    return { allowed: true, remaining: RATE_LIMIT_PER_IP - 1 };
   }
 
   if (record.count >= RATE_LIMIT_PER_IP) {
-    return false;
+    return { allowed: false, remaining: 0 };
   }
 
   record.count += 1;
-  return true;
+  return { allowed: true, remaining: RATE_LIMIT_PER_IP - record.count };
 }
 
 export async function POST(request: NextRequest) {
   const clientIp = getClientIp(request);
+  const { allowed, remaining } = checkRateLimit(clientIp);
 
-  if (!checkRateLimit(clientIp)) {
+  if (!allowed) {
     return Response.json(
-      { error: "오늘 사용량을 초과했습니다. 내일 다시 이용해 주세요. (하루 20건)" },
+      {
+        error: "오늘 사용량을 초과했습니다. 내일 다시 이용해 주세요. (하루 20건)",
+        remaining: 0,
+      },
       { status: 429 }
     );
   }
@@ -87,13 +97,19 @@ export async function POST(request: NextRequest) {
   const toneDescription = TONE_LABELS[body.tone];
 
   if (!toneDescription) {
-    return Response.json({ error: "올바른 톤을 선택해주세요." }, { status: 400 });
+    return Response.json(
+      { error: "올바른 톤을 선택해주세요." },
+      { status: 400 }
+    );
   }
+
+  const speed = body.speed === "fast" ? "fast" : "quality";
+  const model = MODEL_MAP[speed];
 
   const client = new Anthropic({ apiKey });
 
   const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model,
     max_tokens: 1024,
     messages: [
       {
@@ -141,5 +157,5 @@ ${body.message}`,
 
   const replies = JSON.parse(jsonMatch[0]) as Reply[];
 
-  return Response.json({ replies });
+  return Response.json({ replies, remaining });
 }
