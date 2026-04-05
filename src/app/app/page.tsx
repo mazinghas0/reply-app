@@ -226,6 +226,7 @@ export default function Home() {
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(
     null
   );
+  const [intentHint, setIntentHint] = useState("");
   const [reviewDraft, setReviewDraft] = useState("");
   const [reviewContext, setReviewContext] = useState("");
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
@@ -251,6 +252,7 @@ export default function Home() {
           message: inputMessage.trim(),
           tone: selectedTone,
           speed,
+          hint: intentHint.trim() || undefined,
         }),
       });
 
@@ -459,6 +461,14 @@ export default function Home() {
               );
             })}
           </div>
+        </div>
+
+        {/* Intent Hint */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+            원하는 방향 <span className="font-normal text-gray-400">(선택)</span>
+          </label>
+          <input type="text" value={intentHint} onChange={(e) => setIntentHint(e.target.value)} placeholder="예: 정중하게 거절, 조건부 수락, 감사 표현, 시간 달라고..." maxLength={100} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-sm transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
         </div>
 
         {/* C: Speed Toggle */}

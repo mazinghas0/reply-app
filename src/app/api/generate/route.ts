@@ -6,6 +6,7 @@ interface GenerateRequest {
   message: string;
   tone: "polite" | "firm" | "flexible" | "friendly";
   speed?: "fast" | "quality";
+  hint?: string;
 }
 
 interface Reply {
@@ -151,6 +152,9 @@ export async function POST(request: NextRequest) {
 
   const speed = body.speed === "fast" ? "fast" : "quality";
   const model = MODEL_MAP[speed];
+  const hintBlock = body.hint?.trim()
+    ? `\n사용자가 원하는 답장 방향: ${body.hint.trim()}\n이 방향에 맞춰서 답장을 작성하세요.`
+    : "";
 
   const client = new Anthropic({ apiKey });
 
@@ -185,7 +189,7 @@ export async function POST(request: NextRequest) {
 ]
 
 받은 메시지:
-${body.message}`,
+${body.message}${hintBlock}`,
       },
     ],
   });
