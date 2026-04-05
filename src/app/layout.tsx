@@ -38,7 +38,7 @@ export default function RootLayout({
   );
 
   if (clerkEnabled) {
-    return <ClerkProvider>{inner}</ClerkProvider>;
+    return <ClerkProvider signInUrl="/sign-in" signInFallbackRedirectUrl="/app">{inner}</ClerkProvider>;
   }
 
   return inner;

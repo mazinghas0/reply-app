@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+import { UserButton, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 import RefineTab from "./refineTab";
 import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
@@ -200,11 +201,12 @@ function NavAuth() {
       <UserButton />
     </div>
   ) : (
-    <SignInButton mode="modal">
-      <button className="text-sm px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer">
-        로그인
-      </button>
-    </SignInButton>
+    <Link
+      href="/sign-in"
+      className="text-sm px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+    >
+      로그인
+    </Link>
   );
 }
 
@@ -227,6 +229,7 @@ export default function Home() {
   const [replies, setReplies] = useState<Reply[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showLoginHint, setShowLoginHint] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -247,6 +250,7 @@ export default function Home() {
     if (!inputMessage.trim()) return;
     setLoading(true);
     setError("");
+    setShowLoginHint(false);
     setReplies([]);
     try {
       const res = await fetch("/api/generate", {
@@ -261,7 +265,12 @@ export default function Home() {
       });
       const data = await res.json();
       if (typeof data.remaining === "number") setRemaining(data.remaining);
-      if (!res.ok) throw new Error(data.error || "답장 생성에 실패했습니다");
+      if (!res.ok) {
+        if (res.status === 429 && data.isAuthenticated === false) {
+          setShowLoginHint(true);
+        }
+        throw new Error(data.error || "답장 생성에 실패했습니다");
+      }
       setReplies(data.replies);
       const entry: HistoryEntry = {
         id: String(Date.now()),
@@ -467,9 +476,19 @@ export default function Home() {
 
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-2.5 p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-400 text-sm">
-                <IconError />
-                {error}
+              <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-sm">
+                <div className="flex items-start gap-2.5 text-rose-700 dark:text-rose-400">
+                  <IconError />
+                  {error}
+                </div>
+                {showLoginHint && (
+                  <Link
+                    href="/sign-in"
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition-colors"
+                  >
+                    로그인하고 10회 사용하기
+                  </Link>
+                )}
               </div>
             )}
           </section>
