@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -15,6 +17,10 @@
 body {
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   color: var(--foreground);
+}
+
+.dark body {
+  background: #020617;
 }
 
 @keyframes fadeInUp {

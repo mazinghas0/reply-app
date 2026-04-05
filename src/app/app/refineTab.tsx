@@ -18,24 +18,24 @@ const REFINE_TONES = [
 
 const REFINE_TONE_STYLES: Record<RefineToneId, { selected: string; hover: string }> = {
   natural: {
-    selected: "border-sky-400 bg-sky-50 text-sky-700 ring-2 ring-sky-200",
-    hover: "hover:border-sky-200 hover:bg-sky-50/50",
+    selected: "border-sky-400 bg-sky-50 text-sky-700 ring-2 ring-sky-200 dark:bg-sky-950/30 dark:text-sky-300 dark:border-sky-500 dark:ring-sky-900",
+    hover: "hover:border-sky-200 hover:bg-sky-50/50 dark:hover:border-sky-800 dark:hover:bg-sky-900/20",
   },
   polite: {
-    selected: "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200",
-    hover: "hover:border-blue-200 hover:bg-blue-50/50",
+    selected: "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-500 dark:ring-blue-900",
+    hover: "hover:border-blue-200 hover:bg-blue-50/50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20",
   },
   firm: {
-    selected: "border-rose-400 bg-rose-50 text-rose-700 ring-2 ring-rose-200",
-    hover: "hover:border-rose-200 hover:bg-rose-50/50",
+    selected: "border-rose-400 bg-rose-50 text-rose-700 ring-2 ring-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-500 dark:ring-rose-900",
+    hover: "hover:border-rose-200 hover:bg-rose-50/50 dark:hover:border-rose-800 dark:hover:bg-rose-900/20",
   },
   flexible: {
-    selected: "border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200",
-    hover: "hover:border-emerald-200 hover:bg-emerald-50/50",
+    selected: "border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-500 dark:ring-emerald-900",
+    hover: "hover:border-emerald-200 hover:bg-emerald-50/50 dark:hover:border-emerald-800 dark:hover:bg-emerald-900/20",
   },
   friendly: {
-    selected: "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200",
-    hover: "hover:border-amber-200 hover:bg-amber-50/50",
+    selected: "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-500 dark:ring-amber-900",
+    hover: "hover:border-amber-200 hover:bg-amber-50/50 dark:hover:border-amber-800 dark:hover:bg-amber-900/20",
   },
 };
 
@@ -136,10 +136,10 @@ export default function RefineTab() {
 
   return (
     <>
-      <section className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-5">
+      <section className="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 sm:p-6 space-y-5 transition-colors duration-200">
         {/* Draft Input */}
         <div>
-          <label className="block text-sm font-semibold text-slate-800 mb-1.5">
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
             다듬을 답장
           </label>
           <textarea
@@ -152,10 +152,10 @@ export default function RefineTab() {
             }}
             placeholder="대충 쓴 답장을 붙여넣으세요. AI가 깔끔하게 다듬어 드려요..."
             maxLength={2000}
-            className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl resize-none text-slate-900 placeholder-slate-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
+            className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
           <div className="flex justify-end mt-1">
-            <span className={`text-xs tabular-nums ${draft.length > 1800 ? "text-rose-400" : "text-slate-300"}`}>
+            <span className={`text-xs tabular-nums ${draft.length > 1800 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
               {draft.length}/2000
             </span>
           </div>
@@ -163,7 +163,7 @@ export default function RefineTab() {
 
         {/* Tone Selector */}
         <div>
-          <label className="block text-sm font-semibold text-slate-800 mb-2.5">
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">
             어떤 느낌으로 다듬을까요?
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -177,11 +177,11 @@ export default function RefineTab() {
                   className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
                     isSelected
                       ? style.selected
-                      : `border-slate-200 bg-white text-slate-600 ${style.hover}`
+                      : `border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${style.hover}`
                   }`}
                 >
                   <span className="block text-sm font-semibold">{t.label}</span>
-                  <span className={`block text-xs mt-0.5 ${isSelected ? "opacity-80" : "text-slate-400"}`}>
+                  <span className={`block text-xs mt-0.5 ${isSelected ? "opacity-80" : "text-slate-400 dark:text-slate-500"}`}>
                     {t.desc}
                   </span>
                 </button>
@@ -194,7 +194,7 @@ export default function RefineTab() {
         <button
           onClick={handleRefine}
           disabled={!draft.trim() || loading}
-          className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-700 hover:shadow-md disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+          className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-500 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
@@ -208,14 +208,14 @@ export default function RefineTab() {
 
         {/* Shortcut hint */}
         {draft.trim() && !loading && (
-          <p className="text-center text-xs text-slate-400">
+          <p className="text-center text-xs text-slate-400 dark:text-slate-500">
             Ctrl + Enter로 바로 실행
           </p>
         )}
 
         {/* Error */}
         {error && (
-          <div className="flex items-start gap-2.5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
+          <div className="flex items-start gap-2.5 p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-400 text-sm">
             <IconError />
             {error}
           </div>
@@ -226,23 +226,23 @@ export default function RefineTab() {
       {refined && (
         <section className="w-full mt-8 space-y-3">
           <div className="flex items-center gap-3 mb-1">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200" />
-            <h2 className="text-sm font-semibold text-slate-500 tracking-wider">다듬어진 답장</h2>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200" />
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200 dark:to-slate-700" />
+            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wider">다듬어진 답장</h2>
+            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200 dark:to-slate-700" />
           </div>
 
           {/* Refined Text */}
-          <div className="animate-fade-in-up p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-semibold text-slate-700">
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {REFINE_TONES.find((t) => t.id === tone)?.label} 버전
               </span>
               <button
                 onClick={handleCopy}
                 className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
                   copied
-                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                    : "bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 hover:text-slate-700"
+                    ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
+                    : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
                 }`}
               >
                 {copied ? (
@@ -252,7 +252,7 @@ export default function RefineTab() {
                 )}
               </button>
             </div>
-            <p className="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
               {refined}
             </p>
           </div>
@@ -261,14 +261,14 @@ export default function RefineTab() {
           <div className="animate-fade-in-up" style={{ animationDelay: "100ms" }}>
             <button
               onClick={() => setShowOriginal(!showOriginal)}
-              className="flex items-center gap-2 text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer px-1"
+              className="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer px-1"
             >
               <IconChevron open={showOriginal} />
               원문 보기
             </button>
             {showOriginal && (
-              <div className="mt-2 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                <p className="text-sm text-slate-500 leading-relaxed whitespace-pre-wrap">
+              <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
                   {originalSnapshot}
                 </p>
               </div>

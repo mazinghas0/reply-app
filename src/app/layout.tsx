@@ -23,6 +23,7 @@ export default function RootLayout({
   const inner = (
     <html lang="ko" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-[family-name:var(--font-geist-sans)]">
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('reply-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()` }} />
         {children}
       </body>
     </html>
