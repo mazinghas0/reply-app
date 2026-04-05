@@ -11,6 +11,14 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "리플라이 — AI 답장 도우미",
   description: "받은 메시지를 붙여넣으면 AI가 답장 3개를 만들어 드립니다",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "리플라이",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
