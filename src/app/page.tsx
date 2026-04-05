@@ -1,589 +1,324 @@
-"use client";
+import Link from "next/link";
+import type { Metadata } from "next";
 
-import { useState, useEffect } from "react";
-
-// ─── Types ───────────────────────────────────────
-
-interface Reply {
-  label: string;
-  content: string;
-}
-
-interface HistoryEntry {
-  id: string;
-  inputMessage: string;
-  tone: ToneId;
-  speed: Speed;
-  replies: Reply[];
-  createdAt: string;
-}
-
-type Speed = "fast" | "quality";
-
-// ─── Constants ───────────────────────────────────
-
-const TONES = [
-  { id: "polite", label: "정중한", desc: "예의 바르고 격식 있는" },
-  { id: "firm", label: "단호한", desc: "명확하고 프로페셔널한" },
-  { id: "flexible", label: "유연한", desc: "열린 자세, 협상 가능한" },
-  { id: "friendly", label: "친근한", desc: "편하고 가벼운" },
-] as const;
-
-type ToneId = (typeof TONES)[number]["id"];
-
-const TONE_STYLES: Record<ToneId, { selected: string; hover: string }> = {
-  polite: {
-    selected:
-      "border-indigo-400 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-200",
-    hover: "hover:border-indigo-200 hover:bg-indigo-50/50",
-  },
-  firm: {
-    selected:
-      "border-rose-400 bg-rose-50 text-rose-700 ring-2 ring-rose-200",
-    hover: "hover:border-rose-200 hover:bg-rose-50/50",
-  },
-  flexible: {
-    selected:
-      "border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200",
-    hover: "hover:border-emerald-200 hover:bg-emerald-50/50",
-  },
-  friendly: {
-    selected:
-      "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200",
-    hover: "hover:border-amber-200 hover:bg-amber-50/50",
+export const metadata: Metadata = {
+  title: "리플라이 — AI가 답장을 대신 써 드려요",
+  description:
+    "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 비즈니스 메시지도 10초면 끝.",
+  openGraph: {
+    title: "리플라이 — AI 답장 도우미",
+    description: "톤을 고르면 AI가 답장 3개를 즉시 만들어 줍니다",
+    type: "website",
+    url: "https://reply-app-sepia.vercel.app",
   },
 };
 
-const SPEEDS: Array<{ id: Speed; label: string; desc: string }> = [
-  { id: "quality", label: "정교한 답장", desc: "중요한 비즈니스" },
-  { id: "fast", label: "빠른 답장", desc: "일상적인 메시지" },
+const STEPS = [
+  {
+    number: "1",
+    title: "메시지 붙여넣기",
+    desc: "답장하고 싶은 메시지를 복사해서 붙여넣으세요",
+  },
+  {
+    number: "2",
+    title: "톤 선택",
+    desc: "정중 · 단호 · 유연 · 친근 중 원하는 톤을 고르세요",
+  },
+  {
+    number: "3",
+    title: "답장 복사",
+    desc: "AI가 만든 3가지 답장 중 마음에 드는 걸 복사하세요",
+  },
 ];
 
-const SPEED_LABELS: Record<Speed, string> = {
-  fast: "빠른",
-  quality: "정교한",
-};
+const FEATURES = [
+  {
+    title: "4가지 톤",
+    desc: "정중 · 단호 · 유연 · 친근, 상황에 맞는 톤을 골라 답장하세요",
+  },
+  {
+    title: "빠른 / 정교한 모드",
+    desc: "일상 메시지는 빠르게, 중요한 메시지는 정교하게 생성",
+  },
+  {
+    title: "답장 히스토리",
+    desc: "최근 10개 답장 기록을 저장해 언제든 다시 볼 수 있어요",
+  },
+  {
+    title: "한국어 최적화",
+    desc: "한국어 비즈니스 표현에 특화된 AI가 자연스러운 답장을 생성",
+  },
+];
 
-const HISTORY_KEY = "reply-history";
-const MAX_HISTORY = 10;
-
-// ─── Icons ───────────────────────────────────────
-
-function IconChat() {
+function CheckIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-}
-
-function IconCopy() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
-}
-
-function IconCheck() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="w-4 h-4 text-indigo-500 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
 
-function IconError() {
+function CheckIconMuted() {
   return (
-    <svg className="w-5 h-5 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
+    <svg
+      className="w-4 h-4 text-gray-400 shrink-0"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
 
-function IconSpinner() {
+function ChatIcon({ size }: { size: number }) {
   return (
-    <svg className="w-5 h-5" style={{ animation: "spin 1s linear infinite" }} viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeLinecap="round" opacity="0.3" />
-      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
 }
 
-function IconChevron({ open }: { open: boolean }) {
+export default function LandingPage() {
   return (
-    <svg className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
-}
+    <main className="flex-1 flex flex-col">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <ChatIcon size={14} />
+            </div>
+            <span className="font-bold text-lg bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+              리플라이
+            </span>
+          </div>
+          <Link
+            href="/app"
+            className="text-sm font-medium px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm"
+          >
+            시작하기
+          </Link>
+        </div>
+      </nav>
 
-function IconClock() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-function IconTrash() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" />
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-  );
-}
-
-// ─── Utility Functions ───────────────────────────
-
-function loadHistory(): HistoryEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as HistoryEntry[];
-  } catch {
-    return [];
-  }
-}
-
-function saveToHistory(entry: HistoryEntry): HistoryEntry[] {
-  const history = loadHistory();
-  history.unshift(entry);
-  if (history.length > MAX_HISTORY) history.pop();
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  return history;
-}
-
-function formatTime(isoString: string): string {
-  const date = new Date(isoString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-
-  if (diffMin < 1) return "방금";
-  if (diffMin < 60) return `${diffMin}분 전`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
-}
-
-// ─── Main Component ──────────────────────────────
-
-export default function Home() {
-  const [inputMessage, setInputMessage] = useState("");
-  const [selectedTone, setSelectedTone] = useState<ToneId>("polite");
-  const [speed, setSpeed] = useState<Speed>("quality");
-  const [replies, setReplies] = useState<Reply[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [remaining, setRemaining] = useState<number | null>(null);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(
-    null
-  );
-
-  useEffect(() => {
-    setHistory(loadHistory());
-  }, []);
-
-  const handleGenerate = async () => {
-    if (!inputMessage.trim()) return;
-
-    setLoading(true);
-    setError("");
-    setReplies([]);
-
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: inputMessage.trim(),
-          tone: selectedTone,
-          speed,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (typeof data.remaining === "number") {
-        setRemaining(data.remaining);
-      }
-
-      if (!res.ok) {
-        throw new Error(data.error || "답장 생성에 실패했습니다");
-      }
-
-      setReplies(data.replies);
-
-      const entry: HistoryEntry = {
-        id: String(Date.now()),
-        inputMessage: inputMessage.trim(),
-        tone: selectedTone,
-        speed,
-        replies: data.replies,
-        createdAt: new Date().toISOString(),
-      };
-      setHistory(saveToHistory(entry));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "오류가 발생했습니다");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopy = async (content: string, key: string) => {
-    await navigator.clipboard.writeText(content);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      handleGenerate();
-    }
-  };
-
-  const handleClearHistory = () => {
-    localStorage.removeItem(HISTORY_KEY);
-    setHistory([]);
-    setShowHistory(false);
-    setExpandedHistoryId(null);
-  };
-
-  return (
-    <main className="flex-1 flex flex-col items-center px-4 py-10 sm:py-16 max-w-xl mx-auto w-full">
       {/* Hero */}
-      <header className="text-center mb-10">
-        <div className="inline-flex items-center gap-3 mb-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <IconChat />
+      <section className="px-4 pt-20 pb-24 text-center">
+        <div className="max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-medium mb-6">
+            AI 답장 도우미
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent tracking-tight">
-            리플라이
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight tracking-tight mb-5">
+            받은 메시지,{" "}
+            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+              AI가 대신
+            </span>{" "}
+            답장해 드려요
           </h1>
-        </div>
-        <p className="text-gray-500 text-sm sm:text-base">
-          받은 메시지를 붙여넣으면, AI가 답장 3개를 만들어 드려요
-        </p>
-        {/* B: Feature badges */}
-        <div className="flex flex-wrap justify-center gap-2 mt-4">
-          <span className="text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
-            AI 답장 생성
-          </span>
-          <span className="text-xs px-3 py-1 rounded-full bg-violet-50 text-violet-600 border border-violet-100">
-            4가지 톤 선택
-          </span>
-          <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-            하루 20회 무료
-          </span>
-        </div>
-      </header>
-
-      {/* Input Card */}
-      <section className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 space-y-5">
-        {/* A: Usage badge */}
-        {remaining !== null && (
-          <div className="flex justify-end">
-            <span
-              className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                remaining <= 3
-                  ? "bg-rose-50 text-rose-600 border border-rose-100"
-                  : "bg-gray-50 text-gray-500 border border-gray-100"
-              }`}
-            >
-              오늘 {remaining}회 남음
-            </span>
-          </div>
-        )}
-
-        {/* Textarea */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label
-              htmlFor="message-input"
-              className="text-sm font-semibold text-gray-800"
-            >
-              받은 메시지
-            </label>
-            <span
-              className={`text-xs tabular-nums ${
-                inputMessage.length > 1800
-                  ? "text-rose-500"
-                  : "text-gray-400"
-              }`}
-            >
-              {inputMessage.length} / 2,000
-            </span>
-          </div>
-          <textarea
-            id="message-input"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="답장하고 싶은 메시지를 여기에 붙여넣으세요..."
-            maxLength={2000}
-            className="w-full h-36 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none text-gray-900 placeholder-gray-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
-          />
-          <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono">
-              Ctrl
-            </kbd>
-            <span>+</span>
-            <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded text-[10px] font-mono">
-              Enter
-            </kbd>
-            <span className="ml-0.5">로 바로 생성</span>
+          <p className="text-lg text-gray-500 mb-8 leading-relaxed">
+            톤을 고르면 AI가 3가지 답장을 즉시 만들어 줍니다.
+            <br className="hidden sm:block" />
+            비즈니스 메시지도 10초면 끝.
           </p>
-        </div>
-
-        {/* Tone Selector */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2.5">
-            답장 톤
-          </label>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {TONES.map((tone) => {
-              const isSelected = selectedTone === tone.id;
-              const styles = TONE_STYLES[tone.id];
-              return (
-                <button
-                  key={tone.id}
-                  onClick={() => setSelectedTone(tone.id)}
-                  className={`px-3 py-3 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? styles.selected
-                      : `border-gray-200 bg-white text-gray-600 ${styles.hover}`
-                  }`}
-                >
-                  <div className="font-semibold">{tone.label}</div>
-                  <div
-                    className={`text-xs font-normal mt-0.5 ${
-                      isSelected ? "opacity-80" : "opacity-60"
-                    }`}
-                  >
-                    {tone.desc}
-                  </div>
-                </button>
-              );
-            })}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/app"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:from-indigo-700 hover:to-violet-700 transition-all text-center"
+            >
+              무료로 시작하기
+            </Link>
+            <p className="text-sm text-gray-400">가입 없이 바로 사용</p>
           </div>
         </div>
+      </section>
 
-        {/* C: Speed Toggle */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2.5">
-            답장 품질
-          </label>
-          <div className="flex rounded-xl border border-gray-200 p-1 bg-gray-50">
-            {SPEEDS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSpeed(s.id)}
-                className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
-                  speed === s.id
-                    ? "bg-white text-gray-900 shadow-sm border border-gray-100"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <div>{s.label}</div>
-                <div className="text-xs font-normal mt-0.5 opacity-60">
-                  {s.desc}
+      {/* How it works */}
+      <section className="px-4 py-20 bg-white/50">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-12">
+            3단계로 끝나는 답장
+          </h2>
+          <div className="grid sm:grid-cols-3 gap-8">
+            {STEPS.map((step) => (
+              <div key={step.number} className="text-center">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 text-white text-lg font-bold flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+                  {step.number}
                 </div>
-              </button>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
             ))}
           </div>
         </div>
-
-        {/* Generate Button */}
-        <button
-          onClick={handleGenerate}
-          disabled={!inputMessage.trim() || loading}
-          className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:from-indigo-700 hover:to-violet-700 disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
-        >
-          {loading ? (
-            <span className="inline-flex items-center gap-2">
-              <IconSpinner />
-              AI가 답장을 준비하고 있어요
-            </span>
-          ) : (
-            "답장 만들기"
-          )}
-        </button>
-
-        {/* Error */}
-        {error && (
-          <div className="flex items-start gap-2.5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
-            <IconError />
-            {error}
-          </div>
-        )}
       </section>
 
-      {/* Results */}
-      {replies.length > 0 && (
-        <section className="w-full mt-8 space-y-3">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-200" />
-            <h2 className="text-sm font-semibold text-gray-500 tracking-wider">
-              답장 제안
-            </h2>
-            <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-200" />
-          </div>
-          {replies.map((reply, index) => (
-            <div
-              key={index}
-              className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white text-xs font-bold flex items-center justify-center">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm font-semibold text-gray-700">
-                    {reply.label}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleCopy(reply.content, `reply-${index}`)}
-                  className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
-                    copiedKey === `reply-${index}`
-                      ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                      : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 hover:text-gray-700"
-                  }`}
-                >
-                  {copiedKey === `reply-${index}` ? (
-                    <>
-                      <IconCheck /> 복사됨
-                    </>
-                  ) : (
-                    <>
-                      <IconCopy /> 복사
-                    </>
-                  )}
-                </button>
-              </div>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-[15px]">
-                {reply.content}
-              </p>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* D: History */}
-      {history.length > 0 && (
-        <section className="w-full mt-10">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="h-px flex-1 bg-gray-200" />
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
-            >
-              <IconClock />
-              최근 기록 ({history.length})
-              <IconChevron open={showHistory} />
-            </button>
-            <div className="h-px flex-1 bg-gray-200" />
-          </div>
-
-          {showHistory && (
-            <div className="space-y-2">
-              {history.map((entry) => {
-                const isExpanded = expandedHistoryId === entry.id;
-                const toneLabel =
-                  TONES.find((t) => t.id === entry.tone)?.label ?? entry.tone;
-                return (
-                  <div
-                    key={entry.id}
-                    className="bg-white border border-gray-100 rounded-xl overflow-hidden"
-                  >
-                    <button
-                      onClick={() =>
-                        setExpandedHistoryId(isExpanded ? null : entry.id)
-                      }
-                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                      <div className="flex-1 min-w-0 mr-2">
-                        <p className="text-sm text-gray-800 truncate">
-                          {entry.inputMessage}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {toneLabel} · {SPEED_LABELS[entry.speed]} ·{" "}
-                          {formatTime(entry.createdAt)}
-                        </p>
-                      </div>
-                      <IconChevron open={isExpanded} />
-                    </button>
-
-                    {isExpanded && (
-                      <div className="px-4 pb-3 space-y-2 border-t border-gray-50">
-                        {entry.replies.map((reply, i) => (
-                          <div key={i} className="p-3 bg-gray-50 rounded-lg mt-2">
-                            <div className="flex justify-between items-center mb-1.5">
-                              <span className="text-xs font-semibold text-gray-600">
-                                {reply.label}
-                              </span>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCopy(
-                                    reply.content,
-                                    `history-${entry.id}-${i}`
-                                  );
-                                }}
-                                className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium transition-all cursor-pointer ${
-                                  copiedKey === `history-${entry.id}-${i}`
-                                    ? "bg-emerald-50 text-emerald-600"
-                                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                                }`}
-                              >
-                                {copiedKey === `history-${entry.id}-${i}` ? (
-                                  <>
-                                    <IconCheck /> 복사됨
-                                  </>
-                                ) : (
-                                  <>
-                                    <IconCopy /> 복사
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                              {reply.content}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              <button
-                onClick={handleClearHistory}
-                className="flex items-center gap-1.5 mx-auto mt-2 text-xs text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+      {/* Features */}
+      <section className="px-4 py-20">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-12">
+            왜 리플라이인가요?
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {FEATURES.map((f) => (
+              <div
+                key={f.title}
+                className="p-5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
               >
-                <IconTrash />
-                기록 모두 삭제
-              </button>
+                <h3 className="font-semibold text-gray-900 mb-1.5">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {f.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="px-4 py-20 bg-white/50">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-3">
+            심플한 요금제
+          </h2>
+          <p className="text-center text-gray-500 mb-10">
+            지금은 완전 무료. 마음껏 사용해 보세요.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Free */}
+            <div className="p-6 rounded-2xl bg-white border-2 border-indigo-200 shadow-sm relative">
+              <div className="absolute -top-3 left-6">
+                <span className="text-xs px-3 py-1 rounded-full bg-indigo-600 text-white font-medium">
+                  현재
+                </span>
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">무료</h3>
+              <p className="text-3xl font-bold text-gray-900 mb-4">
+                0
+                <span className="text-base font-normal text-gray-400">
+                  원/월
+                </span>
+              </p>
+              <ul className="space-y-2.5 text-sm text-gray-600">
+                <li className="flex items-center gap-2">
+                  <CheckIcon />
+                  하루 20회 답장 생성
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckIcon />
+                  4가지 톤 선택
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckIcon />
+                  빠른 / 정교한 모드
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckIcon />
+                  답장 히스토리 10개
+                </li>
+              </ul>
+              <Link
+                href="/app"
+                className="block mt-6 w-full py-2.5 text-center rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-medium hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm"
+              >
+                시작하기
+              </Link>
             </div>
-          )}
-        </section>
-      )}
+
+            {/* Pro */}
+            <div className="p-6 rounded-2xl bg-gray-50 border border-gray-200">
+              <div className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full bg-gray-200 text-gray-500 font-medium mb-2">
+                출시 예정
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">프로</h3>
+              <p className="text-3xl font-bold text-gray-900 mb-4">
+                9,900
+                <span className="text-base font-normal text-gray-400">
+                  원/월
+                </span>
+              </p>
+              <ul className="space-y-2.5 text-sm text-gray-500">
+                <li className="flex items-center gap-2">
+                  <CheckIconMuted />
+                  무제한 답장 생성
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckIconMuted />
+                  우선 처리
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckIconMuted />
+                  답장 히스토리 무제한
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckIconMuted />
+                  커스텀 톤 설정
+                </li>
+              </ul>
+              <div className="mt-6 w-full py-2.5 text-center rounded-xl bg-gray-200 text-gray-400 font-medium cursor-not-allowed">
+                곧 출시
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="px-4 py-20 text-center">
+        <div className="max-w-lg mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            답장 고민, 이제 그만
+          </h2>
+          <p className="text-gray-500 mb-8">
+            AI가 만든 답장으로 시간을 절약하세요
+          </p>
+          <Link
+            href="/app"
+            className="inline-block px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 transition-all"
+          >
+            지금 바로 시작하기
+          </Link>
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="mt-16 mb-4 text-center">
-        <p className="text-xs text-gray-400">Kevin AI Corp</p>
+      <footer className="px-4 py-8 border-t border-gray-100">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <ChatIcon size={10} />
+            </div>
+            <span className="text-sm font-semibold text-gray-600">
+              리플라이
+            </span>
+          </div>
+          <p className="text-xs text-gray-400">Kevin AI Corp</p>
+        </div>
       </footer>
     </main>
   );
