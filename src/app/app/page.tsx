@@ -7,9 +7,18 @@ const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // ─── Types ───────────────────────────────────────
 
+type AppMode = "generate" | "review";
+
 interface Reply {
   label: string;
   content: string;
+}
+
+interface ReviewResult {
+  spelling: Array<{ original: string; corrected: string; reason: string }>;
+  tone: { label: string; score: number; detail: string };
+  impression: string;
+  suggestions: Array<{ original: string; improved: string; reason: string }>;
 }
 
 interface HistoryEntry {
@@ -202,6 +211,7 @@ function AuthBar() {
 // ─── Main Component ──────────────────────────────
 
 export default function Home() {
+  const [mode, setMode] = useState<AppMode>("generate");
   const [inputMessage, setInputMessage] = useState("");
   const [selectedTone, setSelectedTone] = useState<ToneId>("polite");
   const [speed, setSpeed] = useState<Speed>("quality");
@@ -215,6 +225,11 @@ export default function Home() {
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(
     null
   );
+  const [reviewDraft, setReviewDraft] = useState("");
+  const [reviewContext, setReviewContext] = useState("");
+  const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState("");
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -263,6 +278,30 @@ export default function Home() {
       setError(err instanceof Error ? err.message : "오류가 발생했습니다");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReview = async () => {
+    if (!reviewDraft.trim()) return;
+    setReviewLoading(true);
+    setReviewError("");
+    setReviewResult(null);
+    try {
+      const res = await fetch("/api/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          draft: reviewDraft.trim(),
+          context: reviewContext.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "검토에 실패했습니다");
+      setReviewResult(data.review);
+    } catch (err) {
+      setReviewError(err instanceof Error ? err.message : "오류가 발생했습니다");
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -317,7 +356,18 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Input Card */}
+      {/* Mode Tabs */}
+      <div className="w-full flex rounded-xl border border-gray-200 p-1 bg-gray-50 mb-6">
+        <button onClick={() => setMode("generate")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "generate" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
+          답장 만들기
+        </button>
+        <button onClick={() => setMode("review")} className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${mode === "review" ? "bg-white text-gray-900 shadow-sm border border-gray-100" : "text-gray-500 hover:text-gray-700"}`}>
+          답장 검토
+        </button>
+      </div>
+
+      {/* Generate Mode */}
+      {mode === "generate" && <>
       <section className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 space-y-5">
         {/* A: Usage badge */}
         {remaining !== null && (
@@ -608,6 +658,99 @@ export default function Home() {
             </div>
           )}
         </section>
+      )}
+      </>}
+
+      {/* Review Mode */}
+      {mode === "review" && (
+        <>
+          <section className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">내가 쓴 답장</label>
+              <textarea value={reviewDraft} onChange={(e) => setReviewDraft(e.target.value)} placeholder="검토받고 싶은 답장을 붙여넣으세요..." maxLength={2000} className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none text-gray-900 placeholder-gray-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">
+                받은 메시지 <span className="font-normal text-gray-400">(선택)</span>
+              </label>
+              <textarea value={reviewContext} onChange={(e) => setReviewContext(e.target.value)} placeholder="어떤 메시지에 대한 답장인지 붙여넣으면 더 정확한 검토가 가능해요" maxLength={2000} className="w-full h-20 p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none text-gray-900 placeholder-gray-400 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+            </div>
+            <button onClick={handleReview} disabled={!reviewDraft.trim() || reviewLoading} className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:from-indigo-700 hover:to-violet-700 disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer">
+              {reviewLoading ? <span className="inline-flex items-center gap-2"><IconSpinner />AI가 검토하고 있어요</span> : "답장 검토하기"}
+            </button>
+            {reviewError && (
+              <div className="flex items-start gap-2.5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
+                <IconError />{reviewError}
+              </div>
+            )}
+          </section>
+
+          {reviewResult && (
+            <section className="w-full mt-8 space-y-3">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-200" />
+                <h2 className="text-sm font-semibold text-gray-500 tracking-wider">검토 결과</h2>
+                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-200" />
+              </div>
+
+              {/* Tone */}
+              <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">톤 분석</h3>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <div key={n} className={`w-8 h-2.5 rounded-full ${n <= reviewResult.tone.score ? "bg-indigo-500" : "bg-gray-200"}`} />
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium text-indigo-600">{reviewResult.tone.label}</span>
+                </div>
+                <p className="text-sm text-gray-500">{reviewResult.tone.detail}</p>
+              </div>
+
+              {/* Impression */}
+              <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm" style={{ animationDelay: "100ms" }}>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">상대방은 이렇게 느껴요</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{reviewResult.impression}</p>
+              </div>
+
+              {/* Spelling */}
+              {reviewResult.spelling.length > 0 && (
+                <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm" style={{ animationDelay: "200ms" }}>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">맞춤법 ({reviewResult.spelling.length}건)</h3>
+                  <div className="space-y-2">
+                    {reviewResult.spelling.map((s, i) => (
+                      <div key={i} className="flex items-baseline gap-2 text-sm">
+                        <span className="line-through text-rose-400">{s.original}</span>
+                        <span className="text-gray-400">→</span>
+                        <span className="text-emerald-600 font-medium">{s.corrected}</span>
+                        <span className="text-xs text-gray-400">({s.reason})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Suggestions */}
+              {reviewResult.suggestions.length > 0 && (
+                <div className="animate-fade-in-up p-5 bg-white border border-gray-100 rounded-2xl shadow-sm" style={{ animationDelay: "300ms" }}>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">개선 제안 ({reviewResult.suggestions.length}건)</h3>
+                  <div className="space-y-3">
+                    {reviewResult.suggestions.map((s, i) => (
+                      <div key={i} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-baseline gap-2 text-sm mb-1">
+                          <span className="text-gray-500">{s.original}</span>
+                          <span className="text-gray-400">→</span>
+                          <span className="text-indigo-600 font-medium">{s.improved}</span>
+                        </div>
+                        <p className="text-xs text-gray-400">{s.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+        </>
       )}
 
       {/* Footer */}
