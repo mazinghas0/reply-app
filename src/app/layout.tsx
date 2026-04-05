@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -12,16 +13,24 @@ export const metadata: Metadata = {
   description: "받은 메시지를 붙여넣으면 AI가 답장 3개를 만들어 드립니다",
 };
 
+const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
+  const inner = (
     <html lang="ko" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-[family-name:var(--font-geist-sans)]">
         {children}
       </body>
     </html>
   );
+
+  if (clerkEnabled) {
+    return <ClerkProvider>{inner}</ClerkProvider>;
+  }
+
+  return inner;
 }

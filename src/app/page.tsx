@@ -1,5 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { SignInButton } from "@clerk/nextjs";
+
+const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export const metadata: Metadata = {
   title: "리플라이 — AI가 답장을 대신 써 드려요",
@@ -113,12 +116,21 @@ export default function LandingPage() {
               리플라이
             </span>
           </div>
-          <Link
-            href="/app"
-            className="text-sm font-medium px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm"
-          >
-            시작하기
-          </Link>
+          <div className="flex items-center gap-3">
+            {clerkEnabled && (
+              <SignInButton mode="modal">
+                <button className="text-sm font-medium px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
+                  로그인
+                </button>
+              </SignInButton>
+            )}
+            <Link
+              href="/app"
+              className="text-sm font-medium px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 transition-all shadow-sm"
+            >
+              시작하기
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -227,7 +239,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
                   <CheckIcon />
-                  하루 20회 답장 생성
+                  로그인 시 하루 10회 (비로그인 5회)
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckIcon />

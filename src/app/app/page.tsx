@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+
+const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // ─── Types ───────────────────────────────────────
 
@@ -173,6 +176,29 @@ function formatTime(isoString: string): string {
   return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
 }
 
+// ─── Auth Bar ────────────────────────────────────
+
+function AuthBar() {
+  const { isSignedIn } = useAuth();
+
+  return (
+    <div className="w-full flex justify-end mb-4">
+      {isSignedIn ? (
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400">하루 10회</span>
+          <UserButton />
+        </div>
+      ) : (
+        <SignInButton mode="modal">
+          <button className="text-sm px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer">
+            로그인하면 하루 10회
+          </button>
+        </SignInButton>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────
 
 export default function Home() {
@@ -261,6 +287,9 @@ export default function Home() {
 
   return (
     <main className="flex-1 flex flex-col items-center px-4 py-10 sm:py-16 max-w-xl mx-auto w-full">
+      {/* Auth Bar */}
+      {CLERK_ENABLED && <AuthBar />}
+
       {/* Hero */}
       <header className="text-center mb-10">
         <div className="inline-flex items-center gap-3 mb-3">
@@ -283,7 +312,7 @@ export default function Home() {
             4가지 톤 선택
           </span>
           <span className="text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-            하루 20회 무료
+            매일 무료
           </span>
         </div>
       </header>
