@@ -6,6 +6,7 @@ import Link from "next/link";
 import RefineTab from "./refineTab";
 import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
+import Onboarding from "./onboarding";
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -242,9 +243,13 @@ export default function Home() {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [clipboardText, setClipboardText] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     setHistory(loadHistory());
+    if (!localStorage.getItem("reply-onboarding-done")) {
+      setShowOnboarding(true);
+    }
 
     // Web Share Target: URL 파라미터로 받은 텍스트 자동 입력
     const params = new URLSearchParams(window.location.search);
@@ -365,6 +370,9 @@ export default function Home() {
   return (
     <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
       <InstallBanner />
+      {showOnboarding && (
+        <Onboarding onComplete={() => { localStorage.setItem("reply-onboarding-done", "1"); setShowOnboarding(false); }} />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
