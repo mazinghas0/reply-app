@@ -71,3 +71,25 @@ button:active:not(:disabled) {
   transform: scale(0.98);
   transition: transform 0.1s ease;
 }
+
+/* Clerk 다크 테마 — 입력 필드 + 소셜 버튼 */
+.cl-formFieldInput,
+.cl-input {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: #64748b !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background-color: #334155 !important;
+}
