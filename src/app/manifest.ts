@@ -21,5 +21,12 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
     ],
+    share_target: {
+      action: "/app",
+      method: "GET",
+      params: {
+        text: "shared",
+      },
+    },
   };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import RefineTab from "./refineTab";
@@ -241,10 +241,43 @@ export default function Home() {
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState("");
+  const [clipboardText, setClipboardText] = useState<string | null>(null);
 
   useEffect(() => {
     setHistory(loadHistory());
+
+    // Web Share Target: URL 파라미터로 받은 텍스트 자동 입력
+    const params = new URLSearchParams(window.location.search);
+    const shared = params.get("shared");
+    if (shared) {
+      setInputMessage(shared);
+      setMode("generate");
+      window.history.replaceState({}, "", "/app");
+    }
   }, []);
+
+  // 클립보드 자동 감지: 앱으로 돌아올 때 클립보드 확인
+  const checkClipboard = useCallback(async () => {
+    if (inputMessage.trim() || mode !== "generate") return;
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim().length >= 5 && text.trim().length <= 2000) {
+        setClipboardText(text.trim());
+      }
+    } catch {
+      // 권한 거부 또는 미지원 — 무시
+    }
+  }, [inputMessage, mode]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        checkClipboard();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [checkClipboard]);
 
   const handleGenerate = async () => {
     if (!inputMessage.trim()) return;
@@ -355,6 +388,30 @@ export default function Home() {
           <button onClick={() => setMode("review")} className={tabClass(mode === "review")}>답장 검토</button>
           <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>다듬기</button>
         </div>
+
+        {/* 클립보드 감지 배너 */}
+        {clipboardText && mode === "generate" && (
+          <div className="w-full mb-4 p-3 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-xl flex items-center justify-between gap-3 animate-fade-in-up">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-teal-800 dark:text-teal-300">클립보드에서 메시지를 발견했어요</p>
+              <p className="text-xs text-teal-600 dark:text-teal-400 truncate mt-0.5">{clipboardText.substring(0, 50)}{clipboardText.length > 50 ? "..." : ""}</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => { setInputMessage(clipboardText); setClipboardText(null); }}
+                className="px-3 py-1.5 text-xs font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors cursor-pointer"
+              >
+                붙여넣기
+              </button>
+              <button
+                onClick={() => setClipboardText(null)}
+                className="px-2 py-1.5 text-xs text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-200 transition-colors cursor-pointer"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ═══ Generate Mode ═══ */}
         {mode === "generate" && <>
