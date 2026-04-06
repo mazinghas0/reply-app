@@ -14,21 +14,24 @@ export default function SignInPage() {
       <SignIn
         fallbackRedirectUrl="/app"
         appearance={{
+          variables: {
+            colorBackground: "#0f172a",
+            colorInputBackground: "#1e293b",
+            colorInputText: "#f8fafc",
+            colorText: "#f8fafc",
+            colorTextSecondary: "#94a3b8",
+            colorPrimary: "#0d9488",
+            colorNeutral: "#f8fafc",
+          },
           elements: {
             rootBox: "w-full max-w-md",
-            card: "bg-slate-900 border border-slate-800 shadow-2xl",
-            headerTitle: "text-white",
-            headerSubtitle: "text-slate-400",
-            socialButtonsBlockButton: "bg-slate-800 border-slate-700 text-white hover:bg-slate-700",
-            socialButtonsBlockButtonText: "text-white",
+            card: "border border-slate-800 shadow-2xl",
+            socialButtonsBlockButton: "border-slate-700 hover:bg-slate-700",
             formButtonPrimary: "bg-teal-600 hover:bg-teal-700",
             footerActionLink: "text-teal-400 hover:text-teal-300",
-            formFieldInput: "bg-slate-800 border-slate-700 text-white",
-            formFieldLabel: "text-slate-300",
             dividerLine: "bg-slate-700",
             dividerText: "text-slate-500",
             identityPreviewEditButton: "text-teal-400",
-            footerAction: "text-slate-400",
           },
         }}
       />
