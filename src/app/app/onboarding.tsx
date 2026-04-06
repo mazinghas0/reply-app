@@ -8,37 +8,40 @@ interface OnboardingProps {
 
 const STEPS = [
   {
-    title: "메시지를 붙여넣으세요",
-    description: "답장하고 싶은 메시지를 복사해서 붙여넣기만 하면 돼요.\n카톡, 이메일, 문자 뭐든 괜찮아요.",
+    title: "답장 만들기",
+    description: "받은 메시지를 붙여넣고 톤만 고르면\nAI가 자연스러운 답장 3개를 만들어요.",
     icon: (
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="14" y="6" width="24" height="32" rx="4" />
-        <rect x="10" y="10" width="24" height="32" rx="4" fill="currentColor" fillOpacity="0.1" />
-        <path d="M18 20h12M18 26h8" strokeOpacity="0.6" />
+        <path d="M38 30a2 2 0 0 1-2 2H16l-6 6V14a2 2 0 0 1 2-2h24a2 2 0 0 1 2 2z" fill="currentColor" fillOpacity="0.1" />
+        <path d="M18 20h12M18 25h8" strokeOpacity="0.6" />
+        <circle cx="36" cy="14" r="5" fill="currentColor" fillOpacity="0.25" stroke="currentColor" />
+        <path d="M34 14h4M36 12v4" strokeWidth="1.5" />
       </svg>
     ),
   },
   {
-    title: "톤을 골라주세요",
-    description: "정중한, 단호한, 유연한, 친근한.\n상황에 맞는 톤 하나만 고르면 돼요.",
+    title: "답장 검토",
+    description: "내가 쓴 답장을 AI가 체크해요.\n맞춤법, 톤, 상대방이 받을 인상까지 분석.",
     icon: (
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="14" cy="24" r="6" fill="currentColor" fillOpacity="0.15" />
-        <circle cx="34" cy="24" r="6" fill="currentColor" fillOpacity="0.15" />
-        <circle cx="24" cy="12" r="6" fill="currentColor" fillOpacity="0.15" />
-        <circle cx="24" cy="36" r="6" fill="currentColor" fillOpacity="0.25" />
+        <rect x="10" y="8" width="28" height="32" rx="4" fill="currentColor" fillOpacity="0.1" />
+        <path d="M18 18h12M18 24h8" strokeOpacity="0.5" />
+        <circle cx="34" cy="34" r="8" fill="currentColor" fillOpacity="0.15" stroke="currentColor" />
+        <path d="M31 34l2 2 4-4" strokeWidth="2" />
       </svg>
     ),
   },
   {
-    title: "답장 3개가 바로!",
-    description: "AI가 자연스러운 답장 3개를 만들어요.\n마음에 드는 걸 골라서 복사하면 끝.",
+    title: "다듬기",
+    description: "대충 쓴 답장도 괜찮아요.\n톤에 맞게 깔끔하게 다듬어 드려요.",
     icon: (
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="8" y="8" width="32" height="10" rx="3" fill="currentColor" fillOpacity="0.1" />
-        <rect x="8" y="22" width="32" height="10" rx="3" fill="currentColor" fillOpacity="0.15" />
-        <rect x="8" y="36" width="32" height="10" rx="3" fill="currentColor" fillOpacity="0.2" />
-        <path d="M14 13h20M14 27h16M14 41h12" strokeOpacity="0.5" />
+        <rect x="10" y="10" width="28" height="14" rx="3" fill="currentColor" fillOpacity="0.1" />
+        <path d="M16 17h16" strokeOpacity="0.5" />
+        <path d="M24 28v4" strokeOpacity="0.3" strokeDasharray="2 2" />
+        <rect x="10" y="32" width="28" height="10" rx="3" fill="currentColor" fillOpacity="0.2" />
+        <path d="M16 37h16" strokeOpacity="0.6" />
+        <path d="M38 12l4-4M42 8l-1.5 5.5L35 12" strokeWidth="1.5" />
       </svg>
     ),
   },
