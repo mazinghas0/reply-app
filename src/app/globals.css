@@ -72,6 +72,21 @@ button:active:not(:disabled) {
   transition: transform 0.1s ease;
 }
 
+/* Clerk 다크 테마 — 텍스트 가독성 */
+.cl-headerTitle {
+  color: #f8fafc !important;
+}
+
+.cl-headerSubtitle,
+.cl-footerActionText,
+.cl-dividerText {
+  color: #94a3b8 !important;
+}
+
+.cl-formFieldLabel {
+  color: #cbd5e1 !important;
+}
+
 /* Clerk 다크 테마 — 입력 필드 + 소셜 버튼 */
 .cl-formFieldInput,
 .cl-input {
