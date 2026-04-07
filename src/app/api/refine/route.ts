@@ -17,10 +17,9 @@ const TONE_INSTRUCTIONS: Record<RefineTone, string> = {
   friendly: "친근하고 편안한 톤으로 변환해주세요. 가볍고 부담 없는 표현을 사용해주세요",
 };
 
+import { checkRateLimit } from "@/lib/rateLimit";
+
 const MAX_DRAFT_LENGTH = 2000;
-const RATE_LIMIT_AUTHENTICATED = 10;
-const RATE_LIMIT_ANONYMOUS = 5;
-const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 const ALLOWED_ORIGINS = [
   "https://reply-app-sepia.vercel.app",
@@ -37,36 +36,6 @@ function isOriginAllowed(request: NextRequest): boolean {
   return false;
 }
 
-const requestMap = new Map<string, { count: number; resetAt: number }>();
-
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get("cf-connecting-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
-  );
-}
-
-function checkRateLimit(
-  key: string,
-  limit: number
-): { allowed: boolean; remaining: number } {
-  const now = Date.now();
-  const record = requestMap.get(key);
-
-  if (!record || now > record.resetAt) {
-    requestMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, remaining: limit - 1 };
-  }
-
-  if (record.count >= limit) {
-    return { allowed: false, remaining: 0 };
-  }
-
-  record.count += 1;
-  return { allowed: true, remaining: limit - record.count };
-}
-
 export async function POST(request: NextRequest) {
   if (!isOriginAllowed(request)) {
     return Response.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
@@ -80,15 +49,16 @@ export async function POST(request: NextRequest) {
     // Clerk not configured
   }
 
-  const clientIp = getClientIp(request);
-  const rateLimitKey = userId ? `refine:${userId}` : `refine:${clientIp}`;
-  const limit = userId ? RATE_LIMIT_AUTHENTICATED : RATE_LIMIT_ANONYMOUS;
-  const { allowed, remaining } = checkRateLimit(rateLimitKey, limit);
+  const { allowed, remaining } = await checkRateLimit(request, userId, {
+    authenticatedLimit: 10,
+    anonymousLimit: 5,
+    prefix: "refine",
+  });
 
   if (!allowed) {
     const message = userId
-      ? `오늘 리팩토링 사용량을 초과했습니다. (하루 ${RATE_LIMIT_AUTHENTICATED}건)`
-      : `오늘 무료 리팩토링 사용량(${RATE_LIMIT_ANONYMOUS}건)을 초과했습니다. 로그인하면 하루 ${RATE_LIMIT_AUTHENTICATED}건까지 사용할 수 있어요.`;
+      ? "오늘 다듬기 사용량을 초과했습니다. (하루 10건)"
+      : "오늘 무료 다듬기 사용량(5건)을 초과했습니다. 로그인하면 하루 10건까지 사용할 수 있어요.";
     return Response.json({ error: message, remaining: 0 }, { status: 429 });
   }
 

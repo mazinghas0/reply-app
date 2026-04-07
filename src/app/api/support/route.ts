@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -30,21 +31,7 @@ function isOriginAllowed(request: NextRequest): boolean {
   return false;
 }
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const DAILY_LIMIT = 20;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(ip);
-  if (!record || now > record.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + DAY_MS });
-    return true;
-  }
-  if (record.count >= DAILY_LIMIT) return false;
-  record.count += 1;
-  return true;
-}
 
 const SYSTEM_PROMPT = `너는 "리플라이(Reply)" 앱의 AI 고객센터 담당자야. 친절하고 간결하게 답변해.
 
@@ -108,12 +95,13 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
   }
 
-  const clientIp =
-    request.headers.get("cf-connecting-ip") ??
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown";
+  const { allowed } = await checkRateLimit(request, null, {
+    authenticatedLimit: 20,
+    anonymousLimit: 20,
+    prefix: "support",
+  });
 
-  if (!checkRateLimit(clientIp)) {
+  if (!allowed) {
     return Response.json(
       { error: "오늘 문의 한도(20건)를 초과했습니다. 내일 다시 이용해 주세요." },
       { status: 429 }
