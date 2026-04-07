@@ -10,6 +10,7 @@ import InstallBanner from "./installBanner";
 import Onboarding from "./onboarding";
 import HelpGuide from "./helpGuide";
 import NewsPage from "./newsPage";
+import SupportChat from "./supportChat";
 import { hasUnreadNews, markNewsSeen } from "./newsData";
 import ContextSelector, {
   type ContextSelection,
@@ -100,6 +101,7 @@ export default function Home() {
   const [showHelp, setShowHelp] = useState(false);
   const [showNews, setShowNews] = useState(false);
   const [unreadNews, setUnreadNews] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
   const [sharedReviewDraft, setSharedReviewDraft] = useState("");
   const [context, setContext] = useState<ContextSelection>({
@@ -272,6 +274,9 @@ export default function Home() {
       {showNews && (
         <NewsPage onClose={() => setShowNews(false)} />
       )}
+      {showSupport && (
+        <SupportChat onClose={() => setShowSupport(false)} />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -282,6 +287,17 @@ export default function Home() {
             <span className="font-bold text-lg text-slate-900 dark:text-white">리플라이</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSupport(true)}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="고객센터"
+              title="고객센터"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 10c0 4-3.13 7-7 7a7.1 7.1 0 0 1-3-.67L3 18l1.67-4A6.93 6.93 0 0 1 3 10c0-4 3.13-7 7-7s7 3 7 7Z" />
+                <path d="M8 9h4M8 12h2" />
+              </svg>
+            </button>
             <a
               href="/?intro"
               className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"

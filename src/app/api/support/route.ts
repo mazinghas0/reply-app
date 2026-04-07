@@ -1,0 +1,175 @@
+import Anthropic from "@anthropic-ai/sdk";
+import { NextRequest } from "next/server";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface SupportRequest {
+  messages: ChatMessage[];
+}
+
+interface ClassifiedResponse {
+  reply: string;
+  type: "answer" | "bug" | "feature" | "feedback";
+  summary: string;
+}
+
+const ALLOWED_ORIGINS = [
+  "https://reply-app-sepia.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
+
+function isOriginAllowed(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  if (origin && ALLOWED_ORIGINS.some((a) => origin.startsWith(a))) return true;
+  if (referer && ALLOWED_ORIGINS.some((a) => referer.startsWith(a))) return true;
+  return false;
+}
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const DAILY_LIMIT = 20;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  if (!record || now > record.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + DAY_MS });
+    return true;
+  }
+  if (record.count >= DAILY_LIMIT) return false;
+  record.count += 1;
+  return true;
+}
+
+const SYSTEM_PROMPT = `너는 "리플라이(Reply)" 앱의 AI 고객센터 담당자야. 친절하고 간결하게 답변해.
+
+## 리플라이 앱 정보
+- AI가 메시지를 분석해서 톤별 답장 3개를 생성해주는 서비스
+- 3개 탭: 답장 만들기 / 답장 검토 / 다듬기
+- 답장 만들기: 받은 메시지 입력 → 톤 선택(정중/단호/유연/친근) → 답장 3개 생성
+- 맞춤형 답장: 관계(11종) > 목적 > 전략(6종) 3단계 선택 가능
+- 답장 확장: 생성된 답장을 '더 강하게 / 부드럽게 / 짧게' 조절
+- 답장 검토: 내가 쓴 답장의 맞춤법/톤/인상/개선점 분석
+- 다듬기: 대충 쓴 답장을 톤에 맞게 다듬기
+- 사용량: 로그인 10회/일, 비로그인 5회/일 (각 기능 독립)
+- PWA: 홈화면 추가로 앱처럼 사용 가능
+- 모바일 공유: 안드로이드 공유 메뉴에서 바로 보내기
+- Chrome 확장: 우클릭 메뉴로 어디서든 답장 생성
+
+## 응답 규칙
+1. 사용법 질문 → 친절하게 답변
+2. 버그 신고 → 접수 확인 + 감사 인사
+3. 기능 요청 → 접수 확인 + 검토 약속
+4. 일반 피드백 → 감사 인사 + 반영 약속
+5. 앱과 무관한 질문 → 부드럽게 앱 관련 질문으로 유도
+
+## 출력 형식 (반드시 JSON)
+{"reply":"답변 내용","type":"answer|bug|feature|feedback","summary":"한줄 요약"}
+
+type 분류:
+- answer: 사용법 질문에 대한 답변 (신고 불필요)
+- bug: 오류/버그 신고
+- feature: 기능 요청/개선 제안
+- feedback: 사용 후기/일반 의견`;
+
+async function notifyKevin(type: string, summary: string, detail: string): Promise<void> {
+  const typeLabels: Record<string, string> = {
+    bug: "버그 신고",
+    feature: "기능 요청",
+    feedback: "사용자 피드백",
+  };
+  try {
+    await fetch("https://pocket-mission.pages.dev/api/robin-notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": "Ulf60mzCwAoEDAbv0KFSP84Wfa66_QpoN3JCsqGllgU",
+      },
+      body: JSON.stringify({
+        title: `[리플라이] ${typeLabels[type] ?? type}`,
+        body: `${summary}\n---\n${detail.substring(0, 200)}`,
+      }),
+    });
+  } catch {
+    // 알림 실패해도 사용자 응답은 정상 진행
+  }
+}
+
+export async function POST(request: NextRequest) {
+  if (!isOriginAllowed(request)) {
+    return Response.json({ error: "허용되지 않은 요청입니다." }, { status: 403 });
+  }
+
+  const clientIp =
+    request.headers.get("cf-connecting-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown";
+
+  if (!checkRateLimit(clientIp)) {
+    return Response.json(
+      { error: "오늘 문의 한도(20건)를 초과했습니다. 내일 다시 이용해 주세요." },
+      { status: 429 }
+    );
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return Response.json({ error: "서비스 설정 오류입니다." }, { status: 500 });
+  }
+
+  let body: SupportRequest;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "잘못된 요청입니다." }, { status: 400 });
+  }
+
+  if (!body.messages || body.messages.length === 0) {
+    return Response.json({ error: "메시지가 필요합니다." }, { status: 400 });
+  }
+
+  // 최근 6개 메시지만 유지 (비용 절약)
+  const recentMessages = body.messages.slice(-6);
+
+  try {
+    const client = new Anthropic({ apiKey });
+    const response = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 300,
+      system: SYSTEM_PROMPT,
+      messages: recentMessages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
+    });
+
+    const text =
+      response.content[0].type === "text" ? response.content[0].text : "";
+
+    let parsed: ClassifiedResponse;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      parsed = { reply: text, type: "answer", summary: "" };
+    }
+
+    // 버그/기능요청/피드백이면 케빈 님에게 알림
+    if (parsed.type !== "answer") {
+      const userMessage = recentMessages.filter((m) => m.role === "user").pop()?.content ?? "";
+      await notifyKevin(parsed.type, parsed.summary, userMessage);
+    }
+
+    return Response.json({
+      reply: parsed.reply,
+      type: parsed.type,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI 응답 생성 실패";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
