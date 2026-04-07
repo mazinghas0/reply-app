@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <img src="icons/icon48.png" alt="리플라이">
+    <h1>리플라이</h1>
+  </div>
+
+  <textarea id="text" placeholder="답장할 메시지를 붙여넣으세요..." maxlength="2000"></textarea>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="generate">답장 만들기</button>
+    <button class="mode-btn" data-mode="review">검토</button>
+    <button class="mode-btn" data-mode="refine">다듬기</button>
+  </div>
+
+  <button class="send-btn" id="send" disabled>리플라이로 보내기</button>
+
+  <p class="hint">텍스트를 선택 후 우클릭해도 사용할 수 있어요</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>
