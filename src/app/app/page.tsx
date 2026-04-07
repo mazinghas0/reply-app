@@ -118,7 +118,7 @@ export default function Home() {
   useEffect(() => {
     setHistory(loadHistory());
     setStreak(loadStreak());
-    if (!localStorage.getItem("reply-onboarding-done")) {
+    if (!localStorage.getItem("reply-tour-done")) {
       setShowOnboarding(true);
     }
     setUnreadNews(hasUnreadNews());
@@ -266,7 +266,7 @@ export default function Home() {
     <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
       <InstallBanner />
       {showOnboarding && (
-        <TourOnboarding onComplete={() => { localStorage.setItem("reply-onboarding-done", "1"); setShowOnboarding(false); }} />
+        <TourOnboarding onComplete={() => { localStorage.setItem("reply-tour-done", "1"); setShowOnboarding(false); }} />
       )}
       {showHelp && (
         <HelpGuide onClose={() => setShowHelp(false)} currentTab={mode} />

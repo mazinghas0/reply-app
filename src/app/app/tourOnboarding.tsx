@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface TourOnboardingProps {
   onComplete: () => void;
@@ -10,7 +10,6 @@ interface TourStep {
   target: string;
   title: string;
   description: string;
-  position: "top" | "bottom";
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -18,47 +17,40 @@ const TOUR_STEPS: TourStep[] = [
     target: "tour-tab-bar",
     title: "3가지 기능을 탭으로 전환",
     description: "답장 만들기, 검토, 다듬기 — 원하는 기능을 탭으로 바꿀 수 있어요.",
-    position: "bottom",
   },
   {
     target: "tour-message-input",
     title: "받은 메시지를 여기에 붙여넣기",
     description: "답장하고 싶은 메시지를 넣으면 AI가 분석을 시작해요. 공유 메뉴나 클립보드에서 자동으로 가져올 수도 있어요.",
-    position: "bottom",
   },
   {
     target: "tour-context-selector",
     title: "맞춤형 답장 — 관계 > 목적 > 전략",
     description: "상대방과의 관계(11종), 답장 목적, 전략(6종)을 선택하면 훨씬 정확한 답장이 나와요.",
-    position: "bottom",
   },
   {
     target: "tour-tone-selector",
     title: "답장 톤 선택",
     description: "정중, 단호, 유연, 친근 — 상황에 맞는 톤을 고르세요.",
-    position: "bottom",
   },
   {
     target: "tour-generate-button",
     title: "답장 만들기 버튼",
     description: "버튼을 누르거나 Ctrl+Enter로 바로 생성할 수 있어요. 답장 3개가 한 번에 나와요.",
-    position: "top",
   },
   {
     target: "tour-support-button",
     title: "궁금한 점은 고객센터에",
     description: "사용 중 문의사항이나 기능 제안이 있으면 여기서 AI 상담원과 대화하세요.",
-    position: "bottom",
   },
   {
     target: "tour-news-help",
     title: "새 소식과 도움말",
     description: "업데이트 소식과 기능별 상세 안내를 확인할 수 있어요. 빨간 점이 뜨면 새 소식이 있다는 뜻이에요.",
-    position: "bottom",
   },
 ];
 
-interface Rect {
+interface ViewportRect {
   top: number;
   left: number;
   width: number;
@@ -67,121 +59,111 @@ interface Rect {
 
 export default function TourOnboarding({ onComplete }: TourOnboardingProps) {
   const [step, setStep] = useState(0);
-  const [targetRect, setTargetRect] = useState<Rect | null>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<ViewportRect | null>(null);
   const current = TOUR_STEPS[step];
   const isLast = step === TOUR_STEPS.length - 1;
 
-  const measureTarget = useCallback(() => {
+  const measure = useCallback(() => {
     const el = document.querySelector(`[data-tour="${current.target}"]`);
     if (!el) return;
-    const rect = el.getBoundingClientRect();
-    setTargetRect({
-      top: rect.top + window.scrollY,
-      left: rect.left + window.scrollX,
-      width: rect.width,
-      height: rect.height,
-    });
-    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const r = el.getBoundingClientRect();
+    setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
   }, [current.target]);
 
   useEffect(() => {
-    const timer = setTimeout(measureTarget, 80);
+    const el = document.querySelector(`[data-tour="${current.target}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const timer = setTimeout(measure, 350);
     return () => clearTimeout(timer);
-  }, [measureTarget]);
+  }, [current.target, measure]);
 
   useEffect(() => {
-    const handleResize = () => measureTarget();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [measureTarget]);
+    const onScroll = () => measure();
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [measure]);
 
   const handleNext = () => {
-    if (isLast) {
-      onComplete();
-    } else {
-      setStep(step + 1);
-    }
+    if (isLast) onComplete();
+    else setStep(step + 1);
   };
 
-  const handleSkip = () => {
-    onComplete();
-  };
-
-  if (!targetRect) {
-    return (
-      <div className="fixed inset-0 z-[9999] bg-black/50" onClick={handleSkip} />
-    );
+  if (!rect) {
+    return <div className="fixed inset-0 z-[9999] bg-black/50" onClick={onComplete} />;
   }
 
-  const padding = 8;
-  const spotTop = targetRect.top - padding;
-  const spotLeft = targetRect.left - padding;
-  const spotWidth = targetRect.width + padding * 2;
-  const spotHeight = targetRect.height + padding * 2;
+  const pad = 8;
+  const spot = {
+    top: rect.top - pad,
+    left: rect.left - pad,
+    width: rect.width + pad * 2,
+    height: rect.height + pad * 2,
+  };
 
-  const tooltipMaxWidth = 320;
-  let tooltipLeft = spotLeft + spotWidth / 2 - tooltipMaxWidth / 2;
+  const tooltipW = Math.min(320, window.innerWidth - 24);
+  const tooltipEstH = 220;
+  const spaceBelow = window.innerHeight - (spot.top + spot.height);
+  const placeBelow = spaceBelow > tooltipEstH + 20;
+
+  let tooltipLeft = spot.left + spot.width / 2 - tooltipW / 2;
   if (tooltipLeft < 12) tooltipLeft = 12;
-  if (tooltipLeft + tooltipMaxWidth > window.innerWidth - 12) {
-    tooltipLeft = window.innerWidth - 12 - tooltipMaxWidth;
+  if (tooltipLeft + tooltipW > window.innerWidth - 12) {
+    tooltipLeft = window.innerWidth - 12 - tooltipW;
   }
-
-  const tooltipTop =
-    current.position === "bottom"
-      ? spotTop + spotHeight + 16
-      : spotTop - 16;
 
   return (
-    <div className="fixed inset-0 z-[9999]">
-      {/* 반투명 오버레이 + 스포트라이트 구멍 */}
-      <svg className="absolute inset-0 w-full h-full" style={{ minHeight: document.documentElement.scrollHeight }}>
+    <div className="fixed inset-0 z-[9999]" onClick={onComplete}>
+      {/* 오버레이 + 스포트라이트 */}
+      <svg className="fixed inset-0 w-full h-full pointer-events-none">
         <defs>
-          <mask id="tour-spotlight-mask">
-            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+          <mask id="tour-mask">
+            <rect width="100%" height="100%" fill="white" />
             <rect
-              x={spotLeft}
-              y={spotTop}
-              width={spotWidth}
-              height={spotHeight}
+              x={spot.left}
+              y={spot.top}
+              width={spot.width}
+              height={spot.height}
               rx="12"
               fill="black"
             />
           </mask>
         </defs>
         <rect
-          x="0"
-          y="0"
           width="100%"
           height="100%"
           fill="rgba(0,0,0,0.6)"
-          mask="url(#tour-spotlight-mask)"
+          mask="url(#tour-mask)"
         />
       </svg>
 
       {/* 스포트라이트 테두리 */}
       <div
-        className="absolute rounded-xl border-2 border-teal-400 pointer-events-none transition-all duration-300"
+        className="fixed rounded-xl border-2 border-teal-400 pointer-events-none transition-all duration-300"
         style={{
-          top: spotTop,
-          left: spotLeft,
-          width: spotWidth,
-          height: spotHeight,
+          top: spot.top,
+          left: spot.left,
+          width: spot.width,
+          height: spot.height,
           boxShadow: "0 0 0 4px rgba(20, 184, 166, 0.15)",
         }}
       />
 
       {/* 툴팁 */}
       <div
-        ref={tooltipRef}
-        className="absolute animate-fade-in-up"
+        className="fixed animate-fade-in-up"
         style={{
           left: tooltipLeft,
-          maxWidth: tooltipMaxWidth,
-          ...(current.position === "bottom"
-            ? { top: tooltipTop }
-            : { top: "auto", bottom: `calc(100% - ${tooltipTop}px)` }),
+          width: tooltipW,
+          ...(placeBelow
+            ? { top: spot.top + spot.height + 12 }
+            : { bottom: window.innerHeight - spot.top + 12 }),
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-5">
           {/* 진행 표시 */}
@@ -206,7 +188,7 @@ export default function TourOnboarding({ onComplete }: TourOnboardingProps) {
           {/* 버튼 */}
           <div className="flex gap-3 mt-5">
             <button
-              onClick={handleSkip}
+              onClick={onComplete}
               className="flex-1 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
               건너뛰기
