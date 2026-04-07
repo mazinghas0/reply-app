@@ -8,6 +8,8 @@ import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
 import Onboarding from "./onboarding";
 import HelpGuide from "./helpGuide";
+import NewsPage from "./newsPage";
+import { hasUnreadNews, markNewsSeen } from "./newsData";
 import ContextSelector, {
   type ContextSelection,
   getRelationshipLabel,
@@ -291,6 +293,8 @@ export default function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [streak, setStreak] = useState<StreakData>({ lastDate: "", count: 0 });
   const [showHelp, setShowHelp] = useState(false);
+  const [showNews, setShowNews] = useState(false);
+  const [unreadNews, setUnreadNews] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
   const [context, setContext] = useState<ContextSelection>({
     relationship: null,
@@ -309,6 +313,7 @@ export default function Home() {
     if (!localStorage.getItem("reply-onboarding-done")) {
       setShowOnboarding(true);
     }
+    setUnreadNews(hasUnreadNews());
 
     // Web Share Target / Chrome 확장: URL 파라미터로 받은 텍스트 자동 입력
     const params = new URLSearchParams(window.location.search);
@@ -483,6 +488,9 @@ export default function Home() {
       {showHelp && (
         <HelpGuide onClose={() => setShowHelp(false)} currentTab={mode} />
       )}
+      {showNews && (
+        <NewsPage onClose={() => setShowNews(false)} />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -504,6 +512,20 @@ export default function Home() {
                 <path d="M7 8h6M7 11h4" />
               </svg>
             </a>
+            <button
+              onClick={() => { setShowNews(true); markNewsSeen(); setUnreadNews(false); }}
+              className="relative p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="새 소식"
+              title="새 소식"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 3v1M10 16v1M4.5 7a5.5 5.5 0 0 1 11 0c0 3 1 5 1.5 6H3c.5-1 1.5-3 1.5-6Z" />
+                <path d="M8 17a2 2 0 0 0 4 0" />
+              </svg>
+              {unreadNews && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full" />
+              )}
+            </button>
             <button
               onClick={() => setShowHelp(true)}
               className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
