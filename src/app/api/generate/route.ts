@@ -7,6 +7,10 @@ interface GenerateRequest {
   tone: "polite" | "firm" | "flexible" | "friendly";
   speed?: "fast" | "quality";
   hint?: string;
+  relationship?: string;
+  purpose?: string;
+  strategy?: string;
+  expand?: { original: string; variant: "stronger" | "softer" | "shorter" };
 }
 
 interface Reply {
@@ -156,19 +160,54 @@ export async function POST(request: NextRequest) {
     ? `\n사용자가 원하는 답장 방향: ${body.hint.trim()}\n이 방향에 맞춰서 답장을 작성하세요.`
     : "";
 
+  // 맞춤 컨텍스트 블록
+  const contextParts: string[] = [];
+  if (body.relationship) contextParts.push(`상대 관계: ${body.relationship}`);
+  if (body.purpose) contextParts.push(`답장 목적: ${body.purpose}`);
+  if (body.strategy) contextParts.push(`커뮤니케이션 전략: ${body.strategy}`);
+  const contextBlock = contextParts.length > 0
+    ? `\n[맞춤 설정]\n${contextParts.join("\n")}\n위 설정에 맞춰 답장을 작성하세요. 특히 전략이 지정된 경우 해당 심리학 원리를 반영하세요.\n`
+    : "";
+
+  // 확장 모드 (기존 답장 강도 조절)
+  const expandData = body.expand;
+  const isExpand = !!expandData;
+  const expandPrompt = isExpand && expandData
+    ? `아래는 이미 생성된 답장입니다. 이 답장을 기반으로 3가지 변형을 만들어주세요:
+1번: 더 강하게 (더 직접적이고 명확하게)
+2번: 더 부드럽게 (더 조심스럽고 공손하게)
+3번: 더 짧게 (핵심만 간결하게)
+
+원본 답장:
+${expandData.original}
+
+받은 메시지:
+${body.message}`
+    : "";
+
   const client = new Anthropic({ apiKey });
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 512,
-    messages: [
-      {
-        role: "user",
-        content: `당신은 한국인 직장인의 메신저 소통 전문가입니다.
-아래 메시지에 대한 답장 3개를 만들어주세요.
+  const mainPrompt = isExpand
+    ? `당신은 한국인의 메신저 소통 전문가입니다.
+${expandPrompt}
 
+"AI 느낌 제거" 규칙 (가장 중요):
+- 한국인이 카카오톡/업무 메신저에서 실제로 보내는 문체로 작성
+- 교과서적/문어체/번역체 표현 절대 금지
+- 불필요한 조사 자연스럽게 생략
+- 실제 한국인이 "사람이 쓴 것 같다"고 느끼게 작성
+
+반드시 아래 JSON 형식으로만 응답하세요:
+[
+  {"label": "더 강하게", "content": "변형 내용"},
+  {"label": "더 부드럽게", "content": "변형 내용"},
+  {"label": "더 짧게", "content": "변형 내용"}
+]`
+    : `당신은 한국인의 메신저 소통 전문가입니다.
+아래 메시지에 대한 답장 3개를 만들어주세요.
+${contextBlock}
 규칙:
-- 한국어 존댓말 사용
+- 한국어 사용 (상대 관계에 맞는 말투 — 친구/썸이면 반말도 OK, 상사/거래처면 존댓말)
 - 각 답장은 2~4문장
 - 3개 답장은 서로 다른 접근 방식 (같은 톤이지만 내용/전략이 다르게)
 - ${toneDescription} 톤으로 작성
@@ -189,7 +228,15 @@ export async function POST(request: NextRequest) {
 ]
 
 받은 메시지:
-${body.message}${hintBlock}`,
+${body.message}${hintBlock}`;
+
+  const response = await client.messages.create({
+    model,
+    max_tokens: 512,
+    messages: [
+      {
+        role: "user",
+        content: mainPrompt,
       },
     ],
   });

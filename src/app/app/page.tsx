@@ -7,6 +7,12 @@ import RefineTab from "./refineTab";
 import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
 import Onboarding from "./onboarding";
+import ContextSelector, {
+  type ContextSelection,
+  getRelationshipLabel,
+  getPurposeLabel,
+  getStrategyPrompt,
+} from "./contextSelector";
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -245,6 +251,16 @@ export default function Home() {
   const [clipboardText, setClipboardText] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
+  const [context, setContext] = useState<ContextSelection>({
+    relationship: null,
+    relationshipCustom: "",
+    purpose: null,
+    purposeCustom: "",
+    strategy: null,
+  });
+  const [expandedReplyIndex, setExpandedReplyIndex] = useState<number | null>(null);
+  const [expandedReplies, setExpandedReplies] = useState<Record<number, string[]>>({});
+  const [expandLoading, setExpandLoading] = useState(false);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -300,6 +316,8 @@ export default function Home() {
     setError("");
     setShowLoginHint(false);
     setReplies([]);
+    setExpandedReplyIndex(null);
+    setExpandedReplies({});
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -309,6 +327,13 @@ export default function Home() {
           tone: selectedTone,
           speed,
           hint: intentHint.trim() || undefined,
+          relationship: context.relationship
+            ? (context.relationship === "custom" ? context.relationshipCustom : getRelationshipLabel(context.relationship))
+            : undefined,
+          purpose: context.purpose
+            ? (context.purpose === "custom" ? context.purposeCustom : getPurposeLabel(context.purpose))
+            : undefined,
+          strategy: context.strategy ? getStrategyPrompt(context.strategy) : undefined,
         }),
       });
       const data = await res.json();
@@ -333,6 +358,34 @@ export default function Home() {
       setError(err instanceof Error ? err.message : "오류가 발생했습니다");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExpand = async (replyIndex: number, variant: "stronger" | "softer" | "shorter") => {
+    const original = replies[replyIndex]?.content;
+    if (!original) return;
+    setExpandLoading(true);
+    setExpandedReplyIndex(replyIndex);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: inputMessage.trim(),
+          tone: selectedTone,
+          speed,
+          expand: { original, variant },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "확장 실패");
+      const texts = (data.replies as Reply[]).map((r) => r.content);
+      setExpandedReplies((prev) => ({ ...prev, [replyIndex]: texts }));
+    } catch {
+      // 에러 시 무시
+    } finally {
+      setExpandLoading(false);
+      setExpandedReplyIndex(null);
     }
   };
 
@@ -472,7 +525,13 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Tone Selector */}
+            {/* Context Selector (3-step) */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">맞춤 설정 <span className="font-normal text-slate-400 dark:text-slate-500">(선택 — 더 정확한 답장)</span></label>
+              <ContextSelector value={context} onChange={setContext} />
+            </div>
+
+            {/* Tone Selector (classic) */}
             <div>
               <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">답장 톤</label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -599,6 +658,49 @@ export default function Home() {
                     </button>
                   </div>
                   <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">{reply.content}</p>
+
+                  {/* Expand buttons */}
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    {(["stronger", "softer", "shorter"] as const).map((variant) => {
+                      const labels = { stronger: "더 강하게", softer: "더 부드럽게", shorter: "더 짧게" };
+                      return (
+                        <button
+                          key={variant}
+                          onClick={() => handleExpand(index, variant)}
+                          disabled={expandLoading && expandedReplyIndex === index}
+                          className="px-2.5 py-1.5 text-[11px] font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {expandLoading && expandedReplyIndex === index ? "..." : labels[variant]}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Expanded replies */}
+                  {expandedReplies[index] && (
+                    <div className="mt-3 space-y-2">
+                      {expandedReplies[index].map((expanded, ei) => (
+                        <div key={ei} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-[10px] font-semibold text-teal-600 dark:text-teal-400">
+                              {["더 강하게", "더 부드럽게", "더 짧게"][ei]}
+                            </span>
+                            <button
+                              onClick={() => handleCopy(expanded, `expand-${index}-${ei}`)}
+                              className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                                copiedKey === `expand-${index}-${ei}`
+                                  ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
+                                  : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              }`}
+                            >
+                              {copiedKey === `expand-${index}-${ei}` ? <><IconCheck /> 복사됨</> : <><IconCopy /> 복사</>}
+                            </button>
+                          </div>
+                          <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{expanded}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </section>
