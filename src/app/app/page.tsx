@@ -967,7 +967,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-600">Kevin AI Corp</p>
+          <p className="text-xs text-slate-400 dark:text-slate-600">Kevin AI Corp &middot; v1.0.0</p>
         </footer>
       </main>
     </div>

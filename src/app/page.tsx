@@ -382,7 +382,7 @@ export default function LandingPage() {
             </div>
             <span className="text-sm font-semibold text-slate-400">리플라이</span>
           </div>
-          <p className="text-xs text-slate-600">Kevin AI Corp</p>
+          <p className="text-xs text-slate-600">Kevin AI Corp &middot; v1.0.0</p>
         </div>
       </footer>
     </main>
