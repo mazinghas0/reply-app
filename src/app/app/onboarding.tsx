@@ -11,9 +11,9 @@ const STEPS = [
     title: "답장 만들기",
     subtitle: "받은 메시지를 넣으면 AI가 답장을 만들어요",
     tips: [
-      { icon: "tone", text: "톤 4종 — 정중 / 단호 / 유연 / 친근" },
-      { icon: "context", text: "관계·목적·전략까지 맞춤 설정 가능" },
-      { icon: "shortcut", text: "Ctrl+Enter로 빠르게 생성" },
+      { icon: "context", text: "맞춤형 답장 — 관계(11종) > 목적 > 전략(6종) 3단계로 딱 맞는 답장" },
+      { icon: "tone", text: "답장 확장 — 더 강하게 / 부드럽게 / 짧게 조절 가능" },
+      { icon: "copy", text: "공유 메뉴에서 바로 보내기 + 클립보드 자동 감지" },
     ],
     icon: (
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -28,9 +28,9 @@ const STEPS = [
     title: "답장 검토",
     subtitle: "내가 쓴 답장을 AI가 꼼꼼히 체크해요",
     tips: [
-      { icon: "spell", text: "맞춤법 틀린 곳을 자동으로 찾아줘요" },
-      { icon: "impression", text: "상대방이 받을 인상까지 분석해요" },
-      { icon: "suggest", text: "더 좋은 표현을 제안해 드려요" },
+      { icon: "spell", text: "맞춤법 교정 + 상대방이 받을 인상까지 분석" },
+      { icon: "suggest", text: "더 좋은 표현이 있으면 바로 제안해 줘요" },
+      { icon: "impression", text: "상황 설명을 추가하면 더 정확한 검토 가능" },
     ],
     icon: (
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -45,9 +45,9 @@ const STEPS = [
     title: "다듬기",
     subtitle: "대충 쓴 답장도 깔끔하게 다듬어 드려요",
     tips: [
-      { icon: "tone", text: "톤 5종 — 자연스럽게 / 정중 / 단호 / 유연 / 친근" },
-      { icon: "compare", text: "원문과 비교해서 볼 수 있어요" },
-      { icon: "copy", text: "결과를 바로 복사해서 사용하세요" },
+      { icon: "tone", text: "톤 5종 선택 — AI 느낌 없이 실제 한국어 문체로" },
+      { icon: "compare", text: "원문과 나란히 비교해서 차이를 바로 확인" },
+      { icon: "copy", text: "결과를 한 번에 복사해서 메신저에 붙여넣기" },
     ],
     icon: (
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
