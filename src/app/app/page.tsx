@@ -93,6 +93,44 @@ const SPEED_LABELS: Record<Speed, string> = {
 
 const HISTORY_KEY = "reply-history";
 const MAX_HISTORY = 10;
+const STREAK_KEY = "reply-streak";
+
+interface StreakData {
+  lastDate: string;
+  count: number;
+}
+
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadStreak(): StreakData {
+  if (typeof window === "undefined") return { lastDate: "", count: 0 };
+  try {
+    const raw = localStorage.getItem(STREAK_KEY);
+    if (!raw) return { lastDate: "", count: 0 };
+    return JSON.parse(raw) as StreakData;
+  } catch {
+    return { lastDate: "", count: 0 };
+  }
+}
+
+function updateStreak(): StreakData {
+  const today = getToday();
+  const prev = loadStreak();
+  if (prev.lastDate === today) return prev;
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+  const next: StreakData = prev.lastDate === yesterdayStr
+    ? { lastDate: today, count: prev.count + 1 }
+    : { lastDate: today, count: 1 };
+
+  localStorage.setItem(STREAK_KEY, JSON.stringify(next));
+  return next;
+}
 
 // ─── Icons ───────────────────────────────────────
 
@@ -251,6 +289,7 @@ export default function Home() {
   const [reviewError, setReviewError] = useState("");
   const [clipboardText, setClipboardText] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [streak, setStreak] = useState<StreakData>({ lastDate: "", count: 0 });
   const [showHelp, setShowHelp] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
   const [context, setContext] = useState<ContextSelection>({
@@ -266,6 +305,7 @@ export default function Home() {
 
   useEffect(() => {
     setHistory(loadHistory());
+    setStreak(loadStreak());
     if (!localStorage.getItem("reply-onboarding-done")) {
       setShowOnboarding(true);
     }
@@ -356,6 +396,7 @@ export default function Home() {
         createdAt: new Date().toISOString(),
       };
       setHistory(saveToHistory(entry));
+      setStreak(updateStreak());
     } catch (err) {
       setError(err instanceof Error ? err.message : "오류가 발생했습니다");
     } finally {
@@ -408,6 +449,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "검토에 실패했습니다");
       setReviewResult(data.review);
+      setStreak(updateStreak());
     } catch (err) {
       setReviewError(err instanceof Error ? err.message : "오류가 발생했습니다");
     } finally {
@@ -735,6 +777,12 @@ export default function Home() {
                   최근 기록 ({history.length})
                   <IconChevron open={showHistory} />
                 </button>
+                {streak.count > 0 && (
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-amber-500 dark:text-amber-400">
+                    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 5h-1.5L10 11 6 7h2L6 3z" /></svg>
+                    {streak.count}일
+                  </span>
+                )}
                 <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
               </div>
 
@@ -904,7 +952,7 @@ export default function Home() {
         )}
 
         {/* ═══ Refine Mode ═══ */}
-        {mode === "refine" && <RefineTab initialText={sharedRefineText} />}
+        {mode === "refine" && <RefineTab initialText={sharedRefineText} onSuccess={() => setStreak(updateStreak())} />}
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">

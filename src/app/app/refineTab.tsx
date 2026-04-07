@@ -87,7 +87,7 @@ function IconChevron({ open }: { open: boolean }) {
 
 // ─── Component ───────────────────────────────────
 
-export default function RefineTab({ initialText = "" }: { initialText?: string }) {
+export default function RefineTab({ initialText = "", onSuccess }: { initialText?: string; onSuccess?: () => void }) {
   const [draft, setDraft] = useState(initialText);
   const [tone, setTone] = useState<RefineToneId>("natural");
   const [refined, setRefined] = useState<string | null>(null);
@@ -120,6 +120,7 @@ export default function RefineTab({ initialText = "" }: { initialText?: string }
       }
 
       setRefined(data.refined);
+      onSuccess?.();
     } catch {
       setError("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
     } finally {

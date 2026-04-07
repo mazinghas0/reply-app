@@ -37,22 +37,27 @@ const STEPS = [
   },
 ];
 
-const FEATURES = [
+const PERSONAS = [
   {
-    title: "4가지 톤",
-    desc: "정중 · 단호 · 유연 · 친근, 상황에 맞는 톤을 골라 답장하세요",
+    emoji: "briefcase",
+    who: "직장인",
+    situation: "상사한테 온 카톡, 어떻게 답할지 10분째 고민 중",
+    solution: "관계를 '상사'로 설정하면 격식과 뉘앙스를 맞춘 답장 3개가 바로 나와요.",
+    feature: "맞춤형 답장",
   },
   {
-    title: "빠른 / 정교한 모드",
-    desc: "일상 메시지는 빠르게, 중요한 메시지는 정교하게 생성",
+    emoji: "school",
+    who: "대학생",
+    situation: "교수님한테 메일 써야 하는데 격식체가 너무 어려워",
+    solution: "대충 쓴 문장을 넣고 '정중' 톤으로 다듬으면 예의 바른 메일이 완성돼요.",
+    feature: "다듬기",
   },
   {
-    title: "답장 히스토리",
-    desc: "최근 10개 답장 기록을 저장해 언제든 다시 볼 수 있어요",
-  },
-  {
-    title: "한국어 최적화",
-    desc: "한국어 비즈니스 표현에 특화된 AI가 자연스러운 답장을 생성",
+    emoji: "heart",
+    who: "썸 타는 사람",
+    situation: "답장이 너무 가벼워도, 무거워도 안 되는 미묘한 상황",
+    solution: "답장을 만들고 '더 부드럽게' '더 짧게'로 강도를 조절할 수 있어요.",
+    feature: "답장 확장",
   },
 ];
 
@@ -89,6 +94,38 @@ function CheckIcon() {
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );
+}
+
+function PersonaIcon({ type }: { type: string }) {
+  const cls = "w-10 h-10 rounded-xl flex items-center justify-center shrink-0";
+  switch (type) {
+    case "briefcase":
+      return (
+        <div className={`${cls} bg-blue-950/50 text-blue-400`}>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+          </svg>
+        </div>
+      );
+    case "school":
+      return (
+        <div className={`${cls} bg-violet-950/50 text-violet-400`}>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 1.1 2.7 3 6 3s6-1.9 6-3v-5" />
+          </svg>
+        </div>
+      );
+    case "heart":
+      return (
+        <div className={`${cls} bg-rose-950/50 text-rose-400`}>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </div>
+      );
+    default:
+      return null;
+  }
 }
 
 function CheckIconMuted() {
@@ -202,17 +239,36 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 기능 소개 */}
+      {/* 이런 상황에서 쓰세요 */}
       <section className="px-4 py-24 border-t border-slate-800/50">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold text-center text-white mb-16">
-            왜 리플라이인가요?
+          <h2 className="text-2xl font-bold text-center text-white mb-4">
+            이런 상황에서 쓰세요
           </h2>
-          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-10">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="pl-4 border-l-2 border-teal-500/40">
-                <h3 className="font-semibold text-white mb-1">{f.title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
+          <p className="text-center text-slate-400 mb-14">
+            답장 고민, 누구나 해봤잖아요
+          </p>
+          <div className="grid gap-6">
+            {PERSONAS.map((p) => (
+              <div
+                key={p.who}
+                className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60 flex flex-col sm:flex-row sm:items-start gap-4"
+              >
+                <div className="flex items-center gap-3 sm:min-w-[120px]">
+                  <PersonaIcon type={p.emoji} />
+                  <span className="font-semibold text-white">{p.who}</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-slate-300 mb-2">
+                    &ldquo;{p.situation}&rdquo;
+                  </p>
+                  <p className="text-sm text-slate-400 leading-relaxed">
+                    {p.solution}
+                  </p>
+                  <span className="inline-block mt-3 text-xs font-medium px-2.5 py-1 rounded-full bg-teal-950/50 text-teal-400 border border-teal-800/40">
+                    {p.feature}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
