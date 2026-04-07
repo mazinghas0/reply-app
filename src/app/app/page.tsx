@@ -7,7 +7,7 @@ import RefineTab from "./refineTab";
 import ReviewTab from "./reviewTab";
 import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
-import Onboarding from "./onboarding";
+import TourOnboarding from "./tourOnboarding";
 import HelpGuide from "./helpGuide";
 import NewsPage from "./newsPage";
 import SupportChat from "./supportChat";
@@ -266,7 +266,7 @@ export default function Home() {
     <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
       <InstallBanner />
       {showOnboarding && (
-        <Onboarding onComplete={() => { localStorage.setItem("reply-onboarding-done", "1"); setShowOnboarding(false); }} />
+        <TourOnboarding onComplete={() => { localStorage.setItem("reply-onboarding-done", "1"); setShowOnboarding(false); }} />
       )}
       {showHelp && (
         <HelpGuide onClose={() => setShowHelp(false)} currentTab={mode} />
@@ -288,6 +288,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              data-tour="tour-support-button"
               onClick={() => setShowSupport(true)}
               className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               aria-label="고객센터"
@@ -309,6 +310,7 @@ export default function Home() {
                 <path d="M7 8h6M7 11h4" />
               </svg>
             </a>
+            <div data-tour="tour-news-help" className="flex items-center">
             <button
               onClick={() => { setShowNews(true); markNewsSeen(); setUnreadNews(false); }}
               className="relative p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -334,6 +336,7 @@ export default function Home() {
                 <circle cx="10" cy="14.5" r="0.5" fill="currentColor" />
               </svg>
             </button>
+            </div>
             <ThemeToggle />
             {CLERK_ENABLED && <NavAuth />}
           </div>
@@ -342,7 +345,7 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col items-center px-4 py-8 max-w-xl mx-auto w-full">
         {/* Mode Tabs */}
-        <div className="w-full flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900 mb-6 transition-colors duration-200">
+        <div data-tour="tour-tab-bar" className="w-full flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900 mb-6 transition-colors duration-200">
           <button onClick={() => setMode("generate")} className={tabClass(mode === "generate")}>답장 만들기</button>
           <button onClick={() => setMode("review")} className={tabClass(mode === "review")}>답장 검토</button>
           <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>다듬기</button>
@@ -397,7 +400,8 @@ export default function Home() {
                 </span>
               </div>
               <textarea
-                id="message-input"
+                data-tour="tour-message-input"
+              id="message-input"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -416,13 +420,15 @@ export default function Home() {
             {/* Context Selector (3-step) */}
             <div>
               <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">맞춤 설정 <span className="font-normal text-slate-400 dark:text-slate-500">(선택 — 더 정확한 답장)</span></label>
-              <ContextSelector value={context} onChange={setContext} />
+              <div data-tour="tour-context-selector">
+                <ContextSelector value={context} onChange={setContext} />
+              </div>
             </div>
 
             {/* Tone Selector (classic) */}
             <div>
               <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">답장 톤</label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div data-tour="tour-tone-selector" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {TONES.map((tone) => {
                   const isSelected = selectedTone === tone.id;
                   const styles = TONE_STYLES[tone.id];
@@ -482,6 +488,7 @@ export default function Home() {
 
             {/* Generate Button */}
             <button
+              data-tour="tour-generate-button"
               onClick={handleGenerate}
               disabled={!inputMessage.trim() || loading}
               className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-500 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
