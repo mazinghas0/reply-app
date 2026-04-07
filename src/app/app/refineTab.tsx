@@ -96,6 +96,7 @@ export default function RefineTab({ initialText = "", onSuccess }: { initialText
   const [copied, setCopied] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [originalSnapshot, setOriginalSnapshot] = useState("");
+  const [remaining, setRemaining] = useState<number | null>(null);
 
   const handleRefine = async () => {
     if (!draft.trim()) return;
@@ -119,6 +120,7 @@ export default function RefineTab({ initialText = "", onSuccess }: { initialText
         return;
       }
 
+      if (typeof data.remaining === "number") setRemaining(data.remaining);
       setRefined(data.refined);
       onSuccess?.();
     } catch {
@@ -138,6 +140,17 @@ export default function RefineTab({ initialText = "", onSuccess }: { initialText
   return (
     <>
       <section className="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 sm:p-6 space-y-5 transition-colors duration-200">
+        {remaining !== null && (
+          <div className="flex justify-end">
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+              remaining <= 3
+                ? "bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900"
+                : "bg-slate-50 text-slate-500 border border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
+            }`}>
+              오늘 {remaining}회 남음
+            </span>
+          </div>
+        )}
         {/* Draft Input */}
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
