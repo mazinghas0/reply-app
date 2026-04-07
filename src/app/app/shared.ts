@@ -1,0 +1,143 @@
+// ─── Types ───────────────────────────────────────
+
+export type AppMode = "generate" | "review" | "refine";
+
+export interface Reply {
+  label: string;
+  content: string;
+}
+
+export interface ReviewResult {
+  spelling: Array<{ original: string; corrected: string; reason: string }>;
+  tone: { label: string; score: number; detail: string };
+  impression: string;
+  suggestions: Array<{ original: string; improved: string; reason: string }>;
+}
+
+export interface HistoryEntry {
+  id: string;
+  inputMessage: string;
+  tone: ToneId;
+  speed: Speed;
+  replies: Reply[];
+  createdAt: string;
+}
+
+export type Speed = "fast" | "quality";
+
+// ─── Constants ───────────────────────────────────
+
+export const TONES = [
+  { id: "polite", label: "정중한", desc: "예의 바르고 격식 있는" },
+  { id: "firm", label: "단호한", desc: "명확하고 프로페셔널한" },
+  { id: "flexible", label: "유연한", desc: "열린 자세, 협상 가능한" },
+  { id: "friendly", label: "친근한", desc: "편하고 가벼운" },
+] as const;
+
+export type ToneId = (typeof TONES)[number]["id"];
+
+export const TONE_STYLES: Record<ToneId, { selected: string; hover: string }> = {
+  polite: {
+    selected: "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-500 dark:ring-blue-900",
+    hover: "hover:border-blue-200 hover:bg-blue-50/50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20",
+  },
+  firm: {
+    selected: "border-rose-400 bg-rose-50 text-rose-700 ring-2 ring-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-500 dark:ring-rose-900",
+    hover: "hover:border-rose-200 hover:bg-rose-50/50 dark:hover:border-rose-800 dark:hover:bg-rose-900/20",
+  },
+  flexible: {
+    selected: "border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-500 dark:ring-emerald-900",
+    hover: "hover:border-emerald-200 hover:bg-emerald-50/50 dark:hover:border-emerald-800 dark:hover:bg-emerald-900/20",
+  },
+  friendly: {
+    selected: "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-500 dark:ring-amber-900",
+    hover: "hover:border-amber-200 hover:bg-amber-50/50 dark:hover:border-amber-800 dark:hover:bg-amber-900/20",
+  },
+};
+
+export const TONE_COLORS: Record<ToneId, string> = {
+  polite: "border-l-blue-400",
+  firm: "border-l-rose-400",
+  flexible: "border-l-emerald-400",
+  friendly: "border-l-amber-400",
+};
+
+export const SPEEDS: Array<{ id: Speed; label: string; desc: string }> = [
+  { id: "quality", label: "정교한 답장", desc: "중요한 비즈니스" },
+  { id: "fast", label: "빠른 답장", desc: "일상적인 메시지" },
+];
+
+export const SPEED_LABELS: Record<Speed, string> = {
+  fast: "빠른",
+  quality: "정교한",
+};
+
+// ─── Streak ─────────────────────────────────────
+
+export const HISTORY_KEY = "reply-history";
+export const MAX_HISTORY = 10;
+const STREAK_KEY = "reply-streak";
+
+export interface StreakData {
+  lastDate: string;
+  count: number;
+}
+
+export function loadStreak(): StreakData {
+  if (typeof window === "undefined") return { lastDate: "", count: 0 };
+  try {
+    const raw = localStorage.getItem(STREAK_KEY);
+    if (!raw) return { lastDate: "", count: 0 };
+    return JSON.parse(raw) as StreakData;
+  } catch {
+    return { lastDate: "", count: 0 };
+  }
+}
+
+export function updateStreak(): StreakData {
+  const today = new Date().toISOString().slice(0, 10);
+  const prev = loadStreak();
+  if (prev.lastDate === today) return prev;
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const yesterdayStr = yesterday;
+  const next: StreakData = prev.lastDate === yesterdayStr
+    ? { lastDate: today, count: prev.count + 1 }
+    : { lastDate: today, count: 1 };
+
+  localStorage.setItem(STREAK_KEY, JSON.stringify(next));
+  return next;
+}
+
+// ─── Utility Functions ───────────────────────────
+
+export function loadHistory(): HistoryEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as HistoryEntry[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveToHistory(entry: HistoryEntry): HistoryEntry[] {
+  const history = loadHistory();
+  history.unshift(entry);
+  if (history.length > MAX_HISTORY) history.pop();
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  return history;
+}
+
+export function formatTime(isoString: string): string {
+  const date = new Date(isoString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "방금";
+  if (diffMin < 60) return `${diffMin}분 전`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour}시간 전`;
+  return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+}

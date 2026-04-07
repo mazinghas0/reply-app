@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import RefineTab from "./refineTab";
+import ReviewTab from "./reviewTab";
 import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
 import Onboarding from "./onboarding";
@@ -16,228 +17,37 @@ import ContextSelector, {
   getPurposeLabel,
   getStrategyPrompt,
 } from "./contextSelector";
+import {
+  type AppMode,
+  type Reply,
+  type HistoryEntry,
+  type ToneId,
+  type Speed,
+  type StreakData,
+  TONES,
+  TONE_STYLES,
+  TONE_COLORS,
+  SPEEDS,
+  SPEED_LABELS,
+  HISTORY_KEY,
+  loadStreak,
+  updateStreak,
+  loadHistory,
+  saveToHistory,
+  formatTime,
+} from "./shared";
+import {
+  IconChat,
+  IconCopy,
+  IconCheck,
+  IconError,
+  IconSpinner,
+  IconChevron,
+  IconClock,
+  IconTrash,
+} from "./icons";
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-// ─── Types ───────────────────────────────────────
-
-type AppMode = "generate" | "review" | "refine";
-
-interface Reply {
-  label: string;
-  content: string;
-}
-
-interface ReviewResult {
-  spelling: Array<{ original: string; corrected: string; reason: string }>;
-  tone: { label: string; score: number; detail: string };
-  impression: string;
-  suggestions: Array<{ original: string; improved: string; reason: string }>;
-}
-
-interface HistoryEntry {
-  id: string;
-  inputMessage: string;
-  tone: ToneId;
-  speed: Speed;
-  replies: Reply[];
-  createdAt: string;
-}
-
-type Speed = "fast" | "quality";
-
-// ─── Constants ───────────────────────────────────
-
-const TONES = [
-  { id: "polite", label: "정중한", desc: "예의 바르고 격식 있는" },
-  { id: "firm", label: "단호한", desc: "명확하고 프로페셔널한" },
-  { id: "flexible", label: "유연한", desc: "열린 자세, 협상 가능한" },
-  { id: "friendly", label: "친근한", desc: "편하고 가벼운" },
-] as const;
-
-type ToneId = (typeof TONES)[number]["id"];
-
-const TONE_STYLES: Record<ToneId, { selected: string; hover: string }> = {
-  polite: {
-    selected: "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-500 dark:ring-blue-900",
-    hover: "hover:border-blue-200 hover:bg-blue-50/50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20",
-  },
-  firm: {
-    selected: "border-rose-400 bg-rose-50 text-rose-700 ring-2 ring-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-500 dark:ring-rose-900",
-    hover: "hover:border-rose-200 hover:bg-rose-50/50 dark:hover:border-rose-800 dark:hover:bg-rose-900/20",
-  },
-  flexible: {
-    selected: "border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-500 dark:ring-emerald-900",
-    hover: "hover:border-emerald-200 hover:bg-emerald-50/50 dark:hover:border-emerald-800 dark:hover:bg-emerald-900/20",
-  },
-  friendly: {
-    selected: "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-500 dark:ring-amber-900",
-    hover: "hover:border-amber-200 hover:bg-amber-50/50 dark:hover:border-amber-800 dark:hover:bg-amber-900/20",
-  },
-};
-
-const TONE_COLORS: Record<ToneId, string> = {
-  polite: "border-l-blue-400",
-  firm: "border-l-rose-400",
-  flexible: "border-l-emerald-400",
-  friendly: "border-l-amber-400",
-};
-
-const SPEEDS: Array<{ id: Speed; label: string; desc: string }> = [
-  { id: "quality", label: "정교한 답장", desc: "중요한 비즈니스" },
-  { id: "fast", label: "빠른 답장", desc: "일상적인 메시지" },
-];
-
-const SPEED_LABELS: Record<Speed, string> = {
-  fast: "빠른",
-  quality: "정교한",
-};
-
-const HISTORY_KEY = "reply-history";
-const MAX_HISTORY = 10;
-const STREAK_KEY = "reply-streak";
-
-interface StreakData {
-  lastDate: string;
-  count: number;
-}
-
-function getToday(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function loadStreak(): StreakData {
-  if (typeof window === "undefined") return { lastDate: "", count: 0 };
-  try {
-    const raw = localStorage.getItem(STREAK_KEY);
-    if (!raw) return { lastDate: "", count: 0 };
-    return JSON.parse(raw) as StreakData;
-  } catch {
-    return { lastDate: "", count: 0 };
-  }
-}
-
-function updateStreak(): StreakData {
-  const today = getToday();
-  const prev = loadStreak();
-  if (prev.lastDate === today) return prev;
-
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().slice(0, 10);
-
-  const next: StreakData = prev.lastDate === yesterdayStr
-    ? { lastDate: today, count: prev.count + 1 }
-    : { lastDate: today, count: 1 };
-
-  localStorage.setItem(STREAK_KEY, JSON.stringify(next));
-  return next;
-}
-
-// ─── Icons ───────────────────────────────────────
-
-function IconChat() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  );
-}
-
-function IconCopy() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
-}
-
-function IconCheck() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-function IconError() {
-  return (
-    <svg className="w-5 h-5 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
-  );
-}
-
-function IconSpinner() {
-  return (
-    <svg className="w-5 h-5" style={{ animation: "spin 1s linear infinite" }} viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeLinecap="round" opacity="0.3" />
-      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconChevron({ open }: { open: boolean }) {
-  return (
-    <svg className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
-}
-
-function IconClock() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-function IconTrash() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" />
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-  );
-}
-
-// ─── Utility Functions ───────────────────────────
-
-function loadHistory(): HistoryEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as HistoryEntry[];
-  } catch {
-    return [];
-  }
-}
-
-function saveToHistory(entry: HistoryEntry): HistoryEntry[] {
-  const history = loadHistory();
-  history.unshift(entry);
-  if (history.length > MAX_HISTORY) history.pop();
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  return history;
-}
-
-function formatTime(isoString: string): string {
-  const date = new Date(isoString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "방금";
-  if (diffMin < 60) return `${diffMin}분 전`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
-  return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
-}
 
 // ─── Nav Auth ────────────────────────────────────
 
@@ -284,11 +94,6 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
   const [intentHint, setIntentHint] = useState("");
-  const [reviewDraft, setReviewDraft] = useState("");
-  const [reviewContext, setReviewContext] = useState("");
-  const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
-  const [reviewLoading, setReviewLoading] = useState(false);
-  const [reviewError, setReviewError] = useState("");
   const [clipboardText, setClipboardText] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [streak, setStreak] = useState<StreakData>({ lastDate: "", count: 0 });
@@ -296,6 +101,7 @@ export default function Home() {
   const [showNews, setShowNews] = useState(false);
   const [unreadNews, setUnreadNews] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
+  const [sharedReviewDraft, setSharedReviewDraft] = useState("");
   const [context, setContext] = useState<ContextSelection>({
     relationship: null,
     relationshipCustom: "",
@@ -324,7 +130,7 @@ export default function Home() {
       const targetMode = validModes.includes(modeParam as AppMode) ? (modeParam as AppMode) : "generate";
       setMode(targetMode);
       if (targetMode === "review") {
-        setReviewDraft(shared);
+        setSharedReviewDraft(shared);
       } else if (targetMode === "refine") {
         setSharedRefineText(shared);
       } else {
@@ -434,31 +240,6 @@ export default function Home() {
     } finally {
       setExpandLoading(false);
       setExpandedReplyIndex(null);
-    }
-  };
-
-  const handleReview = async () => {
-    if (!reviewDraft.trim()) return;
-    setReviewLoading(true);
-    setReviewError("");
-    setReviewResult(null);
-    try {
-      const res = await fetch("/api/review", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          draft: reviewDraft.trim(),
-          context: reviewContext.trim() || undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "검토에 실패했습니다");
-      setReviewResult(data.review);
-      setStreak(updateStreak());
-    } catch (err) {
-      setReviewError(err instanceof Error ? err.message : "오류가 발생했습니다");
-    } finally {
-      setReviewLoading(false);
     }
   };
 
@@ -877,112 +658,7 @@ export default function Home() {
         </>}
 
         {/* ═══ Review Mode ═══ */}
-        {mode === "review" && (
-          <>
-            <section className="w-full bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 sm:p-6 space-y-5 transition-colors duration-200">
-              <div>
-                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">내가 쓴 답장</label>
-                <textarea
-                  value={reviewDraft}
-                  onChange={(e) => setReviewDraft(e.target.value)}
-                  placeholder="검토받고 싶은 답장을 붙여넣으세요..."
-                  maxLength={2000}
-                  className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                  받은 메시지 <span className="font-normal text-slate-400 dark:text-slate-500">(선택)</span>
-                </label>
-                <textarea
-                  value={reviewContext}
-                  onChange={(e) => setReviewContext(e.target.value)}
-                  placeholder="어떤 메시지에 대한 답장인지 붙여넣으면 더 정확한 검토가 가능해요"
-                  maxLength={2000}
-                  className="w-full h-20 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
-                />
-              </div>
-              <button
-                onClick={handleReview}
-                disabled={!reviewDraft.trim() || reviewLoading}
-                className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-500 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
-              >
-                {reviewLoading ? <span className="inline-flex items-center gap-2"><IconSpinner />AI가 검토하고 있어요</span> : "답장 검토하기"}
-              </button>
-              {reviewError && (
-                <div className="flex items-start gap-2.5 p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-400 text-sm">
-                  <IconError />{reviewError}
-                </div>
-              )}
-            </section>
-
-            {reviewResult && (
-              <section className="w-full mt-8 space-y-3">
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200 dark:to-slate-700" />
-                  <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wider">검토 결과</h2>
-                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200 dark:to-slate-700" />
-                </div>
-
-                {/* Tone */}
-                <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">톤 분석</h3>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <div key={n} className={`w-8 h-2.5 rounded-full ${n <= reviewResult.tone.score ? "bg-teal-500" : "bg-slate-200 dark:bg-slate-700"}`} />
-                      ))}
-                    </div>
-                    <span className="text-sm font-medium text-teal-600 dark:text-teal-400">{reviewResult.tone.label}</span>
-                  </div>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{reviewResult.tone.detail}</p>
-                </div>
-
-                {/* Impression */}
-                <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "100ms" }}>
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">상대방은 이렇게 느껴요</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{reviewResult.impression}</p>
-                </div>
-
-                {/* Spelling */}
-                {reviewResult.spelling.length > 0 && (
-                  <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "200ms" }}>
-                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">맞춤법 ({reviewResult.spelling.length}건)</h3>
-                    <div className="space-y-2">
-                      {reviewResult.spelling.map((s, i) => (
-                        <div key={i} className="flex items-baseline gap-2 text-sm">
-                          <span className="line-through text-rose-400">{s.original}</span>
-                          <span className="text-slate-400 dark:text-slate-500">→</span>
-                          <span className="text-emerald-600 dark:text-emerald-400 font-medium">{s.corrected}</span>
-                          <span className="text-xs text-slate-400 dark:text-slate-500">({s.reason})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Suggestions */}
-                {reviewResult.suggestions.length > 0 && (
-                  <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "300ms" }}>
-                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">개선 제안 ({reviewResult.suggestions.length}건)</h3>
-                    <div className="space-y-3">
-                      {reviewResult.suggestions.map((s, i) => (
-                        <div key={i} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                          <div className="flex items-baseline gap-2 text-sm mb-1">
-                            <span className="text-slate-500 dark:text-slate-400">{s.original}</span>
-                            <span className="text-slate-400 dark:text-slate-500">→</span>
-                            <span className="text-teal-600 dark:text-teal-400 font-medium">{s.improved}</span>
-                          </div>
-                          <p className="text-xs text-slate-400 dark:text-slate-500">{s.reason}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
-          </>
-        )}
+        {mode === "review" && <ReviewTab initialDraft={sharedReviewDraft} onSuccess={() => setStreak(updateStreak())} />}
 
         {/* ═══ Refine Mode ═══ */}
         {mode === "refine" && <RefineTab initialText={sharedRefineText} onSuccess={() => setStreak(updateStreak())} />}
