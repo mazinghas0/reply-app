@@ -493,6 +493,17 @@ export default function Home() {
             <span className="font-bold text-lg text-slate-900 dark:text-white">리플라이</span>
           </div>
           <div className="flex items-center gap-2">
+            <a
+              href="/?intro"
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label="서비스 소개"
+              title="서비스 소개"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="14" height="12" rx="2" />
+                <path d="M7 8h6M7 11h4" />
+              </svg>
+            </a>
             <button
               onClick={() => setShowHelp(true)}
               className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"

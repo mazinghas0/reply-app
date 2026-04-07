@@ -5,7 +5,8 @@ const isLandingPage = createRouteMatcher(["/"]);
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
-  if (userId && isLandingPage(request)) {
+  const hasIntroParam = new URL(request.url).searchParams.has("intro");
+  if (userId && isLandingPage(request) && !hasIntroParam) {
     return NextResponse.redirect(new URL("/app", request.url));
   }
 });
