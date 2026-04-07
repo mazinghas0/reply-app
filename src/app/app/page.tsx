@@ -7,6 +7,7 @@ import RefineTab from "./refineTab";
 import ThemeToggle from "./themeToggle";
 import InstallBanner from "./installBanner";
 import Onboarding from "./onboarding";
+import HelpGuide from "./helpGuide";
 import ContextSelector, {
   type ContextSelection,
   getRelationshipLabel,
@@ -250,6 +251,7 @@ export default function Home() {
   const [reviewError, setReviewError] = useState("");
   const [clipboardText, setClipboardText] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
   const [context, setContext] = useState<ContextSelection>({
     relationship: null,
@@ -436,6 +438,9 @@ export default function Home() {
       {showOnboarding && (
         <Onboarding onComplete={() => { localStorage.setItem("reply-onboarding-done", "1"); setShowOnboarding(false); }} />
       )}
+      {showHelp && (
+        <HelpGuide onClose={() => setShowHelp(false)} currentTab={mode} />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -446,6 +451,17 @@ export default function Home() {
             <span className="font-bold text-lg text-slate-900 dark:text-white">리플라이</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowHelp(true)}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="기능 안내"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10" cy="10" r="8" />
+                <path d="M7.5 7.5a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3" />
+                <circle cx="10" cy="14.5" r="0.5" fill="currentColor" />
+              </svg>
+            </button>
             <ThemeToggle />
             {CLERK_ENABLED && <NavAuth />}
           </div>
