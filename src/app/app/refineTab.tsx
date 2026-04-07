@@ -87,8 +87,8 @@ function IconChevron({ open }: { open: boolean }) {
 
 // ─── Component ───────────────────────────────────
 
-export default function RefineTab() {
-  const [draft, setDraft] = useState("");
+export default function RefineTab({ initialText = "" }: { initialText?: string }) {
+  const [draft, setDraft] = useState(initialText);
   const [tone, setTone] = useState<RefineToneId>("natural");
   const [refined, setRefined] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

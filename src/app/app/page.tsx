@@ -244,6 +244,7 @@ export default function Home() {
   const [reviewError, setReviewError] = useState("");
   const [clipboardText, setClipboardText] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [sharedRefineText, setSharedRefineText] = useState("");
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -251,12 +252,21 @@ export default function Home() {
       setShowOnboarding(true);
     }
 
-    // Web Share Target: URL 파라미터로 받은 텍스트 자동 입력
+    // Web Share Target / Chrome 확장: URL 파라미터로 받은 텍스트 자동 입력
     const params = new URLSearchParams(window.location.search);
     const shared = params.get("shared");
     if (shared) {
-      setInputMessage(shared);
-      setMode("generate");
+      const modeParam = params.get("mode");
+      const validModes: AppMode[] = ["generate", "review", "refine"];
+      const targetMode = validModes.includes(modeParam as AppMode) ? (modeParam as AppMode) : "generate";
+      setMode(targetMode);
+      if (targetMode === "review") {
+        setReviewDraft(shared);
+      } else if (targetMode === "refine") {
+        setSharedRefineText(shared);
+      } else {
+        setInputMessage(shared);
+      }
       window.history.replaceState({}, "", "/app");
     }
   }, []);
@@ -776,7 +786,7 @@ export default function Home() {
         )}
 
         {/* ═══ Refine Mode ═══ */}
-        {mode === "refine" && <RefineTab />}
+        {mode === "refine" && <RefineTab initialText={sharedRefineText} />}
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">
