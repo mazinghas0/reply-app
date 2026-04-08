@@ -87,7 +87,7 @@ function IconChevron({ open }: { open: boolean }) {
 
 // ─── Component ───────────────────────────────────
 
-export default function RefineTab({ initialText = "", onSuccess }: { initialText?: string; onSuccess?: () => void }) {
+export default function RefineTab({ initialText = "", initialCredits = null, onSuccess }: { initialText?: string; initialCredits?: number | null; onSuccess?: () => void }) {
   const [draft, setDraft] = useState(initialText);
   const [tone, setTone] = useState<RefineToneId>("natural");
   const [refined, setRefined] = useState<string | null>(null);
@@ -96,7 +96,7 @@ export default function RefineTab({ initialText = "", onSuccess }: { initialText
   const [copied, setCopied] = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [originalSnapshot, setOriginalSnapshot] = useState("");
-  const [remaining, setRemaining] = useState<number | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(initialCredits);
 
   const handleRefine = async () => {
     if (!draft.trim()) return;

@@ -6,16 +6,17 @@ import { IconSpinner, IconError } from "./icons";
 
 interface ReviewTabProps {
   initialDraft?: string;
+  initialCredits?: number | null;
   onSuccess: () => void;
 }
 
-export default function ReviewTab({ initialDraft = "", onSuccess }: ReviewTabProps) {
+export default function ReviewTab({ initialDraft = "", initialCredits = null, onSuccess }: ReviewTabProps) {
   const [reviewDraft, setReviewDraft] = useState(initialDraft);
   const [reviewContext, setReviewContext] = useState("");
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState("");
-  const [remaining, setRemaining] = useState<number | null>(null);
+  const [remaining, setRemaining] = useState<number | null>(initialCredits);
 
   const handleReview = async () => {
     if (!reviewDraft.trim()) return;

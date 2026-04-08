@@ -752,10 +752,10 @@ export default function Home() {
         </>}
 
         {/* ═══ Review Mode ═══ */}
-        {mode === "review" && <ReviewTab initialDraft={sharedReviewDraft} onSuccess={() => setStreak(updateStreak())} />}
+        {mode === "review" && <ReviewTab initialDraft={sharedReviewDraft} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} />}
 
         {/* ═══ Refine Mode ═══ */}
-        {mode === "refine" && <RefineTab initialText={sharedRefineText} onSuccess={() => setStreak(updateStreak())} />}
+        {mode === "refine" && <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} />}
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">
