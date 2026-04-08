@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import RefineTab from "./refineTab";
@@ -53,11 +53,112 @@ const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // ─── Nav Auth ────────────────────────────────────
 
-function NavAuth() {
+function PlanBadge({ remaining, resetAt }: { remaining: number | null; resetAt: string | null }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const credits = remaining ?? 0;
+  const total = 50;
+  const pct = Math.round((credits / total) * 100);
+
+  // 리셋일 계산
+  const resetLabel = (() => {
+    if (!resetAt) return null;
+    const d = new Date(resetAt);
+    return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  })();
+
+  // 구간별 스타일
+  const badge = (() => {
+    if (credits <= 0)
+      return {
+        text: "PRO 전환",
+        bg: "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+        pulse: false,
+      };
+    if (credits <= 9)
+      return {
+        text: `Free · ${credits}`,
+        bg: "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800",
+        pulse: true,
+      };
+    if (credits <= 19)
+      return {
+        text: `Free · ${credits}`,
+        bg: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+        pulse: false,
+      };
+    return {
+      text: "Free",
+      bg: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+      pulse: false,
+    };
+  })();
+
+  // 프로그레스 바 색상
+  const barColor =
+    credits <= 0
+      ? "bg-teal-500"
+      : credits <= 9
+        ? "bg-rose-500"
+        : credits <= 19
+          ? "bg-amber-500"
+          : "bg-teal-500";
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer select-none ${badge.bg} ${badge.pulse ? "animate-pulse" : ""}`}
+      >
+        {badge.text}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-4 z-50 animate-fade-in-up">
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+            {credits <= 0 ? "크레딧 소진" : "Free 플랜"}
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            {credits} / {total} 크레딧
+          </p>
+          {/* 프로그레스 바 */}
+          <div className="mt-2.5 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          {resetLabel && (
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+              리셋: {resetLabel}
+            </p>
+          )}
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <span className="text-xs text-teal-600 dark:text-teal-400 font-medium">
+              PRO 출시 준비 중
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NavAuth({ remaining, resetAt }: { remaining: number | null; resetAt: string | null }) {
   const { isSignedIn } = useAuth();
   return isSignedIn ? (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-slate-400 dark:text-slate-500">월 50크레딧</span>
+      <PlanBadge remaining={remaining} resetAt={resetAt} />
       <UserButton />
     </div>
   ) : (
@@ -116,6 +217,7 @@ export default function Home() {
   const [expandedReplies, setExpandedReplies] = useState<Record<number, string[]>>({});
   const [expandLoading, setExpandLoading] = useState(false);
   const [pendingExample, setPendingExample] = useState(false);
+  const [resetAt, setResetAt] = useState<string | null>(null);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -131,6 +233,9 @@ export default function Home() {
       .then((data) => {
         if (typeof data.credits === "number") {
           setRemaining(data.credits);
+        }
+        if (data.resetAt) {
+          setResetAt(data.resetAt);
         }
       })
       .catch(() => {});
@@ -394,7 +499,7 @@ export default function Home() {
             </button>
             </div>
             <ThemeToggle />
-            {CLERK_ENABLED && <NavAuth />}
+            {CLERK_ENABLED && <NavAuth remaining={remaining} resetAt={resetAt} />}
           </div>
         </div>
       </nav>
