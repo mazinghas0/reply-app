@@ -14,6 +14,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  overscroll-behavior-y: contain;
+}
+
 body {
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   color: var(--foreground);

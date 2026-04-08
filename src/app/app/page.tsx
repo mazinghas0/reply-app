@@ -144,6 +144,26 @@ export default function Home() {
     }
   }, []);
 
+  // iOS Safari pull-to-refresh 방지
+  useEffect(() => {
+    let startY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const y = e.touches[0].clientY;
+      if (window.scrollY === 0 && y > startY) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+    };
+  }, []);
+
   // 클립보드 자동 감지: 앱으로 돌아올 때 클립보드 확인
   const checkClipboard = useCallback(async () => {
     if (inputMessage.trim() || mode !== "generate") return;
