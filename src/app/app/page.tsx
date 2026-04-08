@@ -216,6 +216,9 @@ export default function Home() {
   const [expandedReplies, setExpandedReplies] = useState<Record<number, string[]>>({});
   const [expandLoading, setExpandLoading] = useState(false);
   const [resetAt, setResetAt] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showLoginNudge, setShowLoginNudge] = useState(false);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -234,6 +237,14 @@ export default function Home() {
         }
         if (data.resetAt) {
           setResetAt(data.resetAt);
+        }
+        if (data.isAuthenticated) {
+          setIsAuthenticated(true);
+          // 신규 가입 웰컴 메시지
+          if (!localStorage.getItem("reply-welcome-done")) {
+            setShowWelcome(true);
+            localStorage.setItem("reply-welcome-done", "1");
+          }
         }
       })
       .catch(() => {});
@@ -335,6 +346,11 @@ export default function Home() {
         throw new Error(data.error || "답장 생성에 실패했습니다");
       }
       setReplies(data.replies);
+      // 비로그인 첫 생성 성공 시 로그인 유도
+      if (!isAuthenticated && !localStorage.getItem("reply-login-nudge-shown")) {
+        setShowLoginNudge(true);
+        localStorage.setItem("reply-login-nudge-shown", "1");
+      }
       const entry: HistoryEntry = {
         id: String(Date.now()),
         inputMessage: inputMessage.trim(),
@@ -480,11 +496,33 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col items-center px-4 py-8 max-w-xl mx-auto w-full">
         {/* Mode Tabs */}
-        <div data-tour="tour-tab-bar" className="w-full flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900 mb-6 transition-colors duration-200">
+        <div data-tour="tour-tab-bar" className="w-full flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
           <button onClick={() => setMode("generate")} className={tabClass(mode === "generate")}>답장 만들기</button>
           <button onClick={() => setMode("review")} className={tabClass(mode === "review")}>답장 검토</button>
           <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>다듬기</button>
         </div>
+        <p className="w-full text-center text-xs text-slate-400 dark:text-slate-500 mt-1.5 mb-5">
+          {mode === "generate" ? "받은 메시지를 넣으면 답장 3개를 만들어요" : mode === "review" ? "내가 쓴 답장의 톤과 맞춤법을 분석해요" : "대충 쓴 문장을 깔끔하게 다듬어요"}
+        </p>
+
+        {/* 웰컴 메시지 */}
+        {showWelcome && (
+          <div className="w-full mb-4 p-4 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-xl animate-fade-in-up">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">가입을 환영해요!</p>
+                <p className="text-xs text-teal-600 dark:text-teal-400 mt-1 leading-relaxed">
+                  매달 50크레딧이 무료로 충전돼요. 답장 만들기, 검토, 다듬기 모두 1크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
+                </p>
+              </div>
+              <button onClick={() => setShowWelcome(false)} className="shrink-0 p-1 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-500 dark:text-teal-400">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 클립보드 감지 배너 */}
         {clipboardText && mode === "generate" && (
@@ -734,6 +772,31 @@ export default function Home() {
                 </div>
               ))}
             </section>
+          )}
+
+          {/* 로그인 유도 (비로그인 첫 생성 후) */}
+          {showLoginNudge && (
+            <div className="w-full mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl animate-fade-in-up">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">이 답장을 저장하고 싶으세요?</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    로그인하면 히스토리에 자동 저장되고, 매달 50크레딧을 무료로 받아요.
+                  </p>
+                  <Link
+                    href="/sign-in"
+                    className="inline-flex items-center gap-1.5 mt-2.5 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold transition-colors"
+                  >
+                    무료로 로그인하기
+                  </Link>
+                </div>
+                <button onClick={() => setShowLoginNudge(false)} className="shrink-0 p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           )}
 
           {/* History */}

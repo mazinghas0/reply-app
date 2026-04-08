@@ -240,6 +240,62 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ChatGPT와 다른 점 */}
+      <section className="px-4 py-24 border-t border-slate-800/50">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-white mb-4">
+            &ldquo;ChatGPT에 시키면 되지 않나요?&rdquo;
+          </h2>
+          <p className="text-center text-slate-400 mb-14">
+            범용 AI와 답장 전용 도구는 다릅니다
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50">
+              <p className="text-sm font-semibold text-slate-500 mb-4">ChatGPT / 범용 AI</p>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-600 shrink-0 mt-0.5">-</span>
+                  프롬프트를 직접 작성해야 함
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-600 shrink-0 mt-0.5">-</span>
+                  답장이 교과서체 &middot; 번역체
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-600 shrink-0 mt-0.5">-</span>
+                  관계 &middot; 상황 맥락 매번 설명
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-slate-600 shrink-0 mt-0.5">-</span>
+                  결과를 직접 복사 &middot; 붙여넣기
+                </li>
+              </ul>
+            </div>
+            <div className="p-5 rounded-2xl bg-teal-950/30 border border-teal-800/40">
+              <p className="text-sm font-semibold text-teal-400 mb-4">리플라이</p>
+              <ul className="space-y-3 text-sm text-slate-300">
+                <li className="flex items-start gap-2">
+                  <CheckIcon />
+                  메시지 붙여넣기 한 번이면 끝
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckIcon />
+                  한국인이 실제로 쓰는 자연스러운 문체
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckIcon />
+                  관계 &middot; 목적 &middot; 전략 3단계 맞춤 설정
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckIcon />
+                  원터치 복사 + 히스토리 자동 저장
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 이런 상황에서 쓰세요 */}
       <section className="px-4 py-24 border-t border-slate-800/50">
         <div className="max-w-3xl mx-auto">
