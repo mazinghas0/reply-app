@@ -17,6 +17,7 @@
 body {
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   color: var(--foreground);
+  overscroll-behavior-y: contain;
 }
 
 .dark body {
