@@ -192,4 +192,71 @@ export async function getCredits(userId: string): Promise<{
   };
 }
 
+export async function applyReferralCode(
+  userId: string,
+  code: string
+): Promise<{ success: boolean; message: string }> {
+  const supabase = getSupabase();
+  if (!supabase) return { success: false, message: "서비스를 사용할 수 없습니다" };
+
+  // 이미 추천 코드를 사용한 적 있는지 확인
+  const { data: existing } = await supabase
+    .from("credit_transactions")
+    .select("id")
+    .eq("clerk_user_id", userId)
+    .eq("type", "referral_applied")
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    return { success: false, message: "이미 추천 코드를 사용했어요" };
+  }
+
+  // 추천 코드 소유자 찾기
+  const { data: referrer } = await supabase
+    .from("user_credits")
+    .select("clerk_user_id, credits")
+    .eq("referral_code", code.toUpperCase().trim())
+    .single();
+
+  if (!referrer) {
+    return { success: false, message: "존재하지 않는 추천 코드예요" };
+  }
+
+  // 자기 자신 추천 차단
+  if (referrer.clerk_user_id === userId) {
+    return { success: false, message: "본인의 추천 코드는 사용할 수 없어요" };
+  }
+
+  // 추천받은 사람: 보너스 크레딧 지급
+  const user = await ensureUser(userId);
+  if (!user) return { success: false, message: "사용자 정보를 찾을 수 없습니다" };
+
+  await supabase
+    .from("user_credits")
+    .update({ credits: user.credits + REFERRAL_BONUS })
+    .eq("clerk_user_id", userId);
+
+  await supabase.from("credit_transactions").insert({
+    clerk_user_id: userId,
+    amount: REFERRAL_BONUS,
+    type: "referral_applied",
+    description: `추천 코드 적용 (추천인: ${referrer.clerk_user_id})`,
+  });
+
+  // 추천한 사람: 보너스 크레딧 지급
+  await supabase
+    .from("user_credits")
+    .update({ credits: referrer.credits + REFERRAL_BONUS })
+    .eq("clerk_user_id", referrer.clerk_user_id);
+
+  await supabase.from("credit_transactions").insert({
+    clerk_user_id: referrer.clerk_user_id,
+    amount: REFERRAL_BONUS,
+    type: "referral_bonus",
+    description: `추천 보너스 (추천된 사용자: ${userId})`,
+  });
+
+  return { success: true, message: `${REFERRAL_BONUS} 크레딧을 받았어요!` };
+}
+
 export { MONTHLY_FREE_CREDITS, REFERRAL_BONUS };

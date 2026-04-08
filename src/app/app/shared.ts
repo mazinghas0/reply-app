@@ -108,6 +108,8 @@ export const EXAMPLE_SCENARIOS: ExampleScenario[] = [
 
 // ─── Streak ─────────────────────────────────────
 
+export const REFERRAL_BONUS = 20;
+
 export const HISTORY_KEY = "reply-history";
 export const MAX_HISTORY = 10;
 const STREAK_KEY = "reply-streak";

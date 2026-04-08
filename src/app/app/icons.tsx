@@ -67,3 +67,26 @@ export function IconTrash() {
     </svg>
   );
 }
+
+export function IconGift() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="8" width="18" height="13" rx="2" />
+      <path d="M12 8v13" />
+      <path d="M3 13h18" />
+      <path d="M7.5 8C7.5 8 7 3 9.5 3s3.5 2.5 2.5 5" />
+      <path d="M16.5 8C16.5 8 17 3 14.5 3S11 5.5 12 8" />
+    </svg>
+  );
+}
+
+export function IconShare() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+    </svg>
+  );
+}

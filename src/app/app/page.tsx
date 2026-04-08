@@ -11,6 +11,7 @@ import TourOnboarding from "./tourOnboarding";
 import HelpGuide from "./helpGuide";
 import NewsPage from "./newsPage";
 import SupportChat from "./supportChat";
+import ReferralPanel from "./referralPanel";
 import { hasUnreadNews, markNewsSeen } from "./newsData";
 import ContextSelector, {
   type ContextSelection,
@@ -52,7 +53,7 @@ const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // ─── Nav Auth ────────────────────────────────────
 
-function PlanBadge({ remaining, resetAt }: { remaining: number | null; resetAt: string | null }) {
+function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: number | null; resetAt: string | null; onOpenReferral: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -142,10 +143,23 @@ function PlanBadge({ remaining, resetAt }: { remaining: number | null; resetAt: 
               리셋: {resetLabel}
             </p>
           )}
-          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
             <span className="text-xs text-teal-600 dark:text-teal-400 font-medium">
               PRO 출시 준비 중
             </span>
+            <button
+              onClick={(e) => { e.stopPropagation(); setOpen(false); onOpenReferral(); }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="8" width="18" height="13" rx="2" />
+                <path d="M12 8v13" />
+                <path d="M3 13h18" />
+                <path d="M7.5 8C7.5 8 7 3 9.5 3s3.5 2.5 2.5 5" />
+                <path d="M16.5 8C16.5 8 17 3 14.5 3S11 5.5 12 8" />
+              </svg>
+              추천하고 크레딧 받기
+            </button>
           </div>
         </div>
       )}
@@ -153,11 +167,11 @@ function PlanBadge({ remaining, resetAt }: { remaining: number | null; resetAt: 
   );
 }
 
-function NavAuth({ remaining, resetAt }: { remaining: number | null; resetAt: string | null }) {
+function NavAuth({ remaining, resetAt, onOpenReferral }: { remaining: number | null; resetAt: string | null; onOpenReferral: () => void }) {
   const { isSignedIn } = useAuth();
   return isSignedIn ? (
     <div className="flex items-center gap-3">
-      <PlanBadge remaining={remaining} resetAt={resetAt} />
+      <PlanBadge remaining={remaining} resetAt={resetAt} onOpenReferral={onOpenReferral} />
       <UserButton />
     </div>
   ) : (
@@ -219,6 +233,8 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showLoginNudge, setShowLoginNudge] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -237,6 +253,9 @@ export default function Home() {
         }
         if (data.resetAt) {
           setResetAt(data.resetAt);
+        }
+        if (data.referralCode) {
+          setReferralCode(data.referralCode);
         }
         if (data.isAuthenticated) {
           setIsAuthenticated(true);
@@ -428,6 +447,13 @@ export default function Home() {
       {showSupport && (
         <SupportChat onClose={() => setShowSupport(false)} />
       )}
+      {showReferral && referralCode && (
+        <ReferralPanel
+          onClose={() => setShowReferral(false)}
+          referralCode={referralCode}
+          onCreditsUpdate={(c) => setRemaining(c)}
+        />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -489,7 +515,7 @@ export default function Home() {
             </button>
             </div>
             <ThemeToggle />
-            {CLERK_ENABLED && <NavAuth remaining={remaining} resetAt={resetAt} />}
+            {CLERK_ENABLED && <NavAuth remaining={remaining} resetAt={resetAt} onOpenReferral={() => setShowReferral(true)} />}
           </div>
         </div>
       </nav>
