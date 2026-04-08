@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import HeroDemo from "./heroDemo";
 import LandingAuth from "./landingAuth";
+import TrialButton from "./trialButton";
 
 const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -201,7 +202,7 @@ export default function LandingPage() {
             >
               무료로 시작하기
             </Link>
-            <p className="text-sm text-slate-500">가입 없이 바로 사용</p>
+            <TrialButton />
           </div>
         </div>
 
