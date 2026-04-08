@@ -300,7 +300,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-sm text-slate-300">
                 <li className="flex items-center gap-2">
                   <CheckIcon />
-                  로그인 시 하루 10회 (비로그인 5회)
+                  로그인 시 월 50크레딧 (비로그인 일 3회)
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckIcon />
@@ -382,7 +382,7 @@ export default function LandingPage() {
             </div>
             <span className="text-sm font-semibold text-slate-400">리플라이</span>
           </div>
-          <p className="text-xs text-slate-600">Kevin AI Corp &middot; v1.0.0</p>
+          <p className="text-xs text-slate-600">Kevin AI Corp &middot; v1.1.0</p>
         </div>
       </footer>
     </main>

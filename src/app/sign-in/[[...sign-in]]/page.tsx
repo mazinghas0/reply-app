@@ -36,7 +36,7 @@ export default function SignInPage() {
         }}
       />
       <p className="mt-6 text-sm text-slate-500">
-        로그인하면 하루 10회까지 무료로 사용할 수 있어요
+        로그인하면 매월 50크레딧을 무료로 받을 수 있어요
       </p>
     </div>
   );

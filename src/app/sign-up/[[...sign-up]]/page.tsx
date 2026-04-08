@@ -35,7 +35,7 @@ export default function SignUpPage() {
         }}
       />
       <p className="mt-6 text-sm text-slate-500">
-        가입하면 하루 10회까지 무료로 사용할 수 있어요
+        가입하면 매월 50크레딧을 무료로 받을 수 있어요
       </p>
     </div>
   );

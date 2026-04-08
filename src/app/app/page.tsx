@@ -57,7 +57,7 @@ function NavAuth() {
   const { isSignedIn } = useAuth();
   return isSignedIn ? (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-slate-400 dark:text-slate-500">하루 10회</span>
+      <span className="text-xs text-slate-400 dark:text-slate-500">월 50크레딧</span>
       <UserButton />
     </div>
   ) : (
@@ -124,6 +124,16 @@ export default function Home() {
       setShowOnboarding(true);
     }
     setUnreadNews(hasUnreadNews());
+
+    // 초기 크레딧 잔액 로드
+    fetch("/api/credits")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.credits === "number") {
+          setRemaining(data.credits);
+        }
+      })
+      .catch(() => {});
 
     // Web Share Target / Chrome 확장: URL 파라미터로 받은 텍스트 자동 입력
     const params = new URLSearchParams(window.location.search);
@@ -749,7 +759,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-600">Kevin AI Corp &middot; v1.0.0</p>
+          <p className="text-xs text-slate-400 dark:text-slate-600">Kevin AI Corp &middot; v1.1.0</p>
         </footer>
       </main>
     </div>
