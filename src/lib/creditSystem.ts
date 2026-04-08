@@ -24,6 +24,12 @@ function generateReferralCode(): string {
   return code;
 }
 
+function getNextResetDate(): string {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  return next.toISOString();
+}
+
 function isNewMonth(resetAt: string): boolean {
   const reset = new Date(resetAt);
   const now = new Date();
@@ -175,14 +181,14 @@ export async function getCredits(userId: string): Promise<{
     return {
       credits: MONTHLY_FREE_CREDITS,
       referralCode: user.referral_code,
-      resetAt: new Date().toISOString(),
+      resetAt: getNextResetDate(),
     };
   }
 
   return {
     credits: user.credits,
     referralCode: user.referral_code,
-    resetAt: user.credits_reset_at,
+    resetAt: getNextResetDate(),
   };
 }
 
