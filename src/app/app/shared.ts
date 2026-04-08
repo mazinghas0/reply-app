@@ -177,3 +177,29 @@ export function formatTime(isoString: string): string {
   if (diffHour < 24) return `${diffHour}시간 전`;
   return date.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
 }
+
+// ─── Favorites ──────────────────────────────────
+
+const FAVORITES_KEY = "reply-favorites";
+
+export function loadFavorites(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    if (!raw) return new Set();
+    return new Set(JSON.parse(raw) as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+export function toggleFavorite(id: string): Set<string> {
+  const favs = loadFavorites();
+  if (favs.has(id)) {
+    favs.delete(id);
+  } else {
+    favs.add(id);
+  }
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favs]));
+  return new Set(favs);
+}

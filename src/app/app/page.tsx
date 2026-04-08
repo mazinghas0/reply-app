@@ -12,6 +12,7 @@ import HelpGuide from "./helpGuide";
 import NewsPage from "./newsPage";
 import SupportChat from "./supportChat";
 import ReferralPanel from "./referralPanel";
+import HistorySection from "./historySection";
 import { hasUnreadNews, markNewsSeen } from "./newsData";
 import ContextSelector, {
   type ContextSelection,
@@ -30,13 +31,11 @@ import {
   TONE_STYLES,
   TONE_COLORS,
   SPEEDS,
-  SPEED_LABELS,
   HISTORY_KEY,
   loadStreak,
   updateStreak,
   loadHistory,
   saveToHistory,
-  formatTime,
 } from "./shared";
 import {
   IconChat,
@@ -44,9 +43,6 @@ import {
   IconCheck,
   IconError,
   IconSpinner,
-  IconChevron,
-  IconClock,
-  IconTrash,
 } from "./icons";
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -56,6 +52,27 @@ const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: number | null; resetAt: string | null; onOpenReferral: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "done">("idle");
+  const [waitlistMsg, setWaitlistMsg] = useState("");
+
+  const handleWaitlist = async () => {
+    if (!waitlistEmail.includes("@") || waitlistStatus === "loading") return;
+    setWaitlistStatus("loading");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: waitlistEmail }),
+      });
+      const data = await res.json();
+      setWaitlistMsg(data.message);
+      setWaitlistStatus("done");
+    } catch {
+      setWaitlistMsg("오류가 발생했습니다");
+      setWaitlistStatus("done");
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -144,9 +161,30 @@ function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: number |
             </p>
           )}
           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
-            <span className="text-xs text-teal-600 dark:text-teal-400 font-medium">
-              PRO 출시 준비 중
-            </span>
+            {waitlistStatus === "done" ? (
+              <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">{waitlistMsg}</p>
+            ) : (
+              <>
+                <p className="text-xs text-slate-500 dark:text-slate-400">PRO 출시 알림 받기</p>
+                <div className="flex gap-1.5">
+                  <input
+                    type="email"
+                    value={waitlistEmail}
+                    onChange={(e) => setWaitlistEmail(e.target.value)}
+                    placeholder="이메일"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 min-w-0 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-400 transition-all"
+                  />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleWaitlist(); }}
+                    disabled={!waitlistEmail.includes("@") || waitlistStatus === "loading"}
+                    className="shrink-0 px-2.5 py-1.5 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  >
+                    {waitlistStatus === "loading" ? "..." : "등록"}
+                  </button>
+                </div>
+              </>
+            )}
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(false); onOpenReferral(); }}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -207,8 +245,6 @@ export default function Home() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
   const [intentHint, setIntentHint] = useState("");
   const [clipboardText, setClipboardText] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -428,8 +464,6 @@ export default function Home() {
   const handleClearHistory = () => {
     localStorage.removeItem(HISTORY_KEY);
     setHistory([]);
-    setShowHistory(false);
-    setExpandedHistoryId(null);
   };
 
   return (
@@ -753,7 +787,7 @@ export default function Home() {
                   </div>
                   <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">{reply.content}</p>
 
-                  {/* Expand buttons */}
+                  {/* Expand + Share buttons */}
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                     {(["stronger", "softer", "shorter"] as const).map((variant) => {
                       const labels = { stronger: "더 강하게", softer: "더 부드럽게", shorter: "더 짧게" };
@@ -768,6 +802,30 @@ export default function Home() {
                         </button>
                       );
                     })}
+                    <div className="flex-1" />
+                    <button
+                      onClick={async () => {
+                        const text = `${reply.content}\n\n— 리플라이로 만든 답장\nhttps://reply-app-sepia.vercel.app`;
+                        if (navigator.share) {
+                          await navigator.share({ text }).catch(() => {});
+                        } else {
+                          await navigator.clipboard.writeText(text);
+                          setCopiedKey(`share-${index}`);
+                          setTimeout(() => setCopiedKey(null), 2000);
+                        }
+                      }}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium rounded-lg border transition-all cursor-pointer ${
+                        copiedKey === `share-${index}`
+                          ? "border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
+                          : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400"
+                      }`}
+                    >
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+                        <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+                      </svg>
+                      {copiedKey === `share-${index}` ? "복사됨" : "공유"}
+                    </button>
                   </div>
 
                   {/* Expanded replies */}
@@ -826,82 +884,13 @@ export default function Home() {
           )}
 
           {/* History */}
-          {history.length > 0 && (
-            <section className="w-full mt-10">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                >
-                  <IconClock />
-                  최근 기록 ({history.length})
-                  <IconChevron open={showHistory} />
-                </button>
-                {streak.count > 0 && (
-                  <span className="inline-flex items-center gap-1 text-sm font-medium text-amber-500 dark:text-amber-400">
-                    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 5h-1.5L10 11 6 7h2L6 3z" /></svg>
-                    {streak.count}일
-                  </span>
-                )}
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-              </div>
-
-              {showHistory && (
-                <div className="space-y-2">
-                  {history.map((entry) => {
-                    const isExpanded = expandedHistoryId === entry.id;
-                    const toneLabel = TONES.find((t) => t.id === entry.tone)?.label ?? entry.tone;
-                    return (
-                      <div key={entry.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden">
-                        <button
-                          onClick={() => setExpandedHistoryId(isExpanded ? null : entry.id)}
-                          className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                        >
-                          <div className="flex-1 min-w-0 mr-2">
-                            <p className="text-sm text-slate-800 dark:text-slate-200 truncate">{entry.inputMessage}</p>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                              {toneLabel} · {SPEED_LABELS[entry.speed]} · {formatTime(entry.createdAt)}
-                            </p>
-                          </div>
-                          <IconChevron open={isExpanded} />
-                        </button>
-                        {isExpanded && (
-                          <div className="px-4 pb-3 space-y-2 border-t border-slate-50 dark:border-slate-800">
-                            {entry.replies.map((reply, i) => (
-                              <div key={i} className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg mt-2">
-                                <div className="flex justify-between items-center mb-1.5">
-                                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{reply.label}</span>
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); handleCopy(reply.content, `history-${entry.id}-${i}`); }}
-                                    className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md font-medium transition-all cursor-pointer ${
-                                      copiedKey === `history-${entry.id}-${i}`
-                                        ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
-                                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                                    }`}
-                                  >
-                                    {copiedKey === `history-${entry.id}-${i}` ? <><IconCheck /> 복사됨</> : <><IconCopy /> 복사</>}
-                                  </button>
-                                </div>
-                                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">{reply.content}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  <button
-                    onClick={handleClearHistory}
-                    className="flex items-center gap-1.5 mx-auto mt-2 text-xs text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 transition-colors cursor-pointer"
-                  >
-                    <IconTrash />
-                    기록 모두 삭제
-                  </button>
-                </div>
-              )}
-            </section>
-          )}
+          <HistorySection
+            history={history}
+            streak={streak}
+            copiedKey={copiedKey}
+            onCopy={handleCopy}
+            onClearHistory={handleClearHistory}
+          />
         </>}
 
         {/* ═══ Review Mode ═══ */}
