@@ -13,6 +13,7 @@ import NewsPage from "./newsPage";
 import SupportChat from "./supportChat";
 import ReferralPanel from "./referralPanel";
 import HistorySection from "./historySection";
+import ShareMenu from "./shareMenu";
 import { hasUnreadNews, markNewsSeen } from "./newsData";
 import ContextSelector, {
   type ContextSelection,
@@ -803,29 +804,7 @@ export default function Home() {
                       );
                     })}
                     <div className="flex-1" />
-                    <button
-                      onClick={async () => {
-                        const text = `${reply.content}\n\n— 리플라이로 만든 답장\nhttps://reply-app-sepia.vercel.app`;
-                        if (navigator.share) {
-                          await navigator.share({ text }).catch(() => {});
-                        } else {
-                          await navigator.clipboard.writeText(text);
-                          setCopiedKey(`share-${index}`);
-                          setTimeout(() => setCopiedKey(null), 2000);
-                        }
-                      }}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-medium rounded-lg border transition-all cursor-pointer ${
-                        copiedKey === `share-${index}`
-                          ? "border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30"
-                          : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400"
-                      }`}
-                    >
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
-                        <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
-                      </svg>
-                      {copiedKey === `share-${index}` ? "복사됨" : "공유"}
-                    </button>
+                    <ShareMenu content={reply.content} index={index} />
                   </div>
 
                   {/* Expanded replies */}
