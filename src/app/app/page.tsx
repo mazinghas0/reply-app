@@ -31,6 +31,7 @@ import {
   SPEEDS,
   SPEED_LABELS,
   HISTORY_KEY,
+  EXAMPLE_SCENARIOS,
   loadStreak,
   updateStreak,
   loadHistory,
@@ -114,6 +115,7 @@ export default function Home() {
   const [expandedReplyIndex, setExpandedReplyIndex] = useState<number | null>(null);
   const [expandedReplies, setExpandedReplies] = useState<Record<number, string[]>>({});
   const [expandLoading, setExpandLoading] = useState(false);
+  const [pendingExample, setPendingExample] = useState(false);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -164,6 +166,30 @@ export default function Home() {
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [checkClipboard]);
+
+  // 예시 시나리오 선택 후 state 반영 완료되면 자동 생성
+  useEffect(() => {
+    if (pendingExample && inputMessage.trim()) {
+      setPendingExample(false);
+      handleGenerate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingExample, inputMessage]);
+
+  const handleExampleClick = (index: number) => {
+    const scenario = EXAMPLE_SCENARIOS[index];
+    setInputMessage(scenario.message);
+    setSelectedTone(scenario.tone);
+    setContext({
+      relationship: scenario.relationship,
+      relationshipCustom: "",
+      purpose: scenario.purpose,
+      purposeCustom: "",
+      strategy: null,
+    });
+    setClipboardText(null);
+    setPendingExample(true);
+  };
 
   const handleGenerate = async () => {
     if (!inputMessage.trim()) return;
@@ -409,12 +435,27 @@ export default function Home() {
                 maxLength={2000}
                 className="w-full h-36 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
               />
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Ctrl</kbd>
-                <span>+</span>
-                <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Enter</kbd>
-                <span className="ml-0.5">로 바로 생성</span>
-              </p>
+              {!inputMessage.trim() && !loading ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-slate-400 dark:text-slate-500">예시로 해보기</span>
+                  {EXAMPLE_SCENARIOS.map((s, i) => (
+                    <button
+                      key={s.label}
+                      onClick={() => handleExampleClick(i)}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all cursor-pointer"
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Ctrl</kbd>
+                  <span>+</span>
+                  <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Enter</kbd>
+                  <span className="ml-0.5">로 바로 생성</span>
+                </p>
+              )}
             </div>
 
             {/* Context Selector (3-step) */}

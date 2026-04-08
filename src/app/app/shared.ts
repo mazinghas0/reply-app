@@ -72,6 +72,40 @@ export const SPEED_LABELS: Record<Speed, string> = {
   quality: "정교한",
 };
 
+// ─── Example Scenarios (예시로 해보기) ──────────
+
+export interface ExampleScenario {
+  label: string;
+  message: string;
+  relationship: "boss" | "colleague" | "crush";
+  purpose: "reject" | "schedule" | "react";
+  tone: ToneId;
+}
+
+export const EXAMPLE_SCENARIOS: ExampleScenario[] = [
+  {
+    label: "직장 회의",
+    message: "내일 오전 10시 회의 참석 가능하신가요? 안건은 Q2 매출 리뷰입니다.",
+    relationship: "boss",
+    purpose: "schedule",
+    tone: "polite",
+  },
+  {
+    label: "과제 마감",
+    message: "교수님, 과제 제출 기한을 하루만 연장해주실 수 있을까요? 자료 정리가 조금 더 필요합니다.",
+    relationship: "colleague",
+    purpose: "reject",
+    tone: "flexible",
+  },
+  {
+    label: "썸 답장",
+    message: "어제 보내준 노래 좋더라~ 요즘 이런 장르 많이 듣는 거야?",
+    relationship: "crush",
+    purpose: "react",
+    tone: "friendly",
+  },
+];
+
 // ─── Streak ─────────────────────────────────────
 
 export const HISTORY_KEY = "reply-history";
