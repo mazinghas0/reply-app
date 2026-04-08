@@ -49,11 +49,11 @@ export default function ReviewTab({ initialDraft = "", onSuccess }: ReviewTabPro
         {remaining !== null && (
           <div className="flex justify-end">
             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-              remaining <= 3
+              remaining <= 5
                 ? "bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900"
                 : "bg-slate-50 text-slate-500 border border-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
             }`}>
-              오늘 {remaining}회 남음
+              {remaining} 크레딧 남음
             </span>
           </div>
         )}

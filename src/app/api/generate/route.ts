@@ -31,6 +31,7 @@ const MODEL_MAP = {
 } as const;
 
 import { checkRateLimit } from "@/lib/rateLimit";
+import { checkAndDeductCredit } from "@/lib/creditSystem";
 
 const MAX_MESSAGE_LENGTH = 2000;
 
@@ -74,20 +75,30 @@ export async function POST(request: NextRequest) {
     // Clerk not configured — use anonymous rate limiting
   }
 
-  const { allowed, remaining } = await checkRateLimit(request, userId, {
-    authenticatedLimit: 10,
-    anonymousLimit: 5,
-    prefix: "generate",
-  });
-
-  if (!allowed) {
-    const message = userId
-      ? "오늘 사용량을 초과했습니다. 내일 다시 이용해 주세요. (하루 10건)"
-      : "오늘 무료 사용량(5건)을 초과했습니다. 로그인하면 하루 10건까지 사용할 수 있어요.";
-    return Response.json(
-      { error: message, remaining: 0, isAuthenticated: !!userId },
-      { status: 429 }
-    );
+  // 로그인 유저: 월간 크레딧, 비로그인: 일일 제한
+  let remaining = 0;
+  if (userId) {
+    const credit = await checkAndDeductCredit(userId);
+    if (!credit.allowed) {
+      return Response.json(
+        { error: "이번 달 크레딧을 모두 사용했습니다. 다음 달에 자동 충전됩니다.", remaining: 0, isAuthenticated: true },
+        { status: 429 }
+      );
+    }
+    remaining = credit.remaining;
+  } else {
+    const rateResult = await checkRateLimit(request, null, {
+      authenticatedLimit: 10,
+      anonymousLimit: 3,
+      prefix: "generate",
+    });
+    if (!rateResult.allowed) {
+      return Response.json(
+        { error: "무료 사용량(3회)을 초과했습니다. 로그인하면 매월 50크레딧을 받을 수 있어요.", remaining: 0, isAuthenticated: false },
+        { status: 429 }
+      );
+    }
+    remaining = rateResult.remaining;
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
