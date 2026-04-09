@@ -74,6 +74,10 @@ export default function GenerateTab({
 
   useEffect(() => {
     setHistory(loadHistory());
+    const savedTone = localStorage.getItem("reply-default-tone");
+    if (savedTone && TONES.some((t) => t.id === savedTone)) setSelectedTone(savedTone as ToneId);
+    const savedSpeed = localStorage.getItem("reply-default-speed");
+    if (savedSpeed && SPEEDS.some((s) => s.id === savedSpeed)) setSpeed(savedSpeed as Speed);
   }, []);
 
   const handleGenerate = async () => {

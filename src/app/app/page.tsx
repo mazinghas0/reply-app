@@ -61,6 +61,20 @@ export default function Home() {
     }
     setUnreadNews(hasUnreadNews());
 
+    // 기본 시작 탭
+    const savedTab = localStorage.getItem("reply-default-tab");
+    if (savedTab && ["generate", "review", "refine"].includes(savedTab)) {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get("shared")) setMode(savedTab as AppMode);
+    }
+
+    // 글자 크기 (zoom)
+    const savedFontSize = localStorage.getItem("reply-font-size");
+    if (savedFontSize === "small" || savedFontSize === "large") {
+      const el = document.getElementById("app-container");
+      if (el) el.style.setProperty("zoom", savedFontSize === "small" ? "0.9" : "1.1");
+    }
+
     // 초기 크레딧 잔액 로드
     fetch("/api/credits")
       .then((res) => res.json())
@@ -126,6 +140,7 @@ export default function Home() {
 
   // 클립보드 자동 감지: 앱으로 돌아올 때 클립보드 확인
   const checkClipboard = useCallback(async () => {
+    if (localStorage.getItem("reply-clipboard-detect") === "off") return;
     if (inputMessage.trim() || mode !== "generate") return;
     try {
       const text = await navigator.clipboard.readText();
@@ -148,7 +163,7 @@ export default function Home() {
   }, [checkClipboard]);
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
+    <div id="app-container" className="flex-1 flex flex-col bg-white dark:bg-slate-950 transition-colors duration-200">
       <InstallBanner />
       {showOnboarding && (
         <TourOnboarding onComplete={() => { localStorage.setItem("reply-tour-done", "1"); setShowOnboarding(false); }} />
@@ -170,7 +185,7 @@ export default function Home() {
         />
       )}
       {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} />
+        <SettingsPanel onClose={() => setShowSettings(false)} onResetTour={() => setShowOnboarding(true)} />
       )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">

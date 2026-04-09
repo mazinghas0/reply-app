@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { saveStyleSample, getStyleSampleCount } from "@/lib/styleSystem";
+import { saveStyleSample, getStyleSampleCount, deleteAllStyleSamples } from "@/lib/styleSystem";
 
 interface StyleSaveRequest {
   original: string;
@@ -58,4 +58,21 @@ export async function GET() {
 
   const count = await getStyleSampleCount(userId);
   return Response.json({ count, hasEnough: count >= 5 });
+}
+
+export async function DELETE() {
+  let userId: string | null = null;
+  try {
+    const result = await auth();
+    userId = result.userId;
+  } catch {
+    return Response.json({ error: "인증이 필요합니다." }, { status: 401 });
+  }
+
+  if (!userId) {
+    return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  }
+
+  const success = await deleteAllStyleSamples(userId);
+  return Response.json({ success });
 }

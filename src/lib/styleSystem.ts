@@ -78,6 +78,18 @@ export async function getStyleSampleCount(userId: string): Promise<number> {
   return count ?? 0;
 }
 
+export async function deleteAllStyleSamples(userId: string): Promise<boolean> {
+  const supabase = getSupabase();
+  if (!supabase) return false;
+
+  const { error } = await supabase
+    .from("style_samples")
+    .delete()
+    .eq("clerk_user_id", userId);
+
+  return !error;
+}
+
 export async function getStylePromptBlock(userId: string): Promise<string> {
   const supabase = getSupabase();
   if (!supabase) return "";
