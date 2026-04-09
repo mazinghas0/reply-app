@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { koKR } from "@clerk/localizations";
 import { Geist } from "next/font/google";
+import CookieBanner from "./cookieBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-[family-name:var(--font-geist-sans)]">
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('reply-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()` }} />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

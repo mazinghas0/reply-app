@@ -1,6 +1,35 @@
+import { NextRequest } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { checkRateLimit } from "@/lib/rateLimit";
 
-export async function POST(req: Request) {
+const ALLOWED_ORIGINS = [
+  "https://reply-app-sepia.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
+
+function isOriginAllowed(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  if (origin && ALLOWED_ORIGINS.some((a) => origin.startsWith(a))) return true;
+  if (referer && ALLOWED_ORIGINS.some((a) => referer.startsWith(a))) return true;
+  return false;
+}
+
+export async function POST(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return Response.json({ success: false, message: "허용되지 않은 요청입니다." }, { status: 403 });
+  }
+
+  const { allowed } = await checkRateLimit(req, null, {
+    authenticatedLimit: 5,
+    anonymousLimit: 5,
+    prefix: "waitlist",
+  });
+  if (!allowed) {
+    return Response.json({ success: false, message: "요청이 너무 많습니다. 나중에 다시 시도해주세요." }, { status: 429 });
+  }
+
   const body = await req.json();
   const email = body.email;
 

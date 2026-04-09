@@ -111,6 +111,28 @@ export default function SettingsPanel({ onClose, onResetTour }: SettingsPanelPro
     window.location.reload();
   };
 
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (!confirm("정말로 탈퇴하시겠어요?\n\n모든 데이터(크레딧, 히스토리, 말투 학습, 프리셋)가 삭제되며 복구할 수 없습니다.")) return;
+    if (!confirm("마지막 확인입니다. 탈퇴를 진행할까요?")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/account", { method: "DELETE" });
+      if (res.ok) {
+        localStorage.clear();
+        window.location.href = "/";
+      } else {
+        const data = await res.json();
+        alert(data.error ?? "탈퇴 처리 중 오류가 발생했습니다.");
+        setDeleting(false);
+      }
+    } catch {
+      alert("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
+      setDeleting(false);
+    }
+  };
+
   const handleResetStyle = async () => {
     if (styleCount === null || styleCount === 0) return;
     if (!confirm("AI가 학습한 말투 데이터를 초기화할까요?\n다시 5건 이상 수정해야 개인화가 적용됩니다.")) return;
@@ -212,6 +234,18 @@ export default function SettingsPanel({ onClose, onResetTour }: SettingsPanelPro
               onClick={handleClearHistory}
               variant="danger"
               disabled={historyCount === 0}
+            />
+          </SettingsGroup>
+
+          {/* 계정 */}
+          <SettingsGroup label="계정">
+            <ActionRow
+              title="회원 탈퇴"
+              description="모든 데이터가 삭제되며 복구할 수 없어요"
+              buttonLabel={deleting ? "처리중..." : "탈퇴하기"}
+              onClick={handleDeleteAccount}
+              variant="danger"
+              disabled={deleting}
             />
           </SettingsGroup>
 

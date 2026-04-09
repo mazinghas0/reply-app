@@ -244,7 +244,15 @@ ${body.message}${hintBlock}`;
     );
   }
 
-  const replies = JSON.parse(jsonMatch[0]) as Reply[];
+  let replies: Reply[];
+  try {
+    replies = JSON.parse(jsonMatch[0]) as Reply[];
+  } catch {
+    return Response.json(
+      { error: "AI 응답을 파싱할 수 없습니다. 다시 시도해 주세요." },
+      { status: 500 }
+    );
+  }
 
   return Response.json({ replies, remaining, isAuthenticated: !!userId });
 }

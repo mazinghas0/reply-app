@@ -164,7 +164,15 @@ ${body.draft}${contextBlock}`,
     return Response.json({ error: "AI 응답 형식이 올바르지 않습니다." }, { status: 500 });
   }
 
-  const review = JSON.parse(jsonMatch[0]) as ReviewResult;
+  let review: ReviewResult;
+  try {
+    review = JSON.parse(jsonMatch[0]) as ReviewResult;
+  } catch {
+    return Response.json(
+      { error: "AI 응답을 파싱할 수 없습니다. 다시 시도해 주세요." },
+      { status: 500 }
+    );
+  }
 
   return Response.json({ review, remaining });
 }

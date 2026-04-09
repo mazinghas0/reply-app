@@ -144,7 +144,15 @@ ${body.draft}`,
     return Response.json({ error: "AI 응답 형식이 올바르지 않습니다." }, { status: 500 });
   }
 
-  const result = JSON.parse(jsonMatch[0]) as { refined: string };
+  let result: { refined: string };
+  try {
+    result = JSON.parse(jsonMatch[0]) as { refined: string };
+  } catch {
+    return Response.json(
+      { error: "AI 응답을 파싱할 수 없습니다. 다시 시도해 주세요." },
+      { status: 500 }
+    );
+  }
 
   return Response.json({ refined: result.refined, remaining });
 }

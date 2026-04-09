@@ -78,7 +78,7 @@ async function notifyKevin(type: string, summary: string, detail: string): Promi
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-internal-secret": "Ulf60mzCwAoEDAbv0KFSP84Wfa66_QpoN3JCsqGllgU",
+        "x-internal-secret": process.env.ROBIN_NOTIFY_SECRET ?? "",
       },
       body: JSON.stringify({
         title: `[리플라이] ${typeLabels[type] ?? type}`,
