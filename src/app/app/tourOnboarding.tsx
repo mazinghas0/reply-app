@@ -39,14 +39,14 @@ const TOUR_STEPS: TourStep[] = [
     description: "버튼을 누르거나 Ctrl+Enter로 바로 생성할 수 있어요. 답장 3개가 한 번에 나와요.",
   },
   {
-    target: "tour-support-button",
-    title: "궁금한 점은 고객센터에",
-    description: "사용 중 문의사항이나 기능 제안이 있으면 여기서 AI 상담원과 대화하세요.",
+    target: "tour-news-help",
+    title: "새 소식",
+    description: "업데이트 소식을 확인할 수 있어요. 빨간 점이 뜨면 새 소식이 있다는 뜻이에요.",
   },
   {
-    target: "tour-news-help",
-    title: "새 소식과 도움말",
-    description: "업데이트 소식과 기능별 상세 안내를 확인할 수 있어요. 빨간 점이 뜨면 새 소식이 있다는 뜻이에요.",
+    target: "tour-support-button",
+    title: "더보기 메뉴",
+    description: "고객센터, 서비스 소개, 기능 안내, 설정을 여기서 찾을 수 있어요.",
   },
 ];
 

@@ -104,7 +104,7 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral, plan, monthlyCre
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((p) => !p)}
-        className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer select-none ${badge.bg} ${badge.pulse ? "animate-pulse" : ""}`}
+        className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-all cursor-pointer select-none ${badge.bg}`}
       >
         {badge.text}
       </button>
