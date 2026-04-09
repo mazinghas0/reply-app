@@ -64,7 +64,7 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
             value={reviewDraft}
             onChange={(e) => setReviewDraft(e.target.value)}
             placeholder="검토받고 싶은 답장을 붙여넣으세요..."
-            maxLength={2000}
+            maxLength={500}
             className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
         </div>
@@ -76,7 +76,7 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
             value={reviewContext}
             onChange={(e) => setReviewContext(e.target.value)}
             placeholder="어떤 메시지에 대한 답장인지 붙여넣으면 더 정확한 검토가 가능해요"
-            maxLength={2000}
+            maxLength={500}
             className="w-full h-20 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
         </div>

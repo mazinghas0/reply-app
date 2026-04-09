@@ -189,8 +189,8 @@ export default function GenerateTab({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label htmlFor="message-input" className="text-sm font-semibold text-slate-800 dark:text-slate-200">받은 메시지</label>
-            <span className={`text-xs tabular-nums ${inputMessage.length > 1800 ? "text-rose-500" : "text-slate-400 dark:text-slate-500"}`}>
-              {inputMessage.length} / 2,000
+            <span className={`text-xs tabular-nums ${inputMessage.length > 450 ? "text-rose-500" : "text-slate-400 dark:text-slate-500"}`}>
+              {inputMessage.length} / 500
             </span>
           </div>
           <textarea
@@ -200,7 +200,7 @@ export default function GenerateTab({
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="답장하고 싶은 메시지를 여기에 붙여넣으세요..."
-            maxLength={2000}
+            maxLength={500}
             className="w-full h-36 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">

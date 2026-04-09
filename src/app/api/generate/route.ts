@@ -34,7 +34,7 @@ import { checkRateLimit } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
 import { getStylePromptBlock } from "@/lib/styleSystem";
 
-const MAX_MESSAGE_LENGTH = 2000;
+const MAX_MESSAGE_LENGTH = 500;
 
 const ALLOWED_ORIGINS = [
   "https://reply-app-sepia.vercel.app",
@@ -193,14 +193,14 @@ ${expandPrompt}
 ${contextBlock}${styleBlock}
 규칙:
 - 한국어 사용 (상대 관계에 맞는 말투 — 친구/썸이면 반말도 OK, 상사/거래처면 존댓말)
-- 각 답장은 2~4문장
-- 3개 답장은 서로 다른 접근 방식 (같은 톤이지만 내용/전략이 다르게)
+- 답장 길이는 상황에 맞게 자연스럽게 (짧은 메시지엔 짧게, 중요한 내용엔 길게)
+- 3개 답장은 각각 다른 접근: 하나는 간결하게, 하나는 공감 위주, 하나는 구체적으로
 - ${toneDescription} 톤으로 작성
 
 "AI 느낌 제거" 규칙 (가장 중요):
 - 한국인이 카카오톡/업무 메신저에서 실제로 보내는 문체로 작성
 - 교과서적/문어체/번역체 표현 절대 금지
-- 불필요한 조사(가, 을, 는, 에) 자연스럽게 생략 — 한국인은 메신저에서 조사를 많이 생략함
+- 불필요한 조사(가, 을, 는, 에) 자연스럽게 생략
 - 과도한 쉼표, 접속사("또한", "그러나", "따라서") 사용 자제
 - "~의 경우", "~에 대해", "~하는 것이" 같은 번역체 금지
 - 실제 한국인이 메시지를 받았을 때 "사람이 쓴 것 같다"고 느끼게 작성
@@ -215,16 +215,24 @@ ${contextBlock}${styleBlock}
 받은 메시지:
 ${body.message}${hintBlock}`;
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 512,
-    messages: [
-      {
-        role: "user",
-        content: mainPrompt,
-      },
-    ],
-  });
+  let response: Anthropic.Message;
+  try {
+    response = await client.messages.create({
+      model,
+      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content: mainPrompt,
+        },
+      ],
+    });
+  } catch {
+    return Response.json(
+      { error: "AI 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해 주세요." },
+      { status: 502 }
+    );
+  }
 
   const textBlock = response.content.find((block) => block.type === "text");
 

@@ -165,12 +165,12 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
               }
             }}
             placeholder="대충 쓴 답장을 붙여넣으세요. AI가 깔끔하게 다듬어 드려요..."
-            maxLength={2000}
+            maxLength={500}
             className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
           <div className="flex justify-end mt-1">
-            <span className={`text-xs tabular-nums ${draft.length > 1800 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
-              {draft.length}/2000
+            <span className={`text-xs tabular-nums ${draft.length > 450 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
+              {draft.length}/500
             </span>
           </div>
         </div>

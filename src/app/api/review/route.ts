@@ -35,7 +35,7 @@ interface ReviewResult {
 import { checkRateLimit } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
 
-const MAX_DRAFT_LENGTH = 2000;
+const MAX_DRAFT_LENGTH = 500;
 
 const ALLOWED_ORIGINS = [
   "https://reply-app-sepia.vercel.app",
