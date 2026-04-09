@@ -32,6 +32,7 @@ const MODEL_MAP = {
 
 import { checkRateLimit } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
+import { getStylePromptBlock } from "@/lib/styleSystem";
 
 const MAX_MESSAGE_LENGTH = 2000;
 
@@ -150,6 +151,9 @@ export async function POST(request: NextRequest) {
     ? `\n[맞춤 설정]\n${contextParts.join("\n")}\n위 설정에 맞춰 답장을 작성하세요. 특히 전략이 지정된 경우 해당 심리학 원리를 반영하세요.\n`
     : "";
 
+  // 개인화 프롬프트 (로그인 유저, 5건 이상 스타일 샘플 시)
+  const styleBlock = userId ? await getStylePromptBlock(userId) : "";
+
   // 확장 모드 (기존 답장 강도 조절)
   const expandData = body.expand;
   const isExpand = !!expandData;
@@ -186,7 +190,7 @@ ${expandPrompt}
 ]`
     : `당신은 한국인의 메신저 소통 전문가입니다.
 아래 메시지에 대한 답장 3개를 만들어주세요.
-${contextBlock}
+${contextBlock}${styleBlock}
 규칙:
 - 한국어 사용 (상대 관계에 맞는 말투 — 친구/썸이면 반말도 OK, 상사/거래처면 존댓말)
 - 각 답장은 2~4문장

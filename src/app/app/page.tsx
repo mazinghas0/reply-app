@@ -97,6 +97,8 @@ export default function Home() {
   const [showLoginNudge, setShowLoginNudge] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [referralCode, setReferralCode] = useState("");
+  const [editingReplyIndex, setEditingReplyIndex] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -281,6 +283,32 @@ export default function Home() {
     await navigator.clipboard.writeText(content);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  const handleEditCopy = async (originalContent: string, index: number) => {
+    const edited = editText.trim();
+    if (!edited) return;
+    await navigator.clipboard.writeText(edited);
+    setCopiedKey(`edit-${index}`);
+    setTimeout(() => setCopiedKey(null), 2000);
+    setEditingReplyIndex(null);
+    setEditText("");
+    // 로그인 유저만 diff 저장 (원본과 다를 때)
+    if (isAuthenticated && edited !== originalContent.trim()) {
+      const rel = context.relationship === "custom"
+        ? context.relationshipCustom
+        : context.relationship;
+      fetch("/api/style", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          original: originalContent,
+          edited,
+          tone: selectedTone,
+          relationship: rel ?? undefined,
+        }),
+      }).catch(() => {});
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -614,18 +642,58 @@ export default function Home() {
                       <span className="w-5 h-5 rounded-full bg-teal-600 text-white text-[10px] font-bold flex items-center justify-center">{index + 1}</span>
                       <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{reply.label}</span>
                     </div>
-                    <button
-                      onClick={() => handleCopy(reply.content, `reply-${index}`)}
-                      className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
-                        copiedKey === `reply-${index}`
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
-                          : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
-                      }`}
-                    >
-                      {copiedKey === `reply-${index}` ? <><IconCheck /> 복사됨</> : <><IconCopy /> 복사</>}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      {editingReplyIndex === index ? (
+                        <>
+                          <button
+                            onClick={() => handleEditCopy(reply.content, index)}
+                            className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
+                              copiedKey === `edit-${index}`
+                                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
+                                : "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 dark:hover:bg-teal-900/40"
+                            }`}
+                          >
+                            {copiedKey === `edit-${index}` ? <><IconCheck /> 저장됨</> : <><IconCopy /> 수정 복사</>}
+                          </button>
+                          <button
+                            onClick={() => { setEditingReplyIndex(null); setEditText(""); }}
+                            className="text-xs px-2 py-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                          >
+                            취소
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleCopy(reply.content, `reply-${index}`)}
+                            className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
+                              copiedKey === `reply-${index}`
+                                ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
+                                : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
+                            }`}
+                          >
+                            {copiedKey === `reply-${index}` ? <><IconCheck /> 복사됨</> : <><IconCopy /> 복사</>}
+                          </button>
+                          <button
+                            onClick={() => { setEditingReplyIndex(index); setEditText(reply.content); }}
+                            className="inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg font-medium text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-all cursor-pointer"
+                          >
+                            수정 후 복사
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">{reply.content}</p>
+                  {editingReplyIndex === index ? (
+                    <textarea
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={4}
+                      className="w-full text-slate-700 dark:text-slate-200 leading-relaxed text-[15px] bg-violet-50/50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-800 rounded-lg p-3 resize-y focus:outline-none focus:ring-2 focus:ring-violet-300 dark:focus:ring-violet-700"
+                    />
+                  ) : (
+                    <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">{reply.content}</p>
+                  )}
 
                   {/* Expand + Share buttons */}
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
