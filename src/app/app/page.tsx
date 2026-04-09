@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import RefineTab from "./refineTab";
 import ReviewTab from "./reviewTab";
 import GenerateTab from "./generateTab";
@@ -300,8 +301,22 @@ export default function Home() {
         {mode === "refine" && <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} />}
 
         {/* Footer */}
-        <footer className="mt-16 mb-4 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-600">끌랑(CLang) &middot; Kevin AI Corp &middot; v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
+        <footer className="mt-16 mb-4 w-full">
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-6 pb-2 space-y-3">
+            <div className="flex items-center justify-center gap-3 text-xs">
+              <Link href="/terms" className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">이용약관</Link>
+              <span className="text-slate-300 dark:text-slate-700">|</span>
+              <Link href="/privacy" className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">개인정보 처리방침</Link>
+              <span className="text-slate-300 dark:text-slate-700">|</span>
+              <a href="mailto:mazingha@kakao.com" className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">문의하기</a>
+            </div>
+            <div className="text-center text-[11px] text-slate-400 dark:text-slate-600 leading-relaxed">
+              <p>끌랑(CLang) | 대표: 석광원 | 사업자등록번호: 737-69-00453</p>
+              <p>통신판매업: 제 2026-충북증평-0008 호 | 전화: 010-8973-0175</p>
+              <p>충북 증평군 증평읍 역전로 90, 1402호</p>
+            </div>
+            <p className="text-center text-[11px] text-slate-300 dark:text-slate-700">&copy; 2026 Kevin AI Corp &middot; v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
+          </div>
         </footer>
       </main>
     </div>

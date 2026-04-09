@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 
 interface SettingsPanelProps {
   onClose: () => void;
@@ -50,29 +49,6 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
               checked={dark}
               onChange={toggleTheme}
             />
-          </SettingsGroup>
-
-          {/* 법적 문서 */}
-          <SettingsGroup label="약관 및 정책">
-            <LinkRow href="/terms" title="이용약관" />
-            <LinkRow href="/privacy" title="개인정보 처리방침" />
-          </SettingsGroup>
-
-          {/* 지원 */}
-          <SettingsGroup label="지원">
-            <LinkRow href="mailto:mazingha@kakao.com" title="문의하기" description="mazingha@kakao.com" external />
-          </SettingsGroup>
-
-          {/* 사업자 정보 */}
-          <SettingsGroup label="사업자 정보">
-            <InfoRow label="상호" value="끌랑(CLang)" />
-            <InfoRow label="브랜드" value="Kevin AI Corp" />
-            <InfoRow label="대표" value="석광원" />
-            <InfoRow label="사업자등록번호" value="737-69-00453" />
-            <InfoRow label="통신판매업" value="제 2026-충북증평-0008 호" />
-            <InfoRow label="소재지" value="충북 증평군 증평읍 역전로 90, 1402호" />
-            <InfoRow label="전화" value="010-8973-0175" />
-            <InfoRow label="이메일" value="mazingha@kakao.com" />
           </SettingsGroup>
 
           {/* 앱 정보 */}
@@ -131,35 +107,6 @@ function ToggleRow({
   );
 }
 
-function LinkRow({
-  href,
-  title,
-  description,
-  external,
-}: {
-  href: string;
-  title: string;
-  description?: string;
-  external?: boolean;
-}) {
-  const inner = (
-    <div className="flex items-center justify-between px-4 py-3 hover:bg-slate-100/50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer">
-      <div>
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{title}</p>
-        {description && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{description}</p>}
-      </div>
-      <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="9 18 15 12 9 6" />
-      </svg>
-    </div>
-  );
-
-  if (external) {
-    return <a href={href} target="_blank" rel="noopener noreferrer">{inner}</a>;
-  }
-
-  return <Link href={href}>{inner}</Link>;
-}
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
