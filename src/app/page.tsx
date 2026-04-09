@@ -9,12 +9,34 @@ const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 export const metadata: Metadata = {
   title: "리플라이 — AI가 답장을 대신 써 드려요",
   description:
-    "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 비즈니스 메시지도 10초면 끝.",
+    "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 비즈니스 메시지도 10초면 끝. 무료로 시작하세요.",
+  keywords: [
+    "AI 답장",
+    "답장 생성",
+    "메시지 답장",
+    "카톡 답장",
+    "비즈니스 메시지",
+    "답장 도우미",
+    "AI 메신저",
+    "거절 답장",
+    "답장 추천",
+  ],
   openGraph: {
     title: "리플라이 — AI 답장 도우미",
-    description: "톤을 고르면 AI가 답장 3개를 즉시 만들어 줍니다",
+    description:
+      "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 정중한, 단호한, 유연한, 친근한 — 원하는 톤으로.",
     type: "website",
     url: "https://reply-app-sepia.vercel.app",
+    siteName: "리플라이",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "리플라이 — AI가 답장을 대신 써 드려요",
+    description: "받은 메시지 붙여넣기 한 번이면 답장 3개 완성. 무료.",
+  },
+  alternates: {
+    canonical: "https://reply-app-sepia.vercel.app",
   },
 };
 
