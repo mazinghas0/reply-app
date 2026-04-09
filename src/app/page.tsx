@@ -439,7 +439,12 @@ export default function LandingPage() {
             </div>
             <span className="text-sm font-semibold text-slate-400">리플라이</span>
           </div>
-          <p className="text-xs text-slate-600">Kevin AI Corp &middot; v1.2.0</p>
+          <div className="flex items-center gap-4">
+            <Link href="/terms" className="text-xs text-slate-600 hover:text-slate-400 transition-colors">이용약관</Link>
+            <Link href="/privacy" className="text-xs text-slate-600 hover:text-slate-400 transition-colors">개인정보 처리방침</Link>
+            <span className="text-xs text-slate-700">&middot;</span>
+            <span className="text-xs text-slate-600">Kevin AI Corp &middot; v1.2.0</span>
+          </div>
         </div>
       </footer>
     </main>

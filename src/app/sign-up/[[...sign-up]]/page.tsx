@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function SignUpPage() {
   return (
@@ -36,6 +37,13 @@ export default function SignUpPage() {
       />
       <p className="mt-6 text-sm text-slate-500">
         가입하면 매월 50크레딧을 무료로 받을 수 있어요
+      </p>
+      <p className="mt-2 text-xs text-slate-600">
+        가입 시{" "}
+        <Link href="/terms" className="text-slate-500 underline hover:text-slate-400">이용약관</Link>
+        {" "}및{" "}
+        <Link href="/privacy" className="text-slate-500 underline hover:text-slate-400">개인정보 처리방침</Link>
+        에 동의하게 됩니다.
       </p>
     </div>
   );
