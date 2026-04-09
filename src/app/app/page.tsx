@@ -14,6 +14,7 @@ import SupportChat from "./supportChat";
 import ReferralPanel from "./referralPanel";
 import HistorySection from "./historySection";
 import ShareMenu from "./shareMenu";
+import SettingsPanel from "./settingsPanel";
 import { hasUnreadNews, markNewsSeen } from "./newsData";
 import ContextSelector, {
   type ContextSelection,
@@ -77,6 +78,7 @@ export default function Home() {
   const [showNews, setShowNews] = useState(false);
   const [unreadNews, setUnreadNews] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [sharedRefineText, setSharedRefineText] = useState("");
   const [sharedReviewDraft, setSharedReviewDraft] = useState("");
   const [context, setContext] = useState<ContextSelection>({
@@ -312,6 +314,9 @@ export default function Home() {
           onCreditsUpdate={(c) => setRemaining(c)}
         />
       )}
+      {showSettings && (
+        <SettingsPanel onClose={() => setShowSettings(false)} />
+      )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -373,6 +378,17 @@ export default function Home() {
             </button>
             </div>
             <ThemeToggle />
+            <button
+              onClick={() => setShowSettings(true)}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="설정"
+              title="설정"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="10" cy="10" r="2.5" />
+                <path d="M10 1.5v2M10 16.5v2M3.4 3.4l1.4 1.4M15.2 15.2l1.4 1.4M1.5 10h2M16.5 10h2M3.4 16.6l1.4-1.4M15.2 4.8l1.4-1.4" />
+              </svg>
+            </button>
             {CLERK_ENABLED && <NavAuth remaining={remaining} resetAt={resetAt} onOpenReferral={() => setShowReferral(true)} />}
           </div>
         </div>
@@ -703,7 +719,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-600">Kevin AI Corp &middot; v1.1.0</p>
+          <p className="text-xs text-slate-400 dark:text-slate-600">Kevin AI Corp &middot; v1.2.0</p>
         </footer>
       </main>
     </div>
