@@ -151,21 +151,6 @@ function PersonaIcon({ type }: { type: string }) {
   }
 }
 
-function CheckIconMuted() {
-  return (
-    <svg
-      className="w-4 h-4 text-slate-500 shrink-0"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
 
 // ─── 랜딩 페이지 ────────────────────────────────
 
@@ -354,86 +339,66 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 요금제 */}
+      {/* 핵심 기능 */}
       <section className="px-4 py-24 border-t border-slate-800/50">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-center text-white mb-3">
-            심플한 요금제
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-white mb-4">
+            답장, 이렇게 달라져요
           </h2>
-          <p className="text-center text-slate-400 mb-12">
-            지금은 완전 무료. 마음껏 사용해 보세요.
+          <p className="text-center text-slate-400 mb-14">
+            그냥 AI가 아니라, 답장 전문 AI입니다
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
-            {/* 무료 */}
-            <div className="p-6 rounded-2xl bg-slate-900 border-2 border-teal-500/40 relative">
-              <div className="absolute -top-3 left-6">
-                <span className="text-xs px-3 py-1 rounded-full bg-teal-600 text-white font-medium">
-                  현재
-                </span>
+            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
+              <div className="w-10 h-10 rounded-xl bg-teal-950/50 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  <path d="M8 9h8M8 13h4" />
+                </svg>
               </div>
-              <h3 className="font-bold text-white text-lg mb-1">무료</h3>
-              <p className="text-3xl font-bold text-white mb-4">
-                0
-                <span className="text-base font-normal text-slate-500">원/월</span>
+              <h3 className="font-semibold text-white mb-2">답장 3개, 한 번에</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                같은 메시지에 톤만 다른 답장 3개를 동시에 받아서 비교하고, 마음에 드는 걸 바로 복사하세요.
               </p>
-              <ul className="space-y-2.5 text-sm text-slate-300">
-                <li className="flex items-center gap-2">
-                  <CheckIcon />
-                  로그인 시 월 30크레딧 (비로그인 총 5회)
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckIcon />
-                  4가지 톤 선택
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckIcon />
-                  빠른 / 정교한 모드
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckIcon />
-                  답장 히스토리 10개
-                </li>
-              </ul>
-              <Link
-                href="/app"
-                className="block mt-6 w-full py-2.5 text-center rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-500 transition-colors"
-              >
-                시작하기
-              </Link>
             </div>
-
-            {/* 프로 */}
-            <div className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800">
-              <div className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-500 font-medium mb-2">
-                출시 예정
+            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
+              <div className="w-10 h-10 rounded-xl bg-blue-950/50 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
               </div>
-              <h3 className="font-bold text-white text-lg mb-1">프로</h3>
-              <p className="text-3xl font-bold text-white mb-4">
-                9,900
-                <span className="text-base font-normal text-slate-500">원/월</span>
+              <h3 className="font-semibold text-white mb-2">11가지 관계 맞춤</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                상사, 동료, 거래처, 친구, 연인까지. 관계를 고르면 격식과 뉘앙스를 자동으로 맞춰 줍니다.
               </p>
-              <ul className="space-y-2.5 text-sm text-slate-500">
-                <li className="flex items-center gap-2">
-                  <CheckIconMuted />
-                  무제한 답장 생성
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckIconMuted />
-                  우선 처리
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckIconMuted />
-                  답장 히스토리 무제한
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckIconMuted />
-                  커스텀 톤 설정
-                </li>
-              </ul>
-              <div className="mt-6 w-full py-2.5 text-center rounded-xl bg-slate-800 text-slate-500 font-medium cursor-not-allowed">
-                곧 출시
-              </div>
             </div>
+            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
+              <div className="w-10 h-10 rounded-xl bg-violet-950/50 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-2">검토 & 다듬기</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                내가 쓴 답장의 맞춤법, 톤, 상대방 인상까지 분석. 대충 쓴 문장도 깔끔하게 다듬어 줍니다.
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
+              <div className="w-10 h-10 rounded-xl bg-amber-950/50 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-2">내 말투 학습</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                답장을 수정할수록 AI가 내 문체를 학습합니다. 쓸수록 더 나다워지는 답장을 경험하세요.
+              </p>
+            </div>
+          </div>
+          <div className="mt-8 text-center">
+            <p className="text-sm text-slate-500">
+              지금은 완전 무료 — 가입만 하면 월 30크레딧
+            </p>
           </div>
         </div>
       </section>
