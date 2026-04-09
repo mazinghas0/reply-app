@@ -25,6 +25,8 @@ import {
   saveToHistory,
 } from "./shared";
 import { IconCopy, IconCheck, IconError, IconSpinner } from "./icons";
+import PresetPanel from "./presetPanel";
+import type { RelationshipId, PurposeId, StrategyId } from "./contextSelector";
 
 interface GenerateTabProps {
   inputMessage: string;
@@ -269,6 +271,31 @@ export default function GenerateTab({
             <span className="ml-0.5">로 바로 생성</span>
           </p>
         </div>
+
+        {/* Preset */}
+        <PresetPanel
+          isAuthenticated={isAuthenticated}
+          currentSettings={{
+            tone: selectedTone,
+            speed,
+            relationship: context.relationship,
+            relationshipCustom: context.relationshipCustom,
+            purpose: context.purpose,
+            purposeCustom: context.purposeCustom,
+            strategy: context.strategy,
+          }}
+          onLoadPreset={(settings) => {
+            setSelectedTone(settings.tone as ToneId);
+            setSpeed(settings.speed as Speed);
+            setContext({
+              relationship: settings.relationship as RelationshipId | null,
+              relationshipCustom: settings.relationshipCustom,
+              purpose: settings.purpose as PurposeId | null,
+              purposeCustom: settings.purposeCustom,
+              strategy: settings.strategy as StrategyId | null,
+            });
+          }}
+        />
 
         {/* Context Selector (3-step) */}
         <div>
