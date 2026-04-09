@@ -327,7 +327,7 @@ export default function Home() {
             </div>
             <div className="text-center text-[11px] text-slate-400 dark:text-slate-600 leading-relaxed">
               <p>끌랑(CLang) | 대표: 석광원 | 사업자등록번호: 737-69-00453</p>
-              <p>통신판매업: 제 2026-충북증평-0008 호 | 전화: 010-8973-0175</p>
+              <p>통신판매업: 제 2026-충북증평-0008 호 | 전화: 070-8970-9571</p>
               <p>충북 증평군 증평읍 역전로 90, 1402호</p>
             </div>
             <p className="text-center text-[11px] text-slate-300 dark:text-slate-700">&copy; 2026 Kevin AI Corp &middot; v{process.env.NEXT_PUBLIC_APP_VERSION}</p>

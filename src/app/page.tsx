@@ -472,7 +472,7 @@ export default function LandingPage() {
           </div>
           <div className="text-center sm:text-left text-[11px] text-slate-600 leading-relaxed">
             <p>끌랑(CLang) | 대표: 석광원 | 사업자등록번호: 737-69-00453 | 통신판매업: 제 2026-충북증평-0008 호</p>
-            <p>충북 증평군 증평읍 역전로 90, 1402호 | 전화: 010-8973-0175 | 이메일: mazingha@kakao.com</p>
+            <p>충북 증평군 증평읍 역전로 90, 1402호 | 전화: 070-8970-9571 | 이메일: mazingha@kakao.com</p>
           </div>
           <p className="text-center sm:text-left text-[11px] text-slate-700">&copy; 2026 Kevin AI Corp &middot; v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
         </div>
