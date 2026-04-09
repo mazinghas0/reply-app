@@ -164,7 +164,7 @@ export default function PrivacyPage() {
           <Section title="7. 이용자의 권리와 행사 방법">
             <ol className="list-decimal pl-5 space-y-2">
               <li>이용자는 언제든지 자신의 개인정보에 대한 열람, 정정, 삭제, 처리 정지를 요청할 수 있습니다.</li>
-              <li>요청은 이메일(help@kevinai.co.kr)로 접수하며, 10일 이내에 처리합니다.</li>
+              <li>요청은 이메일(mazingha@kakao.com)로 접수하며, 10일 이내에 처리합니다.</li>
               <li>회원 탈퇴를 통해 개인정보 삭제를 요청할 수 있습니다.</li>
             </ol>
           </Section>
@@ -190,7 +190,7 @@ export default function PrivacyPage() {
           <Section title="10. 개인정보 보호책임자">
             <ul className="space-y-1 text-slate-400 mt-2">
               <li>회사명: Kevin AI Corp</li>
-              <li>이메일: help@kevinai.co.kr</li>
+              <li>이메일: mazingha@kakao.com</li>
             </ul>
             <p className="mt-3 text-slate-400">
               기타 개인정보 침해에 대한 신고나 상담은 아래 기관에 문의하시기 바랍니다.
