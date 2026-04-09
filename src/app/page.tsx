@@ -467,6 +467,8 @@ export default function LandingPage() {
               <span className="text-slate-700">|</span>
               <Link href="/privacy" className="text-slate-500 hover:text-slate-300 transition-colors">개인정보 처리방침</Link>
               <span className="text-slate-700">|</span>
+              <Link href="/blog" className="text-slate-500 hover:text-slate-300 transition-colors">블로그</Link>
+              <span className="text-slate-700">|</span>
               <a href="mailto:mazingha@kakao.com" className="text-slate-500 hover:text-slate-300 transition-colors">문의하기</a>
             </div>
           </div>
