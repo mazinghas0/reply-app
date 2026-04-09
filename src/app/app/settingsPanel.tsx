@@ -67,7 +67,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           <SettingsGroup label="사업자 정보">
             <InfoRow label="상호" value="끌랑(CLang)" />
             <InfoRow label="브랜드" value="Kevin AI Corp" />
-            <InfoRow label="대표" value="석관원" />
+            <InfoRow label="대표" value="석광원" />
             <InfoRow label="사업자등록번호" value="737-69-00453" />
             <InfoRow label="소재지" value="충북 증평군 증평읍 역전로 90, 1402호" />
             <InfoRow label="이메일" value="mazingha@kakao.com" />
@@ -75,7 +75,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
 
           {/* 앱 정보 */}
           <SettingsGroup label="앱 정보">
-            <InfoRow label="버전" value="1.2.0" />
+            <InfoRow label="버전" value={process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"} />
           </SettingsGroup>
         </div>
       </div>

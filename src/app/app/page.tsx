@@ -719,7 +719,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-16 mb-4 text-center">
-          <p className="text-xs text-slate-400 dark:text-slate-600">끌랑(CLang) &middot; Kevin AI Corp &middot; v1.2.0</p>
+          <p className="text-xs text-slate-400 dark:text-slate-600">끌랑(CLang) &middot; Kevin AI Corp &middot; v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
         </footer>
       </main>
     </div>
