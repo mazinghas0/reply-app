@@ -1,10 +1,19 @@
 const REPLY_APP_URL = "https://reply-app-sepia.vercel.app/app";
+const MAX_LENGTH = 500;
 
 const textArea = document.getElementById("text");
 const sendBtn = document.getElementById("send");
+const charCount = document.getElementById("charCount");
 const modeBtns = document.querySelectorAll(".mode-btn");
 
 let selectedMode = "generate";
+
+function updateCharCount() {
+  const len = textArea.value.length;
+  charCount.textContent = `${len} / ${MAX_LENGTH}`;
+  charCount.classList.toggle("over", len > MAX_LENGTH);
+  sendBtn.disabled = !textArea.value.trim() || len > MAX_LENGTH;
+}
 
 // 모드 버튼 토글
 modeBtns.forEach((btn) => {
@@ -15,10 +24,8 @@ modeBtns.forEach((btn) => {
   });
 });
 
-// 텍스트 입력 시 전송 버튼 활성화
-textArea.addEventListener("input", () => {
-  sendBtn.disabled = !textArea.value.trim();
-});
+// 텍스트 입력 시 전송 버튼 활성화 + 글자수 표시
+textArea.addEventListener("input", updateCharCount);
 
 // 전송
 sendBtn.addEventListener("click", () => {
@@ -35,9 +42,9 @@ sendBtn.addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const clip = await navigator.clipboard.readText();
-    if (clip && clip.trim().length >= 5 && clip.trim().length <= 2000) {
+    if (clip && clip.trim().length >= 5 && clip.trim().length <= MAX_LENGTH) {
       textArea.value = clip.trim();
-      sendBtn.disabled = false;
+      updateCharCount();
       textArea.select();
     }
   } catch {

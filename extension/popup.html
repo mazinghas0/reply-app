@@ -10,7 +10,10 @@
     <h1>리플라이</h1>
   </div>
 
-  <textarea id="text" placeholder="답장할 메시지를 붙여넣으세요..." maxlength="2000"></textarea>
+  <div class="textarea-wrap">
+    <textarea id="text" placeholder="답장할 메시지를 붙여넣으세요..." maxlength="500"></textarea>
+    <span class="char-count" id="charCount">0 / 500</span>
+  </div>
 
   <div class="modes">
     <button class="mode-btn active" data-mode="generate">답장 만들기</button>

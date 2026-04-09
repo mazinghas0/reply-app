@@ -107,6 +107,23 @@ textarea::placeholder {
   cursor: not-allowed;
 }
 
+.textarea-wrap {
+  position: relative;
+}
+
+.char-count {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 11px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.char-count.over {
+  color: #f87171;
+}
+
 .hint {
   margin-top: 10px;
   font-size: 11px;

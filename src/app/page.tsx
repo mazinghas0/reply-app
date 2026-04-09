@@ -193,14 +193,14 @@ export default function LandingPage() {
             AI 답장 도우미
           </p>
           <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
-            받은 메시지,{" "}
-            <span className="text-teal-400">AI가 대신</span>{" "}
-            답장해 드려요
+            답장 고민,{" "}
+            <span className="text-teal-400">10초면</span>{" "}
+            해결돼요
           </h1>
           <p className="text-lg text-slate-400 mb-10 leading-relaxed">
-            톤을 고르면 AI가 3가지 답장을 즉시 만들어 줍니다.
+            메시지를 붙여넣으면 AI가 톤별 답장 3개를 바로 만들어 줍니다.
             <br className="hidden sm:block" />
-            비즈니스 메시지도 10초면 끝.
+            상사 카톡도, 썸 답장도, 거래처 메일도.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -406,13 +406,13 @@ export default function LandingPage() {
       {/* 마지막 CTA */}
       <section className="px-4 py-24 text-center border-t border-slate-800/50">
         <div className="max-w-lg mx-auto">
-          <h2 className="text-2xl font-bold text-white mb-4">답장 고민, 이제 그만</h2>
-          <p className="text-slate-400 mb-8">AI가 만든 답장으로 시간을 절약하세요</p>
+          <h2 className="text-2xl font-bold text-white mb-4">지금 바로 답장 만들어 보세요</h2>
+          <p className="text-slate-400 mb-8">가입 없이 무료로 시작 — 5초면 첫 답장 완성</p>
           <Link
             href="/app"
             className="inline-block px-8 py-3.5 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-500 transition-all"
           >
-            지금 바로 시작하기
+            답장 만들러 가기
           </Link>
         </div>
       </section>

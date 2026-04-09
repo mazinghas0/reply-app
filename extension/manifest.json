@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "리플라이 — AI 답장 도우미",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "선택한 텍스트를 리플라이로 보내 AI 답장을 받으세요",
   "permissions": ["contextMenus"],
   "background": {

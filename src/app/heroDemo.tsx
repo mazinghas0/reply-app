@@ -8,25 +8,25 @@ const SCENARIOS = [
   {
     message: "내일 오전 10시 회의 참석 가능하신가요? 안건은 Q2 매출 리뷰입니다.",
     replies: [
-      { tone: "정중", color: "border-l-teal-400", text: "안녕하세요. 내일 오전 10시 회의 참석 가능합니다. Q2 매출 리뷰 안건 확인했습니다. 감사합니다." },
-      { tone: "단호", color: "border-l-rose-400", text: "참석하겠습니다. 관련 자료는 미리 공유 부탁드립니다." },
-      { tone: "친근", color: "border-l-amber-400", text: "네~ 10시 회의 참석할게요! Q2 리뷰 준비해서 가겠습니다 :)" },
+      { tone: "깔끔 수락", color: "border-l-teal-400", text: "네, 10시 회의 참석하겠습니다. 자료 미리 확인해 둘게요." },
+      { tone: "적극 제안", color: "border-l-emerald-400", text: "참석 가능합니다. Q2 데이터 제가 정리해서 미리 공유드릴까요?" },
+      { tone: "편한 수락", color: "border-l-amber-400", text: "넵! 10시 회의 갈게요~ Q2 리뷰 준비해서 가겠습니다" },
     ],
   },
   {
-    message: "견적서 검토 부탁드립니다. 금요일까지 회신 가능하실까요?",
+    message: "야 이번 주말에 뭐해? 오랜만에 만나자",
     replies: [
-      { tone: "정중", color: "border-l-teal-400", text: "견적서 확인했습니다. 금요일까지 검토 후 회신드리겠습니다. 감사합니다." },
-      { tone: "유연", color: "border-l-emerald-400", text: "견적서 잘 받았습니다. 검토 후 수정이 필요한 부분이 있으면 말씀드릴게요." },
-      { tone: "단호", color: "border-l-rose-400", text: "확인했습니다. 수요일까지 검토 완료하겠습니다." },
+      { tone: "쿨한 수락", color: "border-l-teal-400", text: "ㅇㅇ 주말 괜찮아! 어디서 볼까?" },
+      { tone: "반가운 수락", color: "border-l-amber-400", text: "오 진짜? 너무 좋지ㅋㅋ 토요일 어때?" },
+      { tone: "일정 확인", color: "border-l-emerald-400", text: "토요일은 되는데 일요일은 약속 있어. 토요일 오후 어때?" },
     ],
   },
   {
-    message: "프로젝트 마감이 다음 주인데 일정 조율이 필요할 것 같습니다.",
+    message: "교수님 안녕하세요. 과제 제출 기한을 하루만 연장해 주실 수 있을까요?",
     replies: [
-      { tone: "유연", color: "border-l-emerald-400", text: "말씀하신 부분 이해합니다. 우선순위를 조정해서 핵심 기능 위주로 진행하면 어떨까요?" },
-      { tone: "정중", color: "border-l-teal-400", text: "일정 관련 말씀 감사합니다. 내일 중으로 조율 미팅을 잡아 말씀드리겠습니다." },
-      { tone: "친근", color: "border-l-amber-400", text: "맞아요, 일정이 좀 빠듯하죠? 내일 잠깐 이야기 나눠봐요!" },
+      { tone: "정중 요청", color: "border-l-teal-400", text: "교수님 안녕하세요. 자료 조사가 늦어져서 하루만 여유를 주시면 감사하겠습니다." },
+      { tone: "사유 설명", color: "border-l-emerald-400", text: "교수님, 참고 논문 2편을 추가로 반영하고 싶어서 여쭙습니다. 내일 오전까지 제출해도 괜찮을까요?" },
+      { tone: "간결 요청", color: "border-l-rose-400", text: "교수님, 과제 마무리에 하루가 더 필요합니다. 내일까지 제출해도 될까요?" },
     ],
   },
 ] as const;
