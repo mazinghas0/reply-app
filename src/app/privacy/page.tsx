@@ -30,7 +30,7 @@ export default function PrivacyPage() {
 
         <div className="space-y-10 text-sm leading-relaxed">
           <p className="text-slate-400">
-            Kevin AI Corp(이하 &ldquo;회사&rdquo;)는 「개인정보 보호법」 등 관련 법령에 따라
+            끌랑(CLang)(이하 &ldquo;회사&rdquo;)는 「개인정보 보호법」 등 관련 법령에 따라
             이용자의 개인정보를 보호하고, 이와 관련한 고충을 신속하게 처리하기 위해
             다음과 같이 개인정보 처리방침을 수립·공개합니다.
           </p>
@@ -189,7 +189,7 @@ export default function PrivacyPage() {
 
           <Section title="10. 개인정보 보호책임자">
             <ul className="space-y-1 text-slate-400 mt-2">
-              <li>회사명: Kevin AI Corp</li>
+              <li>상호: 끌랑(CLang)</li>
               <li>이메일: mazingha@kakao.com</li>
             </ul>
             <p className="mt-3 text-slate-400">

@@ -31,7 +31,7 @@ export default function TermsPage() {
         <div className="space-y-10 text-sm leading-relaxed">
           <Section title="제1조 (목적)">
             <p>
-              본 약관은 Kevin AI Corp(이하 &ldquo;회사&rdquo;)이 제공하는 리플라이 서비스(이하 &ldquo;서비스&rdquo;)의
+              본 약관은 끌랑(CLang)(이하 &ldquo;회사&rdquo;)이 제공하는 리플라이 서비스(이하 &ldquo;서비스&rdquo;)의
               이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
             </p>
           </Section>
