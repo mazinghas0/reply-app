@@ -17,10 +17,10 @@ export const metadata: Metadata = {
     title: "답장 꿀팁 블로그 — 리플라이",
     description: "상황별 답장 작성 팁과 예시를 모았습니다.",
     type: "website",
-    url: "https://reply-app-sepia.vercel.app/blog",
+    url: "https://aireply.co.kr/blog",
     siteName: "리플라이",
   },
-  alternates: { canonical: "https://reply-app-sepia.vercel.app/blog" },
+  alternates: { canonical: "https://aireply.co.kr/blog" },
 };
 
 export default function BlogListPage() {

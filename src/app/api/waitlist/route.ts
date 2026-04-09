@@ -3,6 +3,8 @@ import { getSupabase } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rateLimit";
 
 const ALLOWED_ORIGINS = [
+  "https://aireply.co.kr",
+  "https://www.aireply.co.kr",
   "https://reply-app-sepia.vercel.app",
   "http://localhost:3000",
   "http://localhost:3001",

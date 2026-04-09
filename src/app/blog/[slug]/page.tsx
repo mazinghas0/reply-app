@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { posts } from "../posts";
 
-const BASE_URL = "https://reply-app-sepia.vercel.app";
+const BASE_URL = "https://aireply.co.kr";
 
 interface PageProps {
   params: Promise<{ slug: string }>;

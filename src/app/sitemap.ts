@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { posts } from "./blog/posts";
 
-const BASE_URL = "https://reply-app-sepia.vercel.app";
+const BASE_URL = "https://aireply.co.kr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const blogEntries: MetadataRoute.Sitemap = posts.map((post) => ({

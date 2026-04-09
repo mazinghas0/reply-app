@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     description:
       "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 정중한, 단호한, 유연한, 친근한 — 원하는 톤으로.",
     type: "website",
-    url: "https://reply-app-sepia.vercel.app",
+    url: "https://aireply.co.kr",
     siteName: "리플라이",
     locale: "ko_KR",
   },
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     description: "받은 메시지 붙여넣기 한 번이면 답장 3개 완성. 무료.",
   },
   alternates: {
-    canonical: "https://reply-app-sepia.vercel.app",
+    canonical: "https://aireply.co.kr",
   },
 };
 

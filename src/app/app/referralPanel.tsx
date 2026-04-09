@@ -26,7 +26,7 @@ export default function ReferralPanel({ onClose, referralCode, onCreditsUpdate }
     const shareData = {
       title: "리플라이 - AI 답장 도우미",
       text: `리플라이에서 추천 코드 ${referralCode}를 입력하면 ${REFERRAL_BONUS} 크레딧을 받을 수 있어요!`,
-      url: "https://reply-app-sepia.vercel.app",
+      url: "https://aireply.co.kr",
     };
     if (navigator.share) {
       await navigator.share(shareData).catch(() => {});

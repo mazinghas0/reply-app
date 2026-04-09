@@ -1,4 +1,4 @@
-const REPLY_APP_URL = "https://reply-app-sepia.vercel.app/app";
+const REPLY_APP_URL = "https://aireply.co.kr/app";
 const MAX_LENGTH = 500;
 
 const textArea = document.getElementById("text");

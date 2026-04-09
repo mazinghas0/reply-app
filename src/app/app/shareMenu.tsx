@@ -7,7 +7,7 @@ interface ShareMenuProps {
   index: number;
 }
 
-const APP_URL = "https://reply-app-sepia.vercel.app";
+const APP_URL = "https://aireply.co.kr";
 
 function getShareText(content: string): string {
   return `${content}\n\n— 리플라이로 만든 답장\n${APP_URL}`;

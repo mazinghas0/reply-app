@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/sign-in", "/sign-up"],
       },
     ],
-    sitemap: "https://reply-app-sepia.vercel.app/sitemap.xml",
+    sitemap: "https://aireply.co.kr/sitemap.xml",
   };
 }
