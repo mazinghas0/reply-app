@@ -117,13 +117,15 @@ export async function POST(request: NextRequest) {
 
   const client = new Anthropic({ apiKey });
 
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 512,
-    messages: [
-      {
-        role: "user",
-        content: `당신은 한국인 직장인의 메신저 소통 전문가입니다.
+  let response: Anthropic.Message;
+  try {
+    response = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 512,
+      messages: [
+        {
+          role: "user",
+          content: `당신은 한국인 직장인의 메신저 소통 전문가입니다.
 사용자가 작성한 답장을 분석해 주세요.
 
 분석 항목:
@@ -150,9 +152,15 @@ spelling이나 suggestions가 없으면 빈 배열 []로 응답하세요.
 
 사용자가 작성한 답장:
 ${body.draft}${contextBlock}`,
-      },
-    ],
-  });
+        },
+      ],
+    });
+  } catch {
+    return Response.json(
+      { error: "AI 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해 주세요." },
+      { status: 502 }
+    );
+  }
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") {
