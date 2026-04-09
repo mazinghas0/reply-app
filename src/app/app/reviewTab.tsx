@@ -8,9 +8,11 @@ interface ReviewTabProps {
   initialDraft?: string;
   initialCredits?: number | null;
   onSuccess: () => void;
+  maxInputLength: number;
+  isAuthenticated: boolean;
 }
 
-export default function ReviewTab({ initialDraft = "", initialCredits = null, onSuccess }: ReviewTabProps) {
+export default function ReviewTab({ initialDraft = "", initialCredits = null, onSuccess, maxInputLength, isAuthenticated }: ReviewTabProps) {
   const [reviewDraft, setReviewDraft] = useState(initialDraft);
   const [reviewContext, setReviewContext] = useState("");
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
@@ -59,14 +61,24 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
           </div>
         )}
         <div>
-          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">내가 쓴 답장</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-semibold text-slate-800 dark:text-slate-200">내가 쓴 답장</label>
+            <span className={`text-xs tabular-nums ${reviewDraft.length > maxInputLength * 0.9 ? "text-rose-500" : "text-slate-400 dark:text-slate-500"}`}>
+              {reviewDraft.length} / {maxInputLength}
+            </span>
+          </div>
           <textarea
             value={reviewDraft}
             onChange={(e) => setReviewDraft(e.target.value)}
             placeholder="검토받고 싶은 답장을 붙여넣으세요..."
-            maxLength={500}
+            maxLength={maxInputLength}
             className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
+          {!isAuthenticated && (
+            <p className="text-xs text-amber-500 dark:text-amber-400 mt-1">
+              체험판은 {maxInputLength}자 제한
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">

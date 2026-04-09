@@ -379,7 +379,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-sm text-slate-300">
                 <li className="flex items-center gap-2">
                   <CheckIcon />
-                  로그인 시 월 50크레딧 (비로그인 일 3회)
+                  로그인 시 월 30크레딧 (비로그인 총 5회)
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckIcon />

@@ -6,7 +6,15 @@ import Link from "next/link";
 
 // ─── PlanBadge ──────────────────────────────────
 
-export function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: number | null; resetAt: string | null; onOpenReferral: () => void }) {
+interface PlanBadgeProps {
+  remaining: number | null;
+  resetAt: string | null;
+  onOpenReferral: () => void;
+  plan: string | null;
+  monthlyCredits: number;
+}
+
+export function PlanBadge({ remaining, resetAt, onOpenReferral, plan, monthlyCredits }: PlanBadgeProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [waitlistEmail, setWaitlistEmail] = useState("");
@@ -41,8 +49,10 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: n
   }, [open]);
 
   const credits = remaining ?? 0;
-  const total = 50;
+  const total = monthlyCredits || 30;
   const pct = Math.round((credits / total) * 100);
+  const planLabel = (plan ?? "free").charAt(0).toUpperCase() + (plan ?? "free").slice(1);
+  const isPaid = plan === "plus" || plan === "pro" || plan === "max";
 
   // 리셋일 계산
   const resetLabel = (() => {
@@ -55,25 +65,27 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: n
   const badge = (() => {
     if (credits <= 0)
       return {
-        text: "PRO 전환",
+        text: isPaid ? "크레딧 소진" : "업그레이드",
         bg: "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800",
         pulse: false,
       };
     if (credits <= 9)
       return {
-        text: `Free · ${credits}`,
+        text: `${planLabel} · ${credits}`,
         bg: "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800",
         pulse: true,
       };
     if (credits <= 19)
       return {
-        text: `Free · ${credits}`,
+        text: `${planLabel} · ${credits}`,
         bg: "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
         pulse: false,
       };
     return {
-      text: "Free",
-      bg: "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+      text: planLabel,
+      bg: isPaid
+        ? "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800"
+        : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700",
       pulse: false,
     };
   })();
@@ -100,7 +112,7 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: n
       {open && (
         <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg p-4 z-50 animate-fade-in-up">
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-            {credits <= 0 ? "크레딧 소진" : "Free 플랜"}
+            {credits <= 0 ? "크레딧 소진" : `${planLabel} 플랜`}
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {credits} / {total} 크레딧
@@ -118,29 +130,31 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: n
             </p>
           )}
           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
-            {waitlistStatus === "done" ? (
-              <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">{waitlistMsg}</p>
-            ) : (
-              <>
-                <p className="text-xs text-slate-500 dark:text-slate-400">PRO 출시 알림 받기</p>
-                <div className="flex gap-1.5">
-                  <input
-                    type="email"
-                    value={waitlistEmail}
-                    onChange={(e) => setWaitlistEmail(e.target.value)}
-                    placeholder="이메일"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-1 min-w-0 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-400 transition-all"
-                  />
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleWaitlist(); }}
-                    disabled={!waitlistEmail.includes("@") || waitlistStatus === "loading"}
-                    className="shrink-0 px-2.5 py-1.5 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                  >
-                    {waitlistStatus === "loading" ? "..." : "등록"}
-                  </button>
-                </div>
-              </>
+            {!isPaid && (
+              waitlistStatus === "done" ? (
+                <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">{waitlistMsg}</p>
+              ) : (
+                <>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">PRO 출시 알림 받기</p>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="email"
+                      value={waitlistEmail}
+                      onChange={(e) => setWaitlistEmail(e.target.value)}
+                      placeholder="이메일"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 min-w-0 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-400 transition-all"
+                    />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleWaitlist(); }}
+                      disabled={!waitlistEmail.includes("@") || waitlistStatus === "loading"}
+                      className="shrink-0 px-2.5 py-1.5 bg-teal-600 text-white text-xs font-medium rounded-lg hover:bg-teal-500 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    >
+                      {waitlistStatus === "loading" ? "..." : "등록"}
+                    </button>
+                  </div>
+                </>
+              )
             )}
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(false); onOpenReferral(); }}
@@ -166,11 +180,11 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral }: { remaining: n
 
 export const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-export function NavAuth({ remaining, resetAt, onOpenReferral }: { remaining: number | null; resetAt: string | null; onOpenReferral: () => void }) {
+export function NavAuth({ remaining, resetAt, onOpenReferral, plan, monthlyCredits }: { remaining: number | null; resetAt: string | null; onOpenReferral: () => void; plan: string | null; monthlyCredits: number }) {
   const { isSignedIn } = useAuth();
   return isSignedIn ? (
     <div className="flex items-center gap-3">
-      <PlanBadge remaining={remaining} resetAt={resetAt} onOpenReferral={onOpenReferral} />
+      <PlanBadge remaining={remaining} resetAt={resetAt} onOpenReferral={onOpenReferral} plan={plan} monthlyCredits={monthlyCredits} />
       <UserButton />
     </div>
   ) : (

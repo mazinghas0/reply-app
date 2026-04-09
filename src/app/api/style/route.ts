@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { saveStyleSample, getStyleSampleCount, deleteAllStyleSamples } from "@/lib/styleSystem";
+import { getCredits } from "@/lib/creditSystem";
 
 interface StyleSaveRequest {
   original: string;
@@ -22,6 +23,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
+  const { plan } = await getCredits(userId);
+
   const body = (await request.json()) as StyleSaveRequest;
 
   if (!body.original || !body.edited) {
@@ -33,7 +36,8 @@ export async function POST(request: NextRequest) {
     body.original,
     body.edited,
     body.tone,
-    body.relationship
+    body.relationship,
+    plan
   );
 
   return Response.json({

@@ -32,10 +32,9 @@ interface ReviewResult {
   suggestions: Suggestion[];
 }
 
-import { checkRateLimit } from "@/lib/rateLimit";
+import { checkAnonymousTotal } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
-
-const MAX_DRAFT_LENGTH = 500;
+import { getPlanConfig, ANONYMOUS_MAX_INPUT, ANONYMOUS_TOTAL_USES } from "@/lib/planConfig";
 
 const ALLOWED_ORIGINS = [
   "https://reply-app-sepia.vercel.app",
@@ -66,6 +65,8 @@ export async function POST(request: NextRequest) {
   }
 
   let remaining = 0;
+  let maxInputLength = ANONYMOUS_MAX_INPUT;
+
   if (userId) {
     const credit = await checkAndDeductCredit(userId);
     if (!credit.allowed) {
@@ -75,19 +76,16 @@ export async function POST(request: NextRequest) {
       );
     }
     remaining = credit.remaining;
+    maxInputLength = getPlanConfig(credit.plan).maxInputLength;
   } else {
-    const rateResult = await checkRateLimit(request, null, {
-      authenticatedLimit: 10,
-      anonymousLimit: 3,
-      prefix: "review",
-    });
-    if (!rateResult.allowed) {
+    const anonResult = await checkAnonymousTotal(request, ANONYMOUS_TOTAL_USES);
+    if (!anonResult.allowed) {
       return Response.json(
-        { error: "무료 사용량(3회)을 초과했습니다. 로그인하면 매월 50크레딧을 받을 수 있어요.", remaining: 0 },
+        { error: "체험 5회를 모두 사용했습니다. 로그인하면 매월 30크레딧을 받을 수 있어요.", remaining: 0 },
         { status: 429 }
       );
     }
-    remaining = rateResult.remaining;
+    remaining = anonResult.remaining;
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -104,9 +102,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "검토할 답장을 입력해주세요." }, { status: 400 });
   }
 
-  if (body.draft.length > MAX_DRAFT_LENGTH) {
+  if (body.draft.length > maxInputLength) {
     return Response.json(
-      { error: `답장은 ${MAX_DRAFT_LENGTH}자 이내로 입력해주세요.` },
+      { error: `답장은 ${maxInputLength}자 이내로 입력해주세요.` },
       { status: 400 }
     );
   }

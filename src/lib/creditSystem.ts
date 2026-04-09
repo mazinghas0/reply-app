@@ -1,11 +1,12 @@
 import { getSupabase } from "./supabase";
+import { type PlanId, getPlanConfig, validatePlan } from "./planConfig";
 
-const MONTHLY_FREE_CREDITS = 50;
 const REFERRAL_BONUS = 20;
 
 interface CreditCheckResult {
   allowed: boolean;
   remaining: number;
+  plan: PlanId;
 }
 
 interface UserCredits {
@@ -13,6 +14,7 @@ interface UserCredits {
   credits: number;
   credits_reset_at: string;
   referral_code: string;
+  plan: string;
 }
 
 function generateReferralCode(): string {
@@ -51,37 +53,36 @@ async function ensureUser(userId: string): Promise<UserCredits | null> {
 
   if (existing) return existing as UserCredits;
 
-  // 신규 유저 생성
+  const planConfig = getPlanConfig("free");
+
   let referralCode = generateReferralCode();
   for (let attempt = 0; attempt < 3; attempt++) {
     const { data: created, error } = await supabase
       .from("user_credits")
       .insert({
         clerk_user_id: userId,
-        credits: MONTHLY_FREE_CREDITS,
+        credits: planConfig.monthlyCredits,
         referral_code: referralCode,
+        plan: "free",
       })
       .select()
       .single();
 
     if (created) {
-      // 거래 내역 기록
       await supabase.from("credit_transactions").insert({
         clerk_user_id: userId,
-        amount: MONTHLY_FREE_CREDITS,
+        amount: planConfig.monthlyCredits,
         type: "monthly_reset",
         description: "첫 가입 크레딧 지급",
       });
       return created as UserCredits;
     }
 
-    // referral_code 중복이면 재생성
     if (error?.code === "23505") {
       referralCode = generateReferralCode();
       continue;
     }
 
-    // 다른 에러 (race condition으로 이미 생성됨)
     const { data: retry } = await supabase
       .from("user_credits")
       .select("*")
@@ -98,41 +99,40 @@ export async function checkAndDeductCredit(
 ): Promise<CreditCheckResult> {
   const supabase = getSupabase();
   if (!supabase) {
-    // Supabase 미설정 시 허용 (개발 환경 폴백)
-    return { allowed: true, remaining: 99 };
+    return { allowed: true, remaining: 99, plan: "free" };
   }
 
   const user = await ensureUser(userId);
   if (!user) {
-    return { allowed: true, remaining: 99 };
+    return { allowed: true, remaining: 99, plan: "free" };
   }
 
-  // 월 리셋 체크
+  const plan = validatePlan(user.plan);
+  const planConfig = getPlanConfig(plan);
+
   if (isNewMonth(user.credits_reset_at)) {
     await supabase
       .from("user_credits")
       .update({
-        credits: MONTHLY_FREE_CREDITS,
+        credits: planConfig.monthlyCredits,
         credits_reset_at: new Date().toISOString(),
       })
       .eq("clerk_user_id", userId);
 
     await supabase.from("credit_transactions").insert({
       clerk_user_id: userId,
-      amount: MONTHLY_FREE_CREDITS,
+      amount: planConfig.monthlyCredits,
       type: "monthly_reset",
       description: "월간 크레딧 리셋",
     });
 
-    return { allowed: true, remaining: MONTHLY_FREE_CREDITS - 1 };
+    return { allowed: true, remaining: planConfig.monthlyCredits - 1, plan };
   }
 
-  // 잔액 확인
   if (user.credits <= 0) {
-    return { allowed: false, remaining: 0 };
+    return { allowed: false, remaining: 0, plan };
   }
 
-  // 1 크레딧 차감
   const newCredits = user.credits - 1;
   await supabase
     .from("user_credits")
@@ -146,42 +146,46 @@ export async function checkAndDeductCredit(
     description: "답장 기능 사용",
   });
 
-  return { allowed: true, remaining: newCredits };
+  return { allowed: true, remaining: newCredits, plan };
 }
 
 export async function getCredits(userId: string): Promise<{
   credits: number;
   referralCode: string;
   resetAt: string;
+  plan: PlanId;
 }> {
   const user = await ensureUser(userId);
   if (!user) {
-    return { credits: MONTHLY_FREE_CREDITS, referralCode: "", resetAt: "" };
+    return { credits: 30, referralCode: "", resetAt: "", plan: "free" };
   }
 
-  // 월 리셋이 필요한 경우 리셋 후 반환
+  const plan = validatePlan(user.plan);
+  const planConfig = getPlanConfig(plan);
+
   if (isNewMonth(user.credits_reset_at)) {
     const supabase = getSupabase();
     if (supabase) {
       await supabase
         .from("user_credits")
         .update({
-          credits: MONTHLY_FREE_CREDITS,
+          credits: planConfig.monthlyCredits,
           credits_reset_at: new Date().toISOString(),
         })
         .eq("clerk_user_id", userId);
 
       await supabase.from("credit_transactions").insert({
         clerk_user_id: userId,
-        amount: MONTHLY_FREE_CREDITS,
+        amount: planConfig.monthlyCredits,
         type: "monthly_reset",
         description: "월간 크레딧 리셋",
       });
     }
     return {
-      credits: MONTHLY_FREE_CREDITS,
+      credits: planConfig.monthlyCredits,
       referralCode: user.referral_code,
       resetAt: getNextResetDate(),
+      plan,
     };
   }
 
@@ -189,6 +193,7 @@ export async function getCredits(userId: string): Promise<{
     credits: user.credits,
     referralCode: user.referral_code,
     resetAt: getNextResetDate(),
+    plan,
   };
 }
 
@@ -199,7 +204,6 @@ export async function applyReferralCode(
   const supabase = getSupabase();
   if (!supabase) return { success: false, message: "서비스를 사용할 수 없습니다" };
 
-  // 이미 추천 코드를 사용한 적 있는지 확인
   const { data: existing } = await supabase
     .from("credit_transactions")
     .select("id")
@@ -211,7 +215,6 @@ export async function applyReferralCode(
     return { success: false, message: "이미 추천 코드를 사용했어요" };
   }
 
-  // 추천 코드 소유자 찾기
   const { data: referrer } = await supabase
     .from("user_credits")
     .select("clerk_user_id, credits")
@@ -222,12 +225,10 @@ export async function applyReferralCode(
     return { success: false, message: "존재하지 않는 추천 코드예요" };
   }
 
-  // 자기 자신 추천 차단
   if (referrer.clerk_user_id === userId) {
     return { success: false, message: "본인의 추천 코드는 사용할 수 없어요" };
   }
 
-  // 추천받은 사람: 보너스 크레딧 지급
   const user = await ensureUser(userId);
   if (!user) return { success: false, message: "사용자 정보를 찾을 수 없습니다" };
 
@@ -243,7 +244,6 @@ export async function applyReferralCode(
     description: `추천 코드 적용 (추천인: ${referrer.clerk_user_id})`,
   });
 
-  // 추천한 사람: 보너스 크레딧 지급
   await supabase
     .from("user_credits")
     .update({ credits: referrer.credits + REFERRAL_BONUS })
@@ -259,4 +259,4 @@ export async function applyReferralCode(
   return { success: true, message: `${REFERRAL_BONUS} 크레딧을 받았어요!` };
 }
 
-export { MONTHLY_FREE_CREDITS, REFERRAL_BONUS };
+export { REFERRAL_BONUS };

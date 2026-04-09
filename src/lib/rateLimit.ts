@@ -60,6 +60,44 @@ export function getClientIp(request: NextRequest): string {
 
 const IP_DAILY_LIMIT = 15;
 
+// 비로그인 영구 카운터 (총 N회, 리셋 없음)
+const fallbackTotalMap = new Map<string, number>();
+
+export async function checkAnonymousTotal(
+  request: NextRequest,
+  limit: number = 5
+): Promise<RateLimitResult> {
+  const clientIp = getClientIp(request);
+  const r = getRedis();
+
+  if (!r) {
+    const key = `anon-total:${clientIp}`;
+    const current = (fallbackTotalMap.get(key) ?? 0) + 1;
+    fallbackTotalMap.set(key, current);
+    if (current > limit) return { allowed: false, remaining: 0 };
+    return { allowed: true, remaining: limit - current };
+  }
+
+  // Burst 차단: 분당 5회 초과 시 거부
+  const burstLimiter = new Ratelimit({
+    redis: r,
+    limiter: Ratelimit.slidingWindow(5, "1 m"),
+    prefix: "ratelimit:burst",
+  });
+  const burstResult = await burstLimiter.limit(clientIp);
+  if (!burstResult.success) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  // 영구 카운터 (TTL 없음)
+  const key = `anon-total:${clientIp}`;
+  const count = await r.incr(key);
+  if (count > limit) {
+    return { allowed: false, remaining: 0 };
+  }
+  return { allowed: true, remaining: limit - count };
+}
+
 export async function checkRateLimit(
   request: NextRequest,
   userId: string | null,

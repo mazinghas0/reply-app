@@ -53,6 +53,10 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [referralCode, setReferralCode] = useState("");
+  const [maxInputLength, setMaxInputLength] = useState(100);
+  const [allowSonnet, setAllowSonnet] = useState(false);
+  const [plan, setPlan] = useState<string | null>(null);
+  const [monthlyCredits, setMonthlyCredits] = useState(0);
 
   useEffect(() => {
     setStreak(loadStreak());
@@ -87,6 +91,18 @@ export default function Home() {
         }
         if (data.referralCode) {
           setReferralCode(data.referralCode);
+        }
+        if (typeof data.maxInputLength === "number") {
+          setMaxInputLength(data.maxInputLength);
+        }
+        if (typeof data.allowSonnet === "boolean") {
+          setAllowSonnet(data.allowSonnet);
+        }
+        if (data.plan) {
+          setPlan(data.plan);
+        }
+        if (typeof data.monthlyCredits === "number") {
+          setMonthlyCredits(data.monthlyCredits);
         }
         if (data.isAuthenticated) {
           setIsAuthenticated(true);
@@ -259,7 +275,7 @@ export default function Home() {
                 <path d="M10 1.5v2M10 16.5v2M3.4 3.4l1.4 1.4M15.2 15.2l1.4 1.4M1.5 10h2M16.5 10h2M3.4 16.6l1.4-1.4M15.2 4.8l1.4-1.4" />
               </svg>
             </button>
-            {CLERK_ENABLED && <NavAuth remaining={remaining} resetAt={resetAt} onOpenReferral={() => setShowReferral(true)} />}
+            {CLERK_ENABLED && <NavAuth remaining={remaining} resetAt={resetAt} onOpenReferral={() => setShowReferral(true)} plan={plan} monthlyCredits={monthlyCredits} />}
           </div>
         </div>
       </nav>
@@ -282,7 +298,7 @@ export default function Home() {
               <div>
                 <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">가입을 환영해요!</p>
                 <p className="text-xs text-teal-600 dark:text-teal-400 mt-1 leading-relaxed">
-                  매달 50크레딧이 무료로 충전돼요. 답장 만들기, 검토, 다듬기 모두 1크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
+                  매달 30크레딧이 무료로 충전돼요. 답장 만들기, 검토, 다듬기 모두 1크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
                 </p>
               </div>
               <button onClick={() => setShowWelcome(false)} className="shrink-0 p-1 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors cursor-pointer">
@@ -306,14 +322,16 @@ export default function Home() {
             onClipboardUsed={() => setClipboardText(null)}
             onSuccess={() => setStreak(updateStreak())}
             onRemainingUpdate={(n) => setRemaining(n)}
+            maxInputLength={maxInputLength}
+            allowSonnet={allowSonnet}
           />
         </div>
 
         {/* ═══ Review Mode ═══ */}
-        {mode === "review" && <ReviewTab initialDraft={sharedReviewDraft} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} />}
+        {mode === "review" && <ReviewTab initialDraft={sharedReviewDraft} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />}
 
         {/* ═══ Refine Mode ═══ */}
-        {mode === "refine" && <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} />}
+        {mode === "refine" && <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />}
 
         {/* Footer */}
         <footer className="mt-16 mb-4 w-full">

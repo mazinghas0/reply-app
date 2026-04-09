@@ -37,6 +37,8 @@ interface GenerateTabProps {
   onClipboardUsed: () => void;
   onSuccess: () => void;
   onRemainingUpdate: (n: number) => void;
+  maxInputLength: number;
+  allowSonnet: boolean;
 }
 
 export default function GenerateTab({
@@ -49,6 +51,8 @@ export default function GenerateTab({
   onClipboardUsed,
   onSuccess,
   onRemainingUpdate,
+  maxInputLength,
+  allowSonnet,
 }: GenerateTabProps) {
   const [selectedTone, setSelectedTone] = useState<ToneId>("polite");
   const [speed, setSpeed] = useState<Speed>("quality");
@@ -189,8 +193,8 @@ export default function GenerateTab({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label htmlFor="message-input" className="text-sm font-semibold text-slate-800 dark:text-slate-200">받은 메시지</label>
-            <span className={`text-xs tabular-nums ${inputMessage.length > 450 ? "text-rose-500" : "text-slate-400 dark:text-slate-500"}`}>
-              {inputMessage.length} / 500
+            <span className={`text-xs tabular-nums ${inputMessage.length > maxInputLength * 0.9 ? "text-rose-500" : "text-slate-400 dark:text-slate-500"}`}>
+              {inputMessage.length} / {maxInputLength}
             </span>
           </div>
           <textarea
@@ -200,9 +204,14 @@ export default function GenerateTab({
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="답장하고 싶은 메시지를 여기에 붙여넣으세요..."
-            maxLength={500}
+            maxLength={maxInputLength}
             className="w-full h-36 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
+          {!isAuthenticated && (
+            <p className="text-xs text-amber-500 dark:text-amber-400 mt-1">
+              체험판은 {maxInputLength}자 제한 &middot; <Link href="/sign-in" className="underline font-medium">로그인하면 500자까지</Link>
+            </p>
+          )}
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Ctrl</kbd>
             <span>+</span>
@@ -288,20 +297,23 @@ export default function GenerateTab({
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">답장 품질</label>
           <div className="flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900">
-            {SPEEDS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSpeed(s.id)}
-                className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
-                  speed === s.id
-                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-100 dark:border-slate-700"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                }`}
-              >
-                <div>{s.label}</div>
-                <div className="text-xs font-normal mt-0.5 opacity-60">{s.desc}</div>
-              </button>
-            ))}
+            {SPEEDS.map((s) => {
+              const locked = s.id === "quality" && !allowSonnet;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => { if (!locked) setSpeed(s.id); }}
+                  className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${
+                    speed === s.id && !locked
+                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-100 dark:border-slate-700"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  }`}
+                >
+                  <div>{s.label}{locked ? " (Pro)" : ""}</div>
+                  <div className="text-xs font-normal mt-0.5 opacity-60">{locked ? "Pro 플랜 이상" : s.desc}</div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -334,7 +346,7 @@ export default function GenerateTab({
                 href="/sign-in"
                 className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition-colors"
               >
-                로그인하고 10회 사용하기
+                로그인하고 30크레딧 받기
               </Link>
             )}
           </div>
@@ -359,7 +371,7 @@ export default function GenerateTab({
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">이 답장을 저장하고 싶으세요?</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                로그인하면 히스토리에 자동 저장되고, 매달 50크레딧을 무료로 받아요.
+                로그인하면 히스토리에 자동 저장되고, 매달 30크레딧을 무료로 받아요.
               </p>
               <Link
                 href="/sign-in"

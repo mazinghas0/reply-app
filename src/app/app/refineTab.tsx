@@ -87,7 +87,7 @@ function IconChevron({ open }: { open: boolean }) {
 
 // ─── Component ───────────────────────────────────
 
-export default function RefineTab({ initialText = "", initialCredits = null, onSuccess }: { initialText?: string; initialCredits?: number | null; onSuccess?: () => void }) {
+export default function RefineTab({ initialText = "", initialCredits = null, onSuccess, maxInputLength, isAuthenticated }: { initialText?: string; initialCredits?: number | null; onSuccess?: () => void; maxInputLength: number; isAuthenticated: boolean }) {
   const [draft, setDraft] = useState(initialText);
   const [tone, setTone] = useState<RefineToneId>("natural");
   const [refined, setRefined] = useState<string | null>(null);
@@ -165,12 +165,15 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
               }
             }}
             placeholder="대충 쓴 답장을 붙여넣으세요. AI가 깔끔하게 다듬어 드려요..."
-            maxLength={500}
+            maxLength={maxInputLength}
             className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
-          <div className="flex justify-end mt-1">
-            <span className={`text-xs tabular-nums ${draft.length > 450 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
-              {draft.length}/500
+          <div className="flex justify-between mt-1">
+            {!isAuthenticated && (
+              <span className="text-xs text-amber-500 dark:text-amber-400">체험판은 {maxInputLength}자 제한</span>
+            )}
+            <span className={`text-xs tabular-nums ml-auto ${draft.length > maxInputLength * 0.9 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
+              {draft.length}/{maxInputLength}
             </span>
           </div>
         </div>

@@ -30,11 +30,10 @@ const MODEL_MAP = {
   quality: "claude-sonnet-4-20250514",
 } as const;
 
-import { checkRateLimit } from "@/lib/rateLimit";
+import { checkAnonymousTotal } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
 import { getStylePromptBlock } from "@/lib/styleSystem";
-
-const MAX_MESSAGE_LENGTH = 500;
+import { getPlanConfig, ANONYMOUS_MAX_INPUT, ANONYMOUS_TOTAL_USES } from "@/lib/planConfig";
 
 const ALLOWED_ORIGINS = [
   "https://reply-app-sepia.vercel.app",
@@ -76,8 +75,10 @@ export async function POST(request: NextRequest) {
     // Clerk not configured — use anonymous rate limiting
   }
 
-  // 로그인 유저: 월간 크레딧, 비로그인: 일일 제한
   let remaining = 0;
+  let maxInputLength = ANONYMOUS_MAX_INPUT;
+  let allowSonnet = false;
+
   if (userId) {
     const credit = await checkAndDeductCredit(userId);
     if (!credit.allowed) {
@@ -87,19 +88,18 @@ export async function POST(request: NextRequest) {
       );
     }
     remaining = credit.remaining;
+    const planConfig = getPlanConfig(credit.plan);
+    maxInputLength = planConfig.maxInputLength;
+    allowSonnet = planConfig.allowSonnet;
   } else {
-    const rateResult = await checkRateLimit(request, null, {
-      authenticatedLimit: 10,
-      anonymousLimit: 3,
-      prefix: "generate",
-    });
-    if (!rateResult.allowed) {
+    const anonResult = await checkAnonymousTotal(request, ANONYMOUS_TOTAL_USES);
+    if (!anonResult.allowed) {
       return Response.json(
-        { error: "무료 사용량(3회)을 초과했습니다. 로그인하면 매월 50크레딧을 받을 수 있어요.", remaining: 0, isAuthenticated: false },
+        { error: "체험 5회를 모두 사용했습니다. 로그인하면 매월 30크레딧을 받을 수 있어요.", remaining: 0, isAuthenticated: false },
         { status: 429 }
       );
     }
-    remaining = rateResult.remaining;
+    remaining = anonResult.remaining;
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -120,9 +120,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (body.message.length > MAX_MESSAGE_LENGTH) {
+  if (body.message.length > maxInputLength) {
     return Response.json(
-      { error: `메시지는 ${MAX_MESSAGE_LENGTH}자 이내로 입력해주세요.` },
+      { error: `메시지는 ${maxInputLength}자 이내로 입력해주세요.` },
       { status: 400 }
     );
   }
@@ -136,7 +136,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const speed = body.speed === "fast" ? "fast" : "quality";
+  // Sonnet 모델은 Pro/Max 플랜만 사용 가능
+  const speed = (body.speed === "quality" && allowSonnet) ? "quality" : "fast";
   const model = MODEL_MAP[speed];
   const hintBlock = body.hint?.trim()
     ? `\n사용자가 원하는 답장 방향: ${body.hint.trim()}\n이 방향에 맞춰서 답장을 작성하세요.`

@@ -1,4 +1,5 @@
 import { getSupabase } from "./supabase";
+import { type PlanId, getPlanConfig } from "./planConfig";
 
 interface StyleSample {
   id: string;
@@ -15,7 +16,7 @@ interface SaveResult {
 }
 
 const MIN_SAMPLES_FOR_PERSONALIZATION = 5;
-const MAX_SAMPLES_PER_USER = 50;
+const MAX_SAMPLES_FALLBACK = 50;
 const PROMPT_SAMPLE_COUNT = 8;
 
 export async function saveStyleSample(
@@ -23,12 +24,17 @@ export async function saveStyleSample(
   original: string,
   edited: string,
   tone?: string,
-  relationship?: string
+  relationship?: string,
+  plan?: PlanId
 ): Promise<SaveResult> {
   const supabase = getSupabase();
   if (!supabase) return { success: false, count: 0 };
 
-  // 원본과 수정본이 동일하면 저장하지 않음
+  const planConfig = getPlanConfig(plan ?? "free");
+  if (planConfig.maxStyleSamples <= 0) {
+    return { success: false, count: 0 };
+  }
+
   if (original.trim() === edited.trim()) {
     const { count } = await supabase
       .from("style_samples")
@@ -45,16 +51,17 @@ export async function saveStyleSample(
     relationship: relationship ?? null,
   });
 
-  // 50건 초과 시 오래된 것 삭제
+  const maxSamples = planConfig.maxStyleSamples < 999 ? planConfig.maxStyleSamples : MAX_SAMPLES_FALLBACK;
+
   const { data: allSamples } = await supabase
     .from("style_samples")
     .select("id, created_at")
     .eq("clerk_user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (allSamples && allSamples.length > MAX_SAMPLES_PER_USER) {
+  if (allSamples && allSamples.length > maxSamples) {
     const idsToDelete = allSamples
-      .slice(MAX_SAMPLES_PER_USER)
+      .slice(maxSamples)
       .map((s) => s.id);
     await supabase
       .from("style_samples")
@@ -62,7 +69,7 @@ export async function saveStyleSample(
       .in("id", idsToDelete);
   }
 
-  const currentCount = allSamples ? Math.min(allSamples.length, MAX_SAMPLES_PER_USER) : 1;
+  const currentCount = allSamples ? Math.min(allSamples.length, maxSamples) : 1;
   return { success: true, count: currentCount };
 }
 
