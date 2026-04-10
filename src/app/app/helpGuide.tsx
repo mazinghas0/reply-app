@@ -53,7 +53,7 @@ const SECTIONS: GuideSection[] = [
 ];
 
 const GENERAL_TIPS = [
-  { label: "사용량", text: "로그인 시 월 30크레딧 (모든 기능 공유), 비로그인 총 5회 체험" },
+  { label: "사용량", text: "로그인 시 월 10크레딧 (1회 사용 = 3크레딧), 비로그인 총 5회 체험" },
   { label: "PWA", text: "홈 화면에 추가하면 앱처럼 사용할 수 있어요" },
   { label: "공유", text: "안드로이드 공유 메뉴에서 리플라이로 바로 보낼 수 있어요" },
 ];

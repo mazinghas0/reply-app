@@ -397,7 +397,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 text-center">
             <p className="text-sm text-slate-500">
-              지금은 완전 무료 — 가입만 하면 월 30크레딧
+              지금은 완전 무료 — 가입만 하면 월 10크레딧
             </p>
           </div>
         </div>

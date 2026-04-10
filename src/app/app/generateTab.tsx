@@ -346,7 +346,7 @@ export default function GenerateTab({
                 href="/sign-in"
                 className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition-colors"
               >
-                로그인하고 30크레딧 받기
+                로그인하고 10크레딧 받기
               </Link>
             )}
           </div>
@@ -371,7 +371,7 @@ export default function GenerateTab({
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">이 답장을 저장하고 싶으세요?</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                로그인하면 히스토리에 자동 저장되고, 매달 30크레딧을 무료로 받아요.
+                로그인하면 히스토리에 자동 저장되고, 매달 10크레딧을 무료로 받아요.
               </p>
               <Link
                 href="/sign-in"

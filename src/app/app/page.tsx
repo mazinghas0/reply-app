@@ -322,7 +322,7 @@ export default function Home() {
               <div>
                 <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">가입을 환영해요!</p>
                 <p className="text-xs text-teal-600 dark:text-teal-400 mt-1 leading-relaxed">
-                  매달 30크레딧이 무료로 충전돼요. 답장 만들기, 검토, 다듬기 모두 1크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
+                  매달 10크레딧이 무료로 충전돼요. 답장 만들기, 검토, 다듬기 모두 3크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
                 </p>
               </div>
               <button onClick={() => setShowWelcome(false)} className="shrink-0 p-1 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors cursor-pointer">

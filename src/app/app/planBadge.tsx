@@ -49,7 +49,7 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral, plan, monthlyCre
   }, [open]);
 
   const credits = remaining ?? 0;
-  const total = monthlyCredits || 30;
+  const total = monthlyCredits || 10;
   const pct = Math.round((credits / total) * 100);
   const planLabel = (plan ?? "free").charAt(0).toUpperCase() + (plan ?? "free").slice(1);
   const isPaid = plan === "plus" || plan === "pro" || plan === "max";

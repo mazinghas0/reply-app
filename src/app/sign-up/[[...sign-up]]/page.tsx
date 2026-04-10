@@ -36,7 +36,7 @@ export default function SignUpPage() {
         }}
       />
       <p className="mt-6 text-sm text-slate-500">
-        가입하면 매월 50크레딧을 무료로 받을 수 있어요
+        가입하면 매월 10크레딧을 무료로 받을 수 있어요
       </p>
       <p className="mt-2 text-xs text-slate-600">
         가입 시{" "}

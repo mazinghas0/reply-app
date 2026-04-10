@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import { type PlanId, getPlanConfig, validatePlan } from "./planConfig";
+import { type PlanId, getPlanConfig, validatePlan, CREDIT_COST } from "./planConfig";
 
 const REFERRAL_BONUS = 20;
 
@@ -126,14 +126,14 @@ export async function checkAndDeductCredit(
       description: "월간 크레딧 리셋",
     });
 
-    return { allowed: true, remaining: planConfig.monthlyCredits - 1, plan };
+    return { allowed: true, remaining: planConfig.monthlyCredits - CREDIT_COST, plan };
   }
 
-  if (user.credits <= 0) {
-    return { allowed: false, remaining: 0, plan };
+  if (user.credits < CREDIT_COST) {
+    return { allowed: false, remaining: user.credits, plan };
   }
 
-  const newCredits = user.credits - 1;
+  const newCredits = user.credits - CREDIT_COST;
   await supabase
     .from("user_credits")
     .update({ credits: newCredits })
@@ -141,9 +141,9 @@ export async function checkAndDeductCredit(
 
   await supabase.from("credit_transactions").insert({
     clerk_user_id: userId,
-    amount: -1,
+    amount: -CREDIT_COST,
     type: "usage",
-    description: "답장 기능 사용",
+    description: `답장 기능 사용 (${CREDIT_COST}크레딧)`,
   });
 
   return { allowed: true, remaining: newCredits, plan };
@@ -157,7 +157,7 @@ export async function getCredits(userId: string): Promise<{
 }> {
   const user = await ensureUser(userId);
   if (!user) {
-    return { credits: 30, referralCode: "", resetAt: "", plan: "free" };
+    return { credits: 10, referralCode: "", resetAt: "", plan: "free" };
   }
 
   const plan = validatePlan(user.plan);

@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     const anonResult = await checkAnonymousTotal(request, ANONYMOUS_TOTAL_USES);
     if (!anonResult.allowed) {
       return Response.json(
-        { error: "체험 5회를 모두 사용했습니다. 로그인하면 매월 30크레딧을 받을 수 있어요.", remaining: 0 },
+        { error: "체험 5회를 모두 사용했습니다. 로그인하면 매월 10크레딧을 받을 수 있어요.", remaining: 0 },
         { status: 429 }
       );
     }

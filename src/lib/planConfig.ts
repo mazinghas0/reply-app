@@ -9,11 +9,13 @@ interface PlanConfig {
 }
 
 export const PLANS: Record<PlanId, PlanConfig> = {
-  free: { label: "Free", monthlyCredits: 30, maxInputLength: 500, allowSonnet: false, maxStyleSamples: 0 },
-  plus: { label: "Plus", monthlyCredits: 100, maxInputLength: 800, allowSonnet: false, maxStyleSamples: 50 },
-  pro: { label: "Pro", monthlyCredits: 250, maxInputLength: 1200, allowSonnet: true, maxStyleSamples: 999 },
-  max: { label: "Max", monthlyCredits: 500, maxInputLength: 1200, allowSonnet: true, maxStyleSamples: 999 },
+  free: { label: "Free", monthlyCredits: 10, maxInputLength: 500, allowSonnet: false, maxStyleSamples: 0 },
+  plus: { label: "Plus", monthlyCredits: 70, maxInputLength: 800, allowSonnet: false, maxStyleSamples: 50 },
+  pro: { label: "Pro", monthlyCredits: 200, maxInputLength: 1200, allowSonnet: true, maxStyleSamples: 999 },
+  max: { label: "Max", monthlyCredits: 400, maxInputLength: 1200, allowSonnet: true, maxStyleSamples: 999 },
 };
+
+export const CREDIT_COST = 3;
 
 export const ANONYMOUS_MAX_INPUT = 100;
 export const ANONYMOUS_TOTAL_USES = 5;
