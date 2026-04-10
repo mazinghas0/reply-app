@@ -403,6 +403,71 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* 요금제 */}
+      <section id="pricing" className="px-4 py-24 border-t border-slate-800/50">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-white mb-4">
+            요금제
+          </h2>
+          <p className="text-center text-slate-400 mb-4">
+            지금은 무료로 월 10크레딧을 드려요
+          </p>
+          <p className="text-center text-xs text-amber-400/80 mb-14">
+            유료 플랜은 결제 시스템 연동 후 순차 출시 예정 — 1회 이용 시 3크레딧 차감
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800/60 flex flex-col">
+              <p className="text-sm font-semibold text-slate-400 mb-2">Free</p>
+              <p className="text-3xl font-bold text-white mb-1">0원<span className="text-sm font-normal text-slate-500">/월</span></p>
+              <p className="text-xs text-slate-500 mb-5">현재 운영 중</p>
+              <ul className="space-y-2 text-sm text-slate-400 flex-1">
+                <li className="flex items-start gap-2"><CheckIcon />월 10크레딧 (3회 사용)</li>
+                <li className="flex items-start gap-2"><CheckIcon />답장 만들기 · 검토 · 다듬기</li>
+                <li className="flex items-start gap-2"><CheckIcon />입력 500자</li>
+              </ul>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800/60 flex flex-col">
+              <p className="text-sm font-semibold text-teal-400 mb-2">Plus</p>
+              <p className="text-3xl font-bold text-white mb-1">3,900원<span className="text-sm font-normal text-slate-500">/월</span></p>
+              <p className="text-xs text-amber-400/80 mb-5">출시 예정</p>
+              <ul className="space-y-2 text-sm text-slate-400 flex-1">
+                <li className="flex items-start gap-2"><CheckIcon />월 70크레딧 (23회 사용)</li>
+                <li className="flex items-start gap-2"><CheckIcon />입력 800자로 확장</li>
+                <li className="flex items-start gap-2"><CheckIcon />내 말투 학습 50건</li>
+              </ul>
+            </div>
+            <div className="p-6 rounded-2xl bg-teal-950/30 border border-teal-700/60 flex flex-col relative">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-teal-600 text-white text-xs font-semibold">추천</span>
+              <p className="text-sm font-semibold text-teal-400 mb-2">Pro</p>
+              <p className="text-3xl font-bold text-white mb-1">8,900원<span className="text-sm font-normal text-slate-500">/월</span></p>
+              <p className="text-xs text-amber-400/80 mb-5">출시 예정</p>
+              <ul className="space-y-2 text-sm text-slate-300 flex-1">
+                <li className="flex items-start gap-2"><CheckIcon />월 140크레딧 (46회 사용)</li>
+                <li className="flex items-start gap-2"><CheckIcon />Sonnet 고품질 AI</li>
+                <li className="flex items-start gap-2"><CheckIcon />입력 1,200자</li>
+                <li className="flex items-start gap-2"><CheckIcon />내 말투 학습 무제한</li>
+              </ul>
+            </div>
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800/60 flex flex-col">
+              <p className="text-sm font-semibold text-violet-400 mb-2">Max</p>
+              <p className="text-3xl font-bold text-white mb-1">19,800원<span className="text-sm font-normal text-slate-500">/월</span></p>
+              <p className="text-xs text-amber-400/80 mb-5">출시 예정</p>
+              <ul className="space-y-2 text-sm text-slate-400 flex-1">
+                <li className="flex items-start gap-2"><CheckIcon />월 320크레딧 (106회 사용)</li>
+                <li className="flex items-start gap-2"><CheckIcon />Pro의 모든 기능</li>
+                <li className="flex items-start gap-2"><CheckIcon />맞춤 키워드 버튼 등록 (Max 전용)</li>
+                <li className="flex items-start gap-2"><CheckIcon />우선 고객 지원</li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-center text-xs text-slate-500 mt-8">
+            모든 플랜: 월 자동 갱신 · 언제든 해지 가능 · 결제 7일 이내 미사용 시 전액 환불 · 자세한 내용은{" "}
+            <Link href="/refund" className="text-teal-400 hover:text-teal-300 underline">환불 정책</Link>
+            {" "}참고
+          </p>
+        </div>
+      </section>
+
       {/* 마지막 CTA */}
       <section className="px-4 py-24 text-center border-t border-slate-800/50">
         <div className="max-w-lg mx-auto">
@@ -431,6 +496,8 @@ export default function LandingPage() {
               <Link href="/terms" className="text-slate-500 hover:text-slate-300 transition-colors">이용약관</Link>
               <span className="text-slate-700">|</span>
               <Link href="/privacy" className="text-slate-500 hover:text-slate-300 transition-colors">개인정보 처리방침</Link>
+              <span className="text-slate-700">|</span>
+              <Link href="/refund" className="text-slate-500 hover:text-slate-300 transition-colors">환불 정책</Link>
               <span className="text-slate-700">|</span>
               <Link href="/blog" className="text-slate-500 hover:text-slate-300 transition-colors">블로그</Link>
               <span className="text-slate-700">|</span>
