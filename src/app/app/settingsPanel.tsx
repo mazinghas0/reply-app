@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { type AppMode, type ToneId, type Speed, TONES, SPEEDS } from "./shared";
+import CustomKeywordSection from "./customKeywordSection";
 
 type FontSize = "small" | "normal" | "large";
 
@@ -20,9 +21,10 @@ const TAB_OPTIONS: Array<{ id: AppMode; label: string }> = [
 interface SettingsPanelProps {
   onClose: () => void;
   onResetTour: () => void;
+  plan?: string | null;
 }
 
-export default function SettingsPanel({ onClose, onResetTour }: SettingsPanelProps) {
+export default function SettingsPanel({ onClose, onResetTour, plan }: SettingsPanelProps) {
   const [dark, setDark] = useState(false);
   const [fontSize, setFontSize] = useState<FontSize>("normal");
   const [defaultTone, setDefaultTone] = useState<ToneId>("polite");
@@ -216,6 +218,13 @@ export default function SettingsPanel({ onClose, onResetTour }: SettingsPanelPro
               onClick={handleResetTour}
             />
           </SettingsGroup>
+
+          {/* Max 전용: 맞춤 키워드 */}
+          {plan === "max" && (
+            <SettingsGroup label="Max 전용">
+              <CustomKeywordSection />
+            </SettingsGroup>
+          )}
 
           {/* 데이터 관리 */}
           <SettingsGroup label="데이터 관리">

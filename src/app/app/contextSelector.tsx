@@ -1,7 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { pushRecentRelationship, pushRecentPurpose } from "./shared";
+import CustomKeywordModal from "./customKeywordModal";
+
+interface CustomKeywordItem {
+  id: string;
+  kind: "relationship" | "purpose";
+  label: string;
+  description: string | null;
+}
 
 // ─── Types ───────────────────────────────────────
 
@@ -301,6 +309,40 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   const [searchQuery, setSearchQuery] = useState("");
   const [openRelGroup, setOpenRelGroup] = useState<RelationshipId | null>(null);
   const [showSearch, setShowSearch] = useState(false);
+  const [customKeywords, setCustomKeywords] = useState<CustomKeywordItem[]>([]);
+  const [isMaxPlan, setIsMaxPlan] = useState(false);
+  const [showKeywordModal, setShowKeywordModal] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/credits")
+      .then((r) => r.json())
+      .then((d: { plan?: string | null }) => {
+        if (!cancelled && d.plan === "max") setIsMaxPlan(true);
+      })
+      .catch(() => { /* 무시 */ });
+
+    fetch("/api/keywords")
+      .then((r) => r.json())
+      .then((d: { keywords?: CustomKeywordItem[] }) => {
+        if (!cancelled && Array.isArray(d.keywords)) setCustomKeywords(d.keywords);
+      })
+      .catch(() => { /* 무시 */ });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showKeywordModal]);
+
+  const customRelationships = useMemo(
+    () => customKeywords.filter((k) => k.kind === "relationship"),
+    [customKeywords]
+  );
+  const customPurposes = useMemo(
+    () => customKeywords.filter((k) => k.kind === "purpose"),
+    [customKeywords]
+  );
 
   const isCustom = value.relationship === "custom";
   const hasSituation = value.relationship !== null && value.purpose !== null && !isCustom;
@@ -339,6 +381,30 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
       relationshipCustom: "",
       purpose: "custom",
       purposeCustom: "",
+      strategy: null,
+    });
+    setSelectedCategory(null);
+    setSearchQuery("");
+  };
+
+  const selectCustomRelationship = (kw: CustomKeywordItem) => {
+    onChange({
+      relationship: "custom",
+      relationshipCustom: kw.label,
+      purpose: "custom",
+      purposeCustom: value.purposeCustom,
+      strategy: null,
+    });
+    setSelectedCategory(null);
+    setSearchQuery("");
+  };
+
+  const selectCustomPurpose = (kw: CustomKeywordItem) => {
+    onChange({
+      relationship: "custom",
+      relationshipCustom: value.relationshipCustom,
+      purpose: "custom",
+      purposeCustom: kw.label,
       strategy: null,
     });
     setSelectedCategory(null);
@@ -538,6 +604,64 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
         )
       ) : (
         <>
+          {/* My custom keywords (Max only) */}
+          {(customRelationships.length > 0 || customPurposes.length > 0 || isMaxPlan) && (
+            <div className="rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/20 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">
+                  내 키워드
+                </span>
+                {isMaxPlan && (
+                  <button
+                    onClick={() => setShowKeywordModal(true)}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 border border-teal-300 dark:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                  >
+                    + 내 키워드 추가
+                  </button>
+                )}
+              </div>
+              {customRelationships.length > 0 && (
+                <div>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">관계</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {customRelationships.map((kw) => (
+                      <button
+                        key={`crel-${kw.id}`}
+                        onClick={() => selectCustomRelationship(kw)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-teal-300 dark:border-teal-700 bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                        title={kw.description ?? undefined}
+                      >
+                        {kw.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {customPurposes.length > 0 && (
+                <div>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">상황</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {customPurposes.map((kw) => (
+                      <button
+                        key={`cpur-${kw.id}`}
+                        onClick={() => selectCustomPurpose(kw)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-teal-300 dark:border-teal-700 bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                        title={kw.description ?? undefined}
+                      >
+                        {kw.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {isMaxPlan && customRelationships.length === 0 && customPurposes.length === 0 && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  자주 쓰는 관계나 상황을 직접 등록해 두면 매번 빠르게 사용할 수 있어요.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Popular situations */}
           {!selectedCategory && (
             <div>
@@ -627,6 +751,10 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
             </div>
           )}
         </>
+      )}
+
+      {showKeywordModal && (
+        <CustomKeywordModal onClose={() => setShowKeywordModal(false)} />
       )}
     </div>
   );

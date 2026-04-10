@@ -213,7 +213,7 @@ export default function Home() {
         />
       )}
       {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} onResetTour={() => setShowOnboarding(true)} />
+        <SettingsPanel onClose={() => setShowSettings(false)} onResetTour={() => setShowOnboarding(true)} plan={plan} />
       )}
       {/* Nav */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-100 dark:border-slate-800/50 transition-colors duration-200">
