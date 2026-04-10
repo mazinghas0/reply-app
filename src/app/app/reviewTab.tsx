@@ -114,8 +114,58 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
             <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200 dark:to-slate-700" />
           </div>
 
+          {/* Scores */}
+          {reviewResult.scores && (
+            <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">종합 점수</h3>
+              <div className="space-y-3">
+                {([
+                  { key: "politeness" as const, label: "공손함", color: "bg-teal-500", desc: "높을수록 공손" },
+                  { key: "clarity" as const, label: "명확성", color: "bg-blue-500", desc: "높을수록 명확" },
+                  { key: "pressure" as const, label: "부담도", color: "bg-amber-500", desc: "높을수록 부담" },
+                  { key: "misunderstanding" as const, label: "오해 가능성", color: "bg-rose-500", desc: "높을수록 위험" },
+                ]).map((item) => {
+                  const value = reviewResult.scores![item.key];
+                  return (
+                    <div key={item.key}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-300">{item.label}</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">{value}/10 — {item.desc}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div className={`h-full rounded-full transition-all duration-700 ${item.color}`} style={{ width: `${value * 10}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Warnings */}
+          {reviewResult.warnings && reviewResult.warnings.length > 0 && (
+            <div className="animate-fade-in-up p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-2xl shadow-sm" style={{ animationDelay: "50ms" }}>
+              <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-300 mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                주의할 표현
+              </h3>
+              <ul className="space-y-1.5">
+                {reviewResult.warnings.map((w, i) => (
+                  <li key={i} className="text-sm text-amber-600 dark:text-amber-400 flex items-start gap-2">
+                    <span className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 dark:bg-amber-500" />
+                    {w}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Tone */}
-          <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm">
+          <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "100ms" }}>
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">톤 분석</h3>
             <div className="flex items-center gap-3 mb-2">
               <div className="flex gap-1">
@@ -129,14 +179,14 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
           </div>
 
           {/* Impression */}
-          <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "100ms" }}>
+          <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "150ms" }}>
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">상대방은 이렇게 느껴요</h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{reviewResult.impression}</p>
           </div>
 
           {/* Spelling */}
           {reviewResult.spelling.length > 0 && (
-            <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "200ms" }}>
+            <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "250ms" }}>
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">맞춤법 ({reviewResult.spelling.length}건)</h3>
               <div className="space-y-2">
                 {reviewResult.spelling.map((s, i) => (
@@ -153,7 +203,7 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
 
           {/* Suggestions */}
           {reviewResult.suggestions.length > 0 && (
-            <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "300ms" }}>
+            <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm" style={{ animationDelay: "350ms" }}>
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">개선 제안 ({reviewResult.suggestions.length}건)</h3>
               <div className="space-y-3">
                 {reviewResult.suggestions.map((s, i) => (

@@ -7,11 +7,20 @@ export interface Reply {
   content: string;
 }
 
+export interface ReviewScores {
+  politeness: number;
+  pressure: number;
+  misunderstanding: number;
+  clarity: number;
+}
+
 export interface ReviewResult {
   spelling: Array<{ original: string; corrected: string; reason: string }>;
   tone: { label: string; score: number; detail: string };
   impression: string;
   suggestions: Array<{ original: string; improved: string; reason: string }>;
+  scores?: ReviewScores;
+  warnings?: string[];
 }
 
 export interface HistoryEntry {

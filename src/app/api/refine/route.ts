@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-type RefineTone = "natural" | "polite" | "firm" | "flexible" | "friendly";
+type RefineTone = "natural" | "polite" | "firm" | "flexible" | "friendly" | "shorter" | "pressure_free" | "my_style";
 
 interface RefineRequest {
   draft: string;
@@ -30,11 +30,24 @@ const TONE_INSTRUCTIONS: Record<RefineTone, { instruction: string; freedom: stri
     instruction: "친근하고 편안한 톤으로 바꿔주세요",
     freedom: "가볍고 부담 없는 표현 + 반말이나 편한 존댓말. 예: '검토 부탁드립니다' → '한번 봐주실 수 있어요?'. 딱딱함을 빼되 무례하지 않게.",
   },
+  shorter: {
+    instruction: "핵심만 남기고 최대한 짧게 줄여주세요",
+    freedom: "불필요한 인사, 사족, 반복 제거. 핵심 메시지만 1~2문장으로. 예: '안녕하세요, 말씀하신 건 확인했고 제가 내일까지 처리해서 보내드리도록 하겠습니다. 감사합니다.' → '확인했습니다. 내일까지 보내드릴게요.' 의미 손실 없이 간결하게.",
+  },
+  pressure_free: {
+    instruction: "상대가 부담 없이 읽을 수 있도록 바꿔주세요",
+    freedom: "강요/압박 느낌 제거 + 선택지 제공 + 부드러운 어미. 예: '내일까지 보내주세요' → '내일까지 가능하시면 보내주시면 감사하겠습니다'. '~해주세요'보다 '~해주시면 좋겠어요', '~하면 어떨까요' 패턴. 상대의 상황을 배려하는 표현 추가.",
+  },
+  my_style: {
+    instruction: "사용자의 평소 말투와 최대한 비슷하게 다듬어주세요",
+    freedom: "사용자의 말투 패턴(어미, 이모티콘, 문장 길이, 격식 수준)을 최우선으로 반영. 톤이나 격식을 바꾸지 말고, 문장을 매끄럽게만 다듬되 '이 사람이 직접 쓴 것 같은' 느낌을 유지.",
+  },
 };
 
 import { checkAnonymousTotal } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
 import { getPlanConfig, ANONYMOUS_MAX_INPUT, ANONYMOUS_TOTAL_USES } from "@/lib/planConfig";
+import { getStylePromptBlock } from "@/lib/styleSystem";
 
 const ALLOWED_ORIGINS = [
   "https://aireply.co.kr",
@@ -116,6 +129,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "올바른 톤을 선택해주세요." }, { status: 400 });
   }
 
+  // "내 말투처럼" 선택 시 개인화 프롬프트 주입
+  const styleBlock = (body.tone === "my_style" && userId) ? await getStylePromptBlock(userId) : "";
+
   const client = new Anthropic({ apiKey });
 
   let response: Anthropic.Message;
@@ -128,7 +144,7 @@ export async function POST(request: NextRequest) {
           role: "user",
           content: `당신은 10년차 한국인 메신저 소통 전문가입니다.
 사용자가 작성한 답장을 다듬어 주세요.
-
+${styleBlock}
 목표: ${toneConfig.instruction}
 변경 범위: ${toneConfig.freedom}
 

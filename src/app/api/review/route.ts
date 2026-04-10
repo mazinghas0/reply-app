@@ -25,11 +25,20 @@ interface Suggestion {
   reason: string;
 }
 
+interface ReviewScores {
+  politeness: number;
+  pressure: number;
+  misunderstanding: number;
+  clarity: number;
+}
+
 interface ReviewResult {
   spelling: SpellingFix[];
   tone: ToneAnalysis;
   impression: string;
   suggestions: Suggestion[];
+  scores: ReviewScores;
+  warnings: string[];
 }
 
 import { checkAnonymousTotal } from "@/lib/rateLimit";
@@ -121,7 +130,7 @@ export async function POST(request: NextRequest) {
   try {
     response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 512,
+      max_tokens: 768,
       messages: [
         {
           role: "user",
@@ -140,6 +149,14 @@ export async function POST(request: NextRequest) {
    - 구체적인 심리 반응 서술 (예: "업무적으로만 대하는 느낌을 받아 거리감을 느낄 수 있어요")
 4. 더 나은 표현 개선안 (있으면, 최대 2개)
    - 이미 잘 쓴 답장이면 suggestions는 빈 배열로
+5. 종합 점수 4가지 (각각 1~10점):
+   - politeness: 공손함 (10=매우 공손, 1=무례)
+   - pressure: 부담도 (10=상대가 매우 부담, 1=편안)
+   - misunderstanding: 오해 가능성 (10=오해 소지 큼, 1=명확)
+   - clarity: 명확성 (10=매우 명확, 1=모호)
+6. 위험 신호 (있으면): 상대가 불쾌/부담/오해할 수 있는 구체적 표현이나 문장을 목록으로
+   - 예: "~하세요"가 명령조로 들릴 수 있음, "괜찮아"가 무관심으로 읽힐 수 있음
+   - 위험 없으면 빈 배열
 
 "AI 느낌 제거" 규칙 (개선안 작성 시):
 - 개선안(improved)은 한국인이 카카오톡/업무 메신저에서 실제로 쓰는 문체로 작성
@@ -152,10 +169,12 @@ export async function POST(request: NextRequest) {
   "spelling": [{"original": "틀린 표현", "corrected": "올바른 표현", "reason": "이유"}],
   "tone": {"label": "톤 이름", "score": 3, "detail": "톤 설명 한 줄"},
   "impression": "받는 사람 시점의 구체적 감정 분석 2~3문장",
-  "suggestions": [{"original": "원문 표현", "improved": "개선 표현", "reason": "이유"}]
+  "suggestions": [{"original": "원문 표현", "improved": "개선 표현", "reason": "이유"}],
+  "scores": {"politeness": 7, "pressure": 4, "misunderstanding": 3, "clarity": 8},
+  "warnings": ["위험 표현 설명 1", "위험 표현 설명 2"]
 }
 
-spelling이나 suggestions가 없으면 빈 배열 []로 응답하세요.
+spelling, suggestions, warnings가 없으면 빈 배열 []로 응답하세요.
 
 사용자가 작성한 답장:
 ${body.draft}${contextBlock}`,

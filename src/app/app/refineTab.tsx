@@ -4,16 +4,19 @@ import { useState } from "react";
 
 // ─── Types ───────────────────────────────────────
 
-type RefineToneId = "natural" | "polite" | "firm" | "flexible" | "friendly";
+type RefineToneId = "natural" | "polite" | "firm" | "flexible" | "friendly" | "shorter" | "pressure_free" | "my_style";
 
 // ─── Constants ───────────────────────────────────
 
 const REFINE_TONES = [
   { id: "natural", label: "자연스럽게", desc: "톤 유지, 문장만 다듬기" },
-  { id: "polite", label: "정중한", desc: "예의 바르고 격식 있는" },
-  { id: "firm", label: "단호한", desc: "명확하고 프로페셔널한" },
-  { id: "flexible", label: "유연한", desc: "열린 자세, 협상 가능한" },
-  { id: "friendly", label: "친근한", desc: "편하고 가벼운" },
+  { id: "polite", label: "정중하게", desc: "예의 바르고 격식 있는" },
+  { id: "firm", label: "단호하게", desc: "명확하고 프로페셔널한" },
+  { id: "flexible", label: "유연하게", desc: "열린 자세, 협상 가능한" },
+  { id: "friendly", label: "친근하게", desc: "편하고 가벼운" },
+  { id: "shorter", label: "더 짧게", desc: "핵심만 간결하게" },
+  { id: "pressure_free", label: "부담 없게", desc: "상대가 편하게 읽도록" },
+  { id: "my_style", label: "내 말투처럼", desc: "학습된 내 문체로" },
 ] as const;
 
 const REFINE_TONE_STYLES: Record<RefineToneId, { selected: string; hover: string }> = {
@@ -36,6 +39,18 @@ const REFINE_TONE_STYLES: Record<RefineToneId, { selected: string; hover: string
   friendly: {
     selected: "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-500 dark:ring-amber-900",
     hover: "hover:border-amber-200 hover:bg-amber-50/50 dark:hover:border-amber-800 dark:hover:bg-amber-900/20",
+  },
+  shorter: {
+    selected: "border-violet-400 bg-violet-50 text-violet-700 ring-2 ring-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-500 dark:ring-violet-900",
+    hover: "hover:border-violet-200 hover:bg-violet-50/50 dark:hover:border-violet-800 dark:hover:bg-violet-900/20",
+  },
+  pressure_free: {
+    selected: "border-cyan-400 bg-cyan-50 text-cyan-700 ring-2 ring-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-300 dark:border-cyan-500 dark:ring-cyan-900",
+    hover: "hover:border-cyan-200 hover:bg-cyan-50/50 dark:hover:border-cyan-800 dark:hover:bg-cyan-900/20",
+  },
+  my_style: {
+    selected: "border-teal-400 bg-teal-50 text-teal-700 ring-2 ring-teal-200 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-500 dark:ring-teal-900",
+    hover: "hover:border-teal-200 hover:bg-teal-50/50 dark:hover:border-teal-800 dark:hover:bg-teal-900/20",
   },
 };
 
@@ -183,22 +198,26 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">
             어떤 느낌으로 다듬을까요?
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {REFINE_TONES.map((t) => {
               const isSelected = tone === t.id;
               const style = REFINE_TONE_STYLES[t.id];
+              const isMyStyleLocked = t.id === "my_style" && !isAuthenticated;
               return (
                 <button
                   key={t.id}
-                  onClick={() => setTone(t.id)}
-                  className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? style.selected
-                      : `border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${style.hover}`
+                  onClick={() => !isMyStyleLocked && setTone(t.id)}
+                  disabled={isMyStyleLocked}
+                  className={`p-3 rounded-xl border text-left transition-all duration-200 ${
+                    isMyStyleLocked
+                      ? "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-60"
+                      : isSelected
+                        ? `cursor-pointer ${style.selected}`
+                        : `cursor-pointer border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${style.hover}`
                   }`}
                 >
-                  <span className="block text-sm font-semibold">{t.label}</span>
-                  <span className={`block text-xs mt-0.5 ${isSelected ? "opacity-80" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className="block text-sm font-semibold">{t.label}{isMyStyleLocked ? " (로그인)" : ""}</span>
+                  <span className={`block text-xs mt-0.5 ${isSelected && !isMyStyleLocked ? "opacity-80" : "text-slate-400 dark:text-slate-500"}`}>
                     {t.desc}
                   </span>
                 </button>
