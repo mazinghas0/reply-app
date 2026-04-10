@@ -1,5 +1,9 @@
 const REPLY_APP_URL = "https://aireply.co.kr/app";
 
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error("sidePanel setPanelBehavior failed", error));
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "reply-generate",

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "리플라이 — AI 답장 도우미",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "선택한 텍스트를 리플라이로 보내 AI 답장을 받으세요",
-  "permissions": ["contextMenus"],
+  "permissions": ["contextMenus", "sidePanel", "storage"],
   "background": {
     "service_worker": "background.js"
   },
@@ -18,7 +18,9 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "리플라이",
-    "default_popup": "popup.html"
+    "default_title": "리플라이 사이드 패널 열기"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   }
 }

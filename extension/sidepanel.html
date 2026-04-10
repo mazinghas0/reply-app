@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>리플라이</title>
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <div id="loading" class="state-view">
+    <div class="spinner"></div>
+    <p class="state-text">리플라이를 불러오는 중...</p>
+  </div>
+
+  <div id="fallback" class="state-view hidden">
+    <div class="fallback-card">
+      <img src="icons/icon48.png" alt="리플라이" class="fallback-icon" />
+      <h2 class="fallback-title">사이드 패널에서 열 수 없어요</h2>
+      <p class="fallback-desc">
+        로그인 상태나 브라우저 보안 정책 때문에 이 창 안에서는<br />
+        리플라이를 표시할 수 없습니다.
+      </p>
+      <button id="openTabBtn" class="primary-btn">새 탭에서 열기</button>
+      <p class="fallback-hint">로그인 후 다시 사이드 패널을 열면 정상 동작할 수 있어요.</p>
+    </div>
+  </div>
+
+  <iframe
+    id="replyFrame"
+    src="https://www.aireply.co.kr/app"
+    title="리플라이 웹앱"
+    allow="clipboard-read; clipboard-write"
+  ></iframe>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
