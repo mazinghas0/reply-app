@@ -212,3 +212,85 @@ export function toggleFavorite(id: string): Set<string> {
   localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favs]));
   return new Set(favs);
 }
+
+// ─── Quick Actions (퀵액션 홈) ───────────────────
+
+const RECENT_RELATIONSHIPS_KEY = "reply-recent-relationships";
+const RECENT_PURPOSES_KEY = "reply-recent-purposes";
+const LAST_DRAFT_KEY = "reply-last-draft";
+const RECENT_MAX = 5;
+
+export interface LastDraft {
+  inputMessage: string;
+  relationship: string | null;
+  purpose: string | null;
+  tone: ToneId;
+  savedAt: string;
+}
+
+export interface QuickActionsData {
+  recentRelationships: string[];
+  recentPurposes: string[];
+  lastDraft: LastDraft | null;
+}
+
+function pushRecent(key: string, value: string): void {
+  if (typeof window === "undefined") return;
+  if (!value) return;
+  try {
+    const raw = localStorage.getItem(key);
+    const list: string[] = raw ? (JSON.parse(raw) as string[]) : [];
+    const filtered = list.filter((v) => v !== value);
+    filtered.unshift(value);
+    if (filtered.length > RECENT_MAX) filtered.length = RECENT_MAX;
+    localStorage.setItem(key, JSON.stringify(filtered));
+  } catch {
+    // 무시
+  }
+}
+
+export function pushRecentRelationship(value: string): void {
+  pushRecent(RECENT_RELATIONSHIPS_KEY, value);
+}
+
+export function pushRecentPurpose(value: string): void {
+  pushRecent(RECENT_PURPOSES_KEY, value);
+}
+
+export function saveLastDraft(draft: LastDraft): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LAST_DRAFT_KEY, JSON.stringify(draft));
+  } catch {
+    // 무시
+  }
+}
+
+function loadList(key: string): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
+}
+
+export function loadQuickActions(): QuickActionsData {
+  if (typeof window === "undefined") {
+    return { recentRelationships: [], recentPurposes: [], lastDraft: null };
+  }
+  let lastDraft: LastDraft | null = null;
+  try {
+    const raw = localStorage.getItem(LAST_DRAFT_KEY);
+    if (raw) lastDraft = JSON.parse(raw) as LastDraft;
+  } catch {
+    lastDraft = null;
+  }
+  return {
+    recentRelationships: loadList(RECENT_RELATIONSHIPS_KEY),
+    recentPurposes: loadList(RECENT_PURPOSES_KEY),
+    lastDraft,
+  };
+}

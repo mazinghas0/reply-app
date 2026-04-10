@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { pushRecentRelationship, pushRecentPurpose } from "./shared";
 
 // ─── Types ───────────────────────────────────────
 
@@ -316,6 +317,8 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
       purposeCustom: "",
       strategy: null,
     });
+    pushRecentRelationship(rel);
+    pushRecentPurpose(purpose);
     setSearchQuery("");
     setSelectedCategory(null);
   };

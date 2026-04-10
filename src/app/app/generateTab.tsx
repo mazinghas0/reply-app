@@ -21,11 +21,13 @@ import {
   HISTORY_KEY,
   loadHistory,
   saveToHistory,
+  saveLastDraft,
 } from "./shared";
 import { IconError, IconSpinner } from "./icons";
 import PresetPanel from "./presetPanel";
 import ReplyCardSection from "./replyCard";
 import type { RelationshipId, PurposeId, StrategyId } from "./contextSelector";
+import type { QuickPick } from "./quickActions";
 
 interface GenerateTabProps {
   inputMessage: string;
@@ -39,6 +41,8 @@ interface GenerateTabProps {
   onRemainingUpdate: (n: number) => void;
   maxInputLength: number;
   allowSonnet: boolean;
+  quickPick?: QuickPick | null;
+  onQuickPickConsumed?: () => void;
 }
 
 export default function GenerateTab({
@@ -53,6 +57,8 @@ export default function GenerateTab({
   onRemainingUpdate,
   maxInputLength,
   allowSonnet,
+  quickPick,
+  onQuickPickConsumed,
 }: GenerateTabProps) {
   const [selectedTone, setSelectedTone] = useState<ToneId>("polite");
   const [speed, setSpeed] = useState<Speed>("quality");
@@ -79,6 +85,35 @@ export default function GenerateTab({
     const savedSpeed = localStorage.getItem("reply-default-speed");
     if (savedSpeed && SPEEDS.some((s) => s.id === savedSpeed)) setSpeed(savedSpeed as Speed);
   }, []);
+
+  useEffect(() => {
+    if (!quickPick) return;
+    if (quickPick.type === "draft" && quickPick.draft) {
+      const d = quickPick.draft;
+      onInputChange(d.inputMessage);
+      setContext({
+        relationship: (d.relationship as RelationshipId | null) ?? null,
+        relationshipCustom: "",
+        purpose: (d.purpose as PurposeId | null) ?? null,
+        purposeCustom: "",
+        strategy: null,
+      });
+      if (TONES.some((t) => t.id === d.tone)) setSelectedTone(d.tone);
+    } else if (quickPick.type === "relationship" && quickPick.relationship) {
+      setContext((prev) => ({
+        ...prev,
+        relationship: quickPick.relationship!,
+        relationshipCustom: "",
+      }));
+    } else if (quickPick.type === "purpose" && quickPick.purpose) {
+      setContext((prev) => ({
+        ...prev,
+        purpose: quickPick.purpose!,
+        purposeCustom: "",
+      }));
+    }
+    onQuickPickConsumed?.();
+  }, [quickPick, onInputChange, onQuickPickConsumed]);
 
   const handleGenerate = async () => {
     if (!inputMessage.trim()) return;
@@ -126,6 +161,13 @@ export default function GenerateTab({
         createdAt: new Date().toISOString(),
       };
       setHistory(saveToHistory(entry));
+      saveLastDraft({
+        inputMessage: inputMessage.trim(),
+        relationship: context.relationship,
+        purpose: context.purpose,
+        tone: selectedTone,
+        savedAt: new Date().toISOString(),
+      });
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : "오류가 발생했습니다");

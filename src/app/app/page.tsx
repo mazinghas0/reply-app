@@ -5,6 +5,7 @@ import Link from "next/link";
 import RefineTab from "./refineTab";
 import ReviewTab from "./reviewTab";
 import GenerateTab from "./generateTab";
+import QuickActions, { type QuickPick } from "./quickActions";
 import { NavAuth, CLERK_ENABLED } from "./planBadge";
 import InstallBanner from "./installBanner";
 import TourOnboarding from "./tourOnboarding";
@@ -58,6 +59,7 @@ export default function Home() {
   const [monthlyCredits, setMonthlyCredits] = useState(0);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const [quickPick, setQuickPick] = useState<QuickPick | null>(null);
 
   useEffect(() => {
     if (!showMoreMenu) return;
@@ -336,6 +338,12 @@ export default function Home() {
 
         {/* ═══ Generate Mode ═══ */}
         <div className={mode !== "generate" ? "hidden" : "contents"}>
+          <QuickActions
+            onPick={(pick) => {
+              setMode("generate");
+              setQuickPick(pick);
+            }}
+          />
           <GenerateTab
             inputMessage={inputMessage}
             onInputChange={setInputMessage}
@@ -348,6 +356,8 @@ export default function Home() {
             onRemainingUpdate={(n) => setRemaining(n)}
             maxInputLength={maxInputLength}
             allowSonnet={allowSonnet}
+            quickPick={quickPick}
+            onQuickPickConsumed={() => setQuickPick(null)}
           />
         </div>
 
