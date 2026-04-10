@@ -1,77 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import ContextSelector, {
+  type ContextSelection,
+  getRelationshipLabel,
+  getPurposeLabel,
+  getStrategyPrompt,
+} from "./contextSelector";
+import { type Reply, type ToneId, TONES, TONE_STYLES, TONE_COLORS } from "./shared";
+import ShareMenu from "./shareMenu";
+import { IconCopy, IconCheck } from "./icons";
 
-// ─── Types ───────────────────────────────────────
+// ─── Example Tags ───────────────────────────────
 
-type RefineToneId = "natural" | "polite" | "firm" | "flexible" | "friendly" | "shorter" | "pressure_free" | "my_style";
+const EXAMPLE_TAGS = [
+  "회의 참석 어렵다고",
+  "마감 연장 부탁",
+  "고마워요 전해주세요",
+  "다음에 같이 밥",
+  "이번 건 어려울 것 같아",
+  "축하한다고 전해",
+];
 
-// ─── Constants ───────────────────────────────────
-
-const REFINE_TONES = [
-  { id: "natural", label: "자연스럽게", desc: "톤 유지, 문장만 다듬기" },
-  { id: "polite", label: "정중하게", desc: "예의 바르고 격식 있는" },
-  { id: "firm", label: "단호하게", desc: "명확하고 프로페셔널한" },
-  { id: "flexible", label: "유연하게", desc: "열린 자세, 협상 가능한" },
-  { id: "friendly", label: "친근하게", desc: "편하고 가벼운" },
-  { id: "shorter", label: "더 짧게", desc: "핵심만 간결하게" },
-  { id: "pressure_free", label: "부담 없게", desc: "상대가 편하게 읽도록" },
-  { id: "my_style", label: "내 말투처럼", desc: "학습된 내 문체로" },
-] as const;
-
-const REFINE_TONE_STYLES: Record<RefineToneId, { selected: string; hover: string }> = {
-  natural: {
-    selected: "border-sky-400 bg-sky-50 text-sky-700 ring-2 ring-sky-200 dark:bg-sky-950/30 dark:text-sky-300 dark:border-sky-500 dark:ring-sky-900",
-    hover: "hover:border-sky-200 hover:bg-sky-50/50 dark:hover:border-sky-800 dark:hover:bg-sky-900/20",
-  },
-  polite: {
-    selected: "border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-500 dark:ring-blue-900",
-    hover: "hover:border-blue-200 hover:bg-blue-50/50 dark:hover:border-blue-800 dark:hover:bg-blue-900/20",
-  },
-  firm: {
-    selected: "border-rose-400 bg-rose-50 text-rose-700 ring-2 ring-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-500 dark:ring-rose-900",
-    hover: "hover:border-rose-200 hover:bg-rose-50/50 dark:hover:border-rose-800 dark:hover:bg-rose-900/20",
-  },
-  flexible: {
-    selected: "border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-500 dark:ring-emerald-900",
-    hover: "hover:border-emerald-200 hover:bg-emerald-50/50 dark:hover:border-emerald-800 dark:hover:bg-emerald-900/20",
-  },
-  friendly: {
-    selected: "border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-500 dark:ring-amber-900",
-    hover: "hover:border-amber-200 hover:bg-amber-50/50 dark:hover:border-amber-800 dark:hover:bg-amber-900/20",
-  },
-  shorter: {
-    selected: "border-violet-400 bg-violet-50 text-violet-700 ring-2 ring-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-500 dark:ring-violet-900",
-    hover: "hover:border-violet-200 hover:bg-violet-50/50 dark:hover:border-violet-800 dark:hover:bg-violet-900/20",
-  },
-  pressure_free: {
-    selected: "border-cyan-400 bg-cyan-50 text-cyan-700 ring-2 ring-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-300 dark:border-cyan-500 dark:ring-cyan-900",
-    hover: "hover:border-cyan-200 hover:bg-cyan-50/50 dark:hover:border-cyan-800 dark:hover:bg-cyan-900/20",
-  },
-  my_style: {
-    selected: "border-teal-400 bg-teal-50 text-teal-700 ring-2 ring-teal-200 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-500 dark:ring-teal-900",
-    hover: "hover:border-teal-200 hover:bg-teal-50/50 dark:hover:border-teal-800 dark:hover:bg-teal-900/20",
-  },
-};
-
-// ─── Icons ───────────────────────────────────────
-
-function IconCopy() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
-}
-
-function IconCheck() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
+// ─── Icons ──────────────────────────────────────
 
 function IconSpinner() {
   return (
@@ -92,40 +43,65 @@ function IconError() {
   );
 }
 
-function IconChevron({ open }: { open: boolean }) {
-  return (
-    <svg className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  );
+// ─── Component ──────────────────────────────────
+
+interface RefineTabProps {
+  initialText?: string;
+  initialCredits?: number | null;
+  onSuccess?: () => void;
+  maxInputLength: number;
+  isAuthenticated: boolean;
 }
 
-// ─── Component ───────────────────────────────────
-
-export default function RefineTab({ initialText = "", initialCredits = null, onSuccess, maxInputLength, isAuthenticated }: { initialText?: string; initialCredits?: number | null; onSuccess?: () => void; maxInputLength: number; isAuthenticated: boolean }) {
-  const [draft, setDraft] = useState(initialText);
-  const [tone, setTone] = useState<RefineToneId>("natural");
-  const [refined, setRefined] = useState<string | null>(null);
+export default function RefineTab({
+  initialText = "",
+  initialCredits = null,
+  onSuccess,
+  maxInputLength,
+  isAuthenticated,
+}: RefineTabProps) {
+  const [intent, setIntent] = useState(initialText);
+  const [tone, setTone] = useState<ToneId>("polite");
+  const [context, setContext] = useState<ContextSelection>({
+    relationship: null,
+    relationshipCustom: "",
+    purpose: null,
+    purposeCustom: "",
+    strategy: null,
+  });
+  const [replies, setReplies] = useState<Reply[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [showOriginal, setShowOriginal] = useState(false);
-  const [originalSnapshot, setOriginalSnapshot] = useState("");
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(initialCredits);
 
-  const handleRefine = async () => {
-    if (!draft.trim()) return;
+  const handleGenerate = async () => {
+    if (!intent.trim()) return;
 
     setLoading(true);
     setError("");
-    setRefined(null);
-    setOriginalSnapshot(draft);
+    setReplies([]);
+
+    const payload: Record<string, string> = { intent, tone };
+    if (context.relationship) {
+      payload.relationship = context.relationship === "custom"
+        ? context.relationshipCustom
+        : getRelationshipLabel(context.relationship);
+    }
+    if (context.purpose) {
+      payload.purpose = context.purpose === "custom"
+        ? context.purposeCustom
+        : getPurposeLabel(context.purpose);
+    }
+    if (context.strategy) {
+      payload.strategy = getStrategyPrompt(context.strategy);
+    }
 
     try {
       const res = await fetch("/api/refine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draft, tone }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -136,7 +112,7 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
       }
 
       if (typeof data.remaining === "number") setRemaining(data.remaining);
-      setRefined(data.refined);
+      setReplies(data.replies as Reply[]);
       onSuccess?.();
     } catch {
       setError("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -145,11 +121,18 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
     }
   };
 
-  const handleCopy = async () => {
-    if (!refined) return;
-    await navigator.clipboard.writeText(refined);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async (content: string, key: string) => {
+    await navigator.clipboard.writeText(content);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  const handleTagClick = (tag: string) => {
+    setIntent((prev) => {
+      const trimmed = prev.trim();
+      if (trimmed) return `${trimmed} ${tag}`;
+      return tag;
+    });
   };
 
   return (
@@ -166,58 +149,78 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
             </span>
           </div>
         )}
-        {/* Draft Input */}
+
+        {/* Intent Input */}
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-            다듬을 답장
+            하고 싶은 말
           </label>
           <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            value={intent}
+            onChange={(e) => setIntent(e.target.value)}
             onKeyDown={(e) => {
-              if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && draft.trim() && !loading) {
-                handleRefine();
+              if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && intent.trim() && !loading) {
+                handleGenerate();
               }
             }}
-            placeholder="대충 쓴 답장을 붙여넣으세요. AI가 깔끔하게 다듬어 드려요..."
+            placeholder="키워드, 메모, 대충 적은 문장 — 뭐든 괜찮아요. AI가 완성된 메시지로 만들어 드려요."
             maxLength={maxInputLength}
-            className="w-full h-32 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
+            className="w-full h-28 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl resize-none text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm leading-relaxed transition-all focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
           <div className="flex justify-between mt-1">
             {!isAuthenticated && (
               <span className="text-xs text-amber-500 dark:text-amber-400">체험판은 {maxInputLength}자 제한</span>
             )}
-            <span className={`text-xs tabular-nums ml-auto ${draft.length > maxInputLength * 0.9 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
-              {draft.length}/{maxInputLength}
+            <span className={`text-xs tabular-nums ml-auto ${intent.length > maxInputLength * 0.9 ? "text-rose-400" : "text-slate-300 dark:text-slate-600"}`}>
+              {intent.length}/{maxInputLength}
             </span>
           </div>
         </div>
 
-        {/* Tone Selector */}
-        <div>
+        {/* Example Tags */}
+        {!intent.trim() && (
+          <div className="flex flex-wrap gap-2">
+            {EXAMPLE_TAGS.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => handleTagClick(tag)}
+                className="px-3 py-1.5 text-xs font-medium rounded-full border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-all cursor-pointer"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Context Selector */}
+        <div data-tour="tour-refine-context">
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">
-            어떤 느낌으로 다듬을까요?
+            상황 선택 <span className="text-xs font-normal text-slate-400 dark:text-slate-500">(선택사항)</span>
+          </label>
+          <ContextSelector value={context} onChange={setContext} />
+        </div>
+
+        {/* Tone Selector */}
+        <div data-tour="tour-refine-tone">
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">
+            톤 선택
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {REFINE_TONES.map((t) => {
+            {TONES.map((t) => {
               const isSelected = tone === t.id;
-              const style = REFINE_TONE_STYLES[t.id];
-              const isMyStyleLocked = t.id === "my_style" && !isAuthenticated;
+              const style = TONE_STYLES[t.id];
               return (
                 <button
                   key={t.id}
-                  onClick={() => !isMyStyleLocked && setTone(t.id)}
-                  disabled={isMyStyleLocked}
-                  className={`p-3 rounded-xl border text-left transition-all duration-200 ${
-                    isMyStyleLocked
-                      ? "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-60"
-                      : isSelected
-                        ? `cursor-pointer ${style.selected}`
-                        : `cursor-pointer border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${style.hover}`
+                  onClick={() => setTone(t.id)}
+                  className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? style.selected
+                      : `border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 ${style.hover}`
                   }`}
                 >
-                  <span className="block text-sm font-semibold">{t.label}{isMyStyleLocked ? " (로그인)" : ""}</span>
-                  <span className={`block text-xs mt-0.5 ${isSelected && !isMyStyleLocked ? "opacity-80" : "text-slate-400 dark:text-slate-500"}`}>
+                  <span className="block text-sm font-semibold">{t.label}</span>
+                  <span className={`block text-xs mt-0.5 ${isSelected ? "opacity-80" : "text-slate-400 dark:text-slate-500"}`}>
                     {t.desc}
                   </span>
                 </button>
@@ -228,22 +231,22 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
 
         {/* Submit */}
         <button
-          onClick={handleRefine}
-          disabled={!draft.trim() || loading}
+          onClick={handleGenerate}
+          disabled={!intent.trim() || loading}
           className="w-full py-3.5 bg-teal-600 text-white font-semibold rounded-xl shadow-sm hover:bg-teal-500 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:shadow-none disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
         >
           {loading ? (
             <span className="inline-flex items-center gap-2">
               <IconSpinner />
-              AI가 다듬고 있어요
+              AI가 메시지를 만들고 있어요
             </span>
           ) : (
-            "답장 다듬기"
+            "메시지 만들기"
           )}
         </button>
 
         {/* Shortcut hint */}
-        {draft.trim() && !loading && (
+        {intent.trim() && !loading && (
           <p className="text-center text-xs text-slate-400 dark:text-slate-500">
             Ctrl + Enter로 바로 실행
           </p>
@@ -258,58 +261,48 @@ export default function RefineTab({ initialText = "", initialCredits = null, onS
         )}
       </section>
 
-      {/* Result */}
-      {refined && (
+      {/* Results — 3 Reply Cards */}
+      {replies.length > 0 && (
         <section className="w-full mt-8 space-y-3">
           <div className="flex items-center gap-3 mb-1">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent to-slate-200 dark:to-slate-700" />
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wider">다듬어진 답장</h2>
+            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-wider">완성된 메시지</h2>
             <div className="h-px flex-1 bg-gradient-to-l from-transparent to-slate-200 dark:to-slate-700" />
           </div>
 
-          {/* Refined Text */}
-          <div className="animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {REFINE_TONES.find((t) => t.id === tone)?.label} 버전
-              </span>
-              <button
-                onClick={handleCopy}
-                className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
-                  copied
-                    ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
-                    : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
-                }`}
-              >
-                {copied ? (
-                  <><IconCheck /> 복사됨</>
-                ) : (
-                  <><IconCopy /> 복사</>
-                )}
-              </button>
-            </div>
-            <p className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-              {refined}
-            </p>
-          </div>
-
-          {/* Original Text (Collapsible) */}
-          <div className="animate-fade-in-up" style={{ animationDelay: "100ms" }}>
-            <button
-              onClick={() => setShowOriginal(!showOriginal)}
-              className="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer px-1"
+          {replies.map((reply, index) => (
+            <div
+              key={index}
+              className={`animate-fade-in-up p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 border-l-2 ${TONE_COLORS[tone]} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200`}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
-              <IconChevron open={showOriginal} />
-              원문 보기
-            </button>
-            {showOriginal && (
-              <div className="mt-2 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
-                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
-                  {originalSnapshot}
-                </p>
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-600 text-white text-[10px] font-bold flex items-center justify-center">{index + 1}</span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{reply.label}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleCopy(reply.content, `refine-${index}`)}
+                    className={`inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 cursor-pointer ${
+                      copiedKey === `refine-${index}`
+                        ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
+                        : "bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    {copiedKey === `refine-${index}` ? <><IconCheck /> 복사됨</> : <><IconCopy /> 복사</>}
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
+              <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-[15px]">{reply.content}</p>
+
+              {/* Share button */}
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex-1" />
+                <ShareMenu content={reply.content} index={index} />
+              </div>
+            </div>
+          ))}
         </section>
       )}
     </>

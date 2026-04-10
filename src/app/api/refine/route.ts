@@ -2,52 +2,26 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-type RefineTone = "natural" | "polite" | "firm" | "flexible" | "friendly" | "shorter" | "pressure_free" | "my_style";
+type RefineTone = "polite" | "firm" | "flexible" | "friendly";
 
 interface RefineRequest {
-  draft: string;
+  intent: string;
   tone: RefineTone;
+  relationship?: string;
+  purpose?: string;
+  strategy?: string;
 }
 
-const TONE_INSTRUCTIONS: Record<RefineTone, { instruction: string; freedom: string }> = {
-  natural: {
-    instruction: "원래 톤을 유지하면서 문장을 매끄럽게 다듬어주세요",
-    freedom: "오타/맞춤법 수정 + 어색한 어순 교정 + 불필요한 반복 제거. 의미와 분위기는 그대로, 읽기 편하게만 개선. 예: '그거 제가 했는데요 잘 안됐어요' → '그거 제가 했는데 잘 안 됐어요'",
-  },
-  polite: {
-    instruction: "정중하고 예의 바른 톤으로 바꿔주세요",
-    freedom: "존댓말 전환 + 격식 있는 표현. 단, 과도한 존칭 나열은 금지. 예: '그거 해주세요' → '확인 후 진행 부탁드립니다'. '~하시겠습니까' 같은 과도한 격식은 피하고 '~부탁드립니다' 수준으로.",
-  },
-  firm: {
-    instruction: "단호하고 명확한 톤으로 바꿔주세요",
-    freedom: "확신 있는 표현 + 군더더기 제거 + 핵심만 전달. 예: '그건 좀 어려울 것 같은데 괜찮으시면...' → '그 일정은 어렵습니다. 다른 방법을 찾아보겠습니다.' 짧고 직접적으로.",
-  },
-  flexible: {
-    instruction: "유연하고 열린 자세의 톤으로 바꿔주세요",
-    freedom: "상대 의견 존중 + 여지를 남기는 문장. 예: '안 됩니다' → '다른 방향도 한번 생각해 볼까요?'. '~하면 어떨까요', '~도 괜찮을 것 같아요' 패턴 활용.",
-  },
-  friendly: {
-    instruction: "친근하고 편안한 톤으로 바꿔주세요",
-    freedom: "가볍고 부담 없는 표현 + 반말이나 편한 존댓말. 예: '검토 부탁드립니다' → '한번 봐주실 수 있어요?'. 딱딱함을 빼되 무례하지 않게.",
-  },
-  shorter: {
-    instruction: "핵심만 남기고 최대한 짧게 줄여주세요",
-    freedom: "불필요한 인사, 사족, 반복 제거. 핵심 메시지만 1~2문장으로. 예: '안녕하세요, 말씀하신 건 확인했고 제가 내일까지 처리해서 보내드리도록 하겠습니다. 감사합니다.' → '확인했습니다. 내일까지 보내드릴게요.' 의미 손실 없이 간결하게.",
-  },
-  pressure_free: {
-    instruction: "상대가 부담 없이 읽을 수 있도록 바꿔주세요",
-    freedom: "강요/압박 느낌 제거 + 선택지 제공 + 부드러운 어미. 예: '내일까지 보내주세요' → '내일까지 가능하시면 보내주시면 감사하겠습니다'. '~해주세요'보다 '~해주시면 좋겠어요', '~하면 어떨까요' 패턴. 상대의 상황을 배려하는 표현 추가.",
-  },
-  my_style: {
-    instruction: "사용자의 평소 말투와 최대한 비슷하게 다듬어주세요",
-    freedom: "사용자의 말투 패턴(어미, 이모티콘, 문장 길이, 격식 수준)을 최우선으로 반영. 톤이나 격식을 바꾸지 말고, 문장을 매끄럽게만 다듬되 '이 사람이 직접 쓴 것 같은' 느낌을 유지.",
-  },
+const TONE_INSTRUCTIONS: Record<RefineTone, string> = {
+  polite: "정중하고 예의 바른 톤. 존댓말 + 격식. 과도한 존칭 금지, '~부탁드립니다' 수준.",
+  firm: "단호하고 명확한 톤. 군더더기 제거, 핵심만 직접적으로 전달.",
+  flexible: "유연하고 열린 톤. 상대 의견 존중, 여지를 남기는 문장. '~하면 어떨까요' 패턴.",
+  friendly: "친근하고 편안한 톤. 가볍고 부담 없는 표현. 딱딱함 없이 자연스럽게.",
 };
 
 import { checkAnonymousTotal } from "@/lib/rateLimit";
 import { checkAndDeductCredit } from "@/lib/creditSystem";
 import { getPlanConfig, ANONYMOUS_MAX_INPUT, ANONYMOUS_TOTAL_USES } from "@/lib/planConfig";
-import { getStylePromptBlock } from "@/lib/styleSystem";
 
 const ALLOWED_ORIGINS = [
   "https://aireply.co.kr",
@@ -113,24 +87,29 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as RefineRequest;
 
-  if (!body.draft?.trim()) {
-    return Response.json({ error: "다듬을 답장을 입력해주세요." }, { status: 400 });
+  if (!body.intent?.trim()) {
+    return Response.json({ error: "하고 싶은 말을 입력해주세요." }, { status: 400 });
   }
 
-  if (body.draft.length > maxInputLength) {
+  if (body.intent.length > maxInputLength) {
     return Response.json(
-      { error: `답장은 ${maxInputLength}자 이내로 입력해주세요.` },
+      { error: `내용은 ${maxInputLength}자 이내로 입력해주세요.` },
       { status: 400 }
     );
   }
 
-  const toneConfig = TONE_INSTRUCTIONS[body.tone];
-  if (!toneConfig) {
+  const toneInstruction = TONE_INSTRUCTIONS[body.tone];
+  if (!toneInstruction) {
     return Response.json({ error: "올바른 톤을 선택해주세요." }, { status: 400 });
   }
 
-  // "내 말투처럼" 선택 시 개인화 프롬프트 주입
-  const styleBlock = (body.tone === "my_style" && userId) ? await getStylePromptBlock(userId) : "";
+  const contextParts: string[] = [];
+  if (body.relationship) contextParts.push(`관계: ${body.relationship}`);
+  if (body.purpose) contextParts.push(`목적: ${body.purpose}`);
+  if (body.strategy) contextParts.push(`전략: ${body.strategy}`);
+  const contextBlock = contextParts.length > 0
+    ? `\n상황 맥락:\n${contextParts.join("\n")}\n`
+    : "";
 
   const client = new Anthropic({ apiKey });
 
@@ -138,33 +117,34 @@ export async function POST(request: NextRequest) {
   try {
     response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 512,
+      max_tokens: 1024,
       messages: [
         {
           role: "user",
           content: `당신은 10년차 한국인 메신저 소통 전문가입니다.
-사용자가 작성한 답장을 다듬어 주세요.
-${styleBlock}
-목표: ${toneConfig.instruction}
-변경 범위: ${toneConfig.freedom}
+사용자가 "하고 싶은 말"을 키워드, 메모, 또는 대충 적은 문장으로 입력합니다.
+이것을 실제로 보낼 수 있는 완성된 메시지 3가지 버전으로 만들어주세요.
+
+톤: ${toneInstruction}
+${contextBlock}
+3가지 버전:
+1. "핵심 전달형" — 하고 싶은 말의 핵심을 간결하고 명확하게. 군더더기 없이 바로 전달.
+2. "공감·배려형" — 상대방 입장을 먼저 배려하고, 부드럽게 전달. 관계를 해치지 않으면서도 의사를 분명히.
+3. "상황 맞춤형" — 선택된 상황(관계/목적)에 가장 적합한 표현. 실전에서 바로 쓸 수 있는 완성도.
 
 중요 규칙:
-- 원문과 다른 결과를 반드시 만들어주세요. 원문 그대로 반환 금지.
-- 오타가 없더라도 문장 흐름, 어순, 표현을 개선하세요.
-- 원문보다 길이가 1.5배 이상 늘어나면 안 됩니다.
-- 숫자 포맷은 원문 그대로 유지 ("5588건" → "5,588건" 변환 금지)
-
-"AI 느낌 제거" 규칙:
+- 각 버전은 서로 확실히 다른 접근 방식이어야 합니다
+- 키워드만 입력해도 완전한 문장으로 만들어주세요
 - 한국인이 카카오톡/업무 메신저에서 실제로 쓰는 문체로 작성
 - 금지 표현: "~의 경우", "~에 대해", "~하는 것이", "~드리고자", "또한", "따라서", "이에"
 - 한 문장이 길어지면 끊어서 쓰기. 접속사 대신 마침표.
-- 자연스러운 조사 생략 유지 ("확인했습니다" O, "확인을 했습니다" X)
+- 자연스러운 조사 생략 유지
 
 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트를 추가하지 마세요:
-{"refined": "다듬어진 답장 내용"}
+{"replies":[{"label":"핵심 전달형","content":"..."},{"label":"공감·배려형","content":"..."},{"label":"상황 맞춤형","content":"..."}]}
 
-사용자가 작성한 원문:
-${body.draft}`,
+사용자가 하고 싶은 말:
+${body.intent}`,
         },
       ],
     });
@@ -185,9 +165,9 @@ ${body.draft}`,
     return Response.json({ error: "AI 응답 형식이 올바르지 않습니다." }, { status: 500 });
   }
 
-  let result: { refined: string };
+  let result: { replies: Array<{ label: string; content: string }> };
   try {
-    result = JSON.parse(jsonMatch[0]) as { refined: string };
+    result = JSON.parse(jsonMatch[0]) as { replies: Array<{ label: string; content: string }> };
   } catch {
     return Response.json(
       { error: "AI 응답을 파싱할 수 없습니다. 다시 시도해 주세요." },
@@ -195,5 +175,5 @@ ${body.draft}`,
     );
   }
 
-  return Response.json({ refined: result.refined, remaining });
+  return Response.json({ replies: result.replies, remaining });
 }

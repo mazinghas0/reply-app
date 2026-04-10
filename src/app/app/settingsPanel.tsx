@@ -14,7 +14,7 @@ const FONT_SIZE_OPTIONS: Array<{ id: FontSize; label: string }> = [
 const TAB_OPTIONS: Array<{ id: AppMode; label: string }> = [
   { id: "generate", label: "답장 만들기" },
   { id: "review", label: "답장 검토" },
-  { id: "refine", label: "다듬기" },
+  { id: "refine", label: "말 다듬기" },
 ];
 
 interface SettingsPanelProps {

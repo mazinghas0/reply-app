@@ -42,11 +42,11 @@ const STEPS = [
     ),
   },
   {
-    title: "다듬기",
-    subtitle: "대충 쓴 답장도 깔끔하게 다듬어 드려요",
+    title: "말 다듬기",
+    subtitle: "하고 싶은 말을 완성된 메시지 3개로 만들어요",
     tips: [
-      { icon: "tone", text: "톤 5종 선택 — AI 느낌 없이 실제 한국어 문체로" },
-      { icon: "compare", text: "원문과 나란히 비교해서 차이를 바로 확인" },
+      { icon: "tone", text: "키워드나 메모만 입력하면 AI가 완성된 문장으로" },
+      { icon: "compare", text: "핵심 전달형 / 공감·배려형 / 상황 맞춤형 3가지" },
       { icon: "copy", text: "결과를 한 번에 복사해서 메신저에 붙여넣기" },
     ],
     icon: (

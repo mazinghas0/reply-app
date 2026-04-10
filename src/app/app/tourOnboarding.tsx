@@ -16,7 +16,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: "tour-tab-bar",
     title: "3가지 기능을 탭으로 전환",
-    description: "답장 만들기, 검토, 다듬기 — 원하는 기능을 탭으로 바꿀 수 있어요.",
+    description: "답장 만들기, 검토, 말 다듬기 — 원하는 기능을 탭으로 바꿀 수 있어요.",
   },
   {
     target: "tour-message-input",
