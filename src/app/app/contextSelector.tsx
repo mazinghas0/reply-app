@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 // ─── Types ───────────────────────────────────────
 
@@ -182,9 +182,7 @@ const STRATEGIES: StrategyOption[] = [
   { id: "distanceControl", label: "거리 조절", desc: "가까워지거나 멀어지는", psychology: "심리적 밀당" },
 ];
 
-// 관계+목적 조합에 따른 전략 필터
 function getRelevantStrategies(rel: RelationshipId, purpose: PurposeId): StrategyOption[] {
-  // 거절 계열 → 부드러운 방패 + 전략적 여유 우선
   if (purpose === "reject" || purpose === "keepDistance") {
     return [
       STRATEGIES.find((s) => s.id === "softShield")!,
@@ -193,7 +191,6 @@ function getRelevantStrategies(rel: RelationshipId, purpose: PurposeId): Strateg
       STRATEGIES.find((s) => s.id === "straightforward")!,
     ];
   }
-  // 썸/애인 계열
   if (rel === "crush" || rel === "partner") {
     return [
       STRATEGIES.find((s) => s.id === "distanceControl")!,
@@ -202,7 +199,6 @@ function getRelevantStrategies(rel: RelationshipId, purpose: PurposeId): Strateg
       STRATEGIES.find((s) => s.id === "strategicVague")!,
     ];
   }
-  // 비즈니스 계열
   if (rel === "boss" || rel === "client" || rel === "professor") {
     return [
       STRATEGIES.find((s) => s.id === "warmPro")!,
@@ -211,9 +207,69 @@ function getRelevantStrategies(rel: RelationshipId, purpose: PurposeId): Strateg
       STRATEGIES.find((s) => s.id === "straightforward")!,
     ];
   }
-  // 기본
   return STRATEGIES;
 }
+
+// ─── Categories & Popular Situations ─────────────
+
+type CategoryId = "work" | "business" | "school" | "romance" | "friend" | "family";
+
+interface Category {
+  id: CategoryId;
+  label: string;
+  relationships: RelationshipId[];
+}
+
+const CATEGORIES: Category[] = [
+  { id: "work", label: "직장", relationships: ["boss", "colleague", "subordinate"] },
+  { id: "business", label: "비즈니스", relationships: ["client"] },
+  { id: "school", label: "학교", relationships: ["professor", "senior"] },
+  { id: "romance", label: "연애", relationships: ["partner", "crush"] },
+  { id: "friend", label: "친구", relationships: ["friend"] },
+  { id: "family", label: "가족", relationships: ["family"] },
+];
+
+interface PopularSituation {
+  relationship: RelationshipId;
+  purpose: PurposeId;
+  label: string;
+}
+
+const POPULAR_SITUATIONS: PopularSituation[] = [
+  { relationship: "boss", purpose: "reject", label: "상사에게 거절" },
+  { relationship: "client", purpose: "urge", label: "거래처에 독촉" },
+  { relationship: "crush", purpose: "react", label: "썸 대화 이어가기" },
+  { relationship: "friend", purpose: "comfort", label: "친구 위로" },
+  { relationship: "professor", purpose: "ask", label: "교수님께 질문" },
+  { relationship: "colleague", purpose: "ask", label: "동료에게 부탁" },
+  { relationship: "partner", purpose: "apologize", label: "애인에게 사과" },
+  { relationship: "family", purpose: "greet", label: "가족에게 안부" },
+];
+
+interface FlatSituation {
+  relationship: RelationshipId;
+  purpose: PurposeId;
+  relLabel: string;
+  relDesc: string;
+  purposeLabel: string;
+  purposeDesc: string;
+}
+
+const ALL_SITUATIONS: FlatSituation[] = (Object.keys(PURPOSE_MAP) as RelationshipId[])
+  .filter(rel => rel !== "custom")
+  .flatMap(rel => {
+    const relItem = RELATIONSHIPS.find(r => r.id === rel)!;
+    return PURPOSE_MAP[rel]
+      .filter(p => p.id !== "custom")
+      .map(p => ({
+        relationship: rel,
+        purpose: p.id,
+        relLabel: relItem.label,
+        relDesc: relItem.desc,
+        purposeLabel: p.label,
+        purposeDesc: p.desc,
+      }));
+  });
 
 // ─── Export: label 텍스트 변환 (API 프롬프트용) ────
 
@@ -240,161 +296,289 @@ interface ContextSelectorProps {
 }
 
 export default function ContextSelector({ value, onChange }: ContextSelectorProps) {
-  const [step, setStep] = useState<1 | 2 | 3>(value.relationship ? (value.purpose ? 3 : 2) : 1);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const isCustom = value.relationship === "custom";
+  const hasSituation = value.relationship !== null && value.purpose !== null && !isCustom;
 
   const update = (patch: Partial<ContextSelection>) => {
     onChange({ ...value, ...patch });
   };
 
-  const selectRelationship = (id: RelationshipId) => {
-    update({ relationship: id, purpose: null, purposeCustom: "", strategy: null });
-    if (id === "custom") {
-      setStep(2);
-    } else {
-      setStep(2);
-    }
+  const selectSituation = (rel: RelationshipId, purpose: PurposeId) => {
+    onChange({
+      relationship: rel,
+      relationshipCustom: "",
+      purpose,
+      purposeCustom: "",
+      strategy: null,
+    });
+    setSearchQuery("");
+    setSelectedCategory(null);
   };
 
-  const selectPurpose = (id: PurposeId) => {
-    update({ purpose: id, strategy: null });
-    if (id === "custom") {
-      // custom이면 전략 단계는 스킵 가능
-    }
-    setStep(3);
+  const clearSituation = () => {
+    onChange({
+      relationship: null,
+      relationshipCustom: "",
+      purpose: null,
+      purposeCustom: "",
+      strategy: null,
+    });
+  };
+
+  const enterCustomMode = () => {
+    onChange({
+      relationship: "custom",
+      relationshipCustom: "",
+      purpose: "custom",
+      purposeCustom: "",
+      strategy: null,
+    });
+    setSelectedCategory(null);
+    setSearchQuery("");
   };
 
   const selectStrategy = (id: StrategyId) => {
-    update({ strategy: id });
+    update({ strategy: value.strategy === id ? null : id });
   };
 
-  const purposes = value.relationship ? PURPOSE_MAP[value.relationship] : [];
-  const strategies = value.relationship && value.purpose
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return ALL_SITUATIONS.filter(
+      s => s.relLabel.includes(q) || s.relDesc.includes(q) ||
+           s.purposeLabel.includes(q) || s.purposeDesc.includes(q)
+    );
+  }, [searchQuery]);
+
+  const categorySituations = useMemo(() => {
+    if (!selectedCategory) return [];
+    const cat = CATEGORIES.find(c => c.id === selectedCategory);
+    if (!cat) return [];
+    return cat.relationships.map(relId => ({
+      relId,
+      relLabel: RELATIONSHIPS.find(r => r.id === relId)!.label,
+      purposes: PURPOSE_MAP[relId].filter(p => p.id !== "custom"),
+    }));
+  }, [selectedCategory]);
+
+  const strategies = hasSituation && value.relationship && value.purpose
     ? getRelevantStrategies(value.relationship, value.purpose)
     : STRATEGIES;
 
-  const chipBase = "px-3 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer text-left";
+  const chipBase = "px-3 py-2 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer text-left";
   const chipDefault = "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-teal-50/50 dark:hover:bg-teal-900/20";
   const chipSelected = "border-teal-400 bg-teal-50 text-teal-700 ring-2 ring-teal-200 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-500 dark:ring-teal-900";
 
-  const stepLabel = (num: number, label: string, active: boolean, completed: boolean) => (
-    <button
-      onClick={() => { if (completed || active) setStep(num as 1 | 2 | 3); }}
-      className={`text-xs font-semibold transition-colors ${
-        active ? "text-teal-600 dark:text-teal-400" :
-        completed ? "text-slate-600 dark:text-slate-300 cursor-pointer hover:text-teal-500" :
-        "text-slate-400 dark:text-slate-600"
-      }`}
-    >
-      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold mr-1 ${
-        active ? "bg-teal-600 text-white" :
-        completed ? "bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-400" :
-        "bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500"
-      }`}>{num}</span>
-      {label}
-      {completed && value.relationship && num === 1 && (
-        <span className="ml-1 text-teal-500">
-          ({value.relationship === "custom" ? value.relationshipCustom || "기타" : getRelationshipLabel(value.relationship)})
-        </span>
-      )}
-      {completed && value.purpose && num === 2 && (
-        <span className="ml-1 text-teal-500">
-          ({value.purpose === "custom" ? value.purposeCustom || "기타" : getPurposeLabel(value.purpose)})
-        </span>
-      )}
-    </button>
-  );
-
-  return (
-    <div className="space-y-4">
-      {/* Step indicators */}
-      <div className="flex items-center gap-4">
-        {stepLabel(1, "누구에게", step === 1, step > 1)}
-        <div className={`h-px flex-1 ${step > 1 ? "bg-teal-300 dark:bg-teal-700" : "bg-slate-200 dark:bg-slate-700"}`} />
-        {stepLabel(2, "어떤 답장", step === 2, step > 2)}
-        <div className={`h-px flex-1 ${step > 2 ? "bg-teal-300 dark:bg-teal-700" : "bg-slate-200 dark:bg-slate-700"}`} />
-        {stepLabel(3, "전략", step === 3, false)}
-      </div>
-
-      {/* Step 1: Relationship */}
-      {step === 1 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          {RELATIONSHIPS.map((rel) => (
-            <button
-              key={rel.id}
-              onClick={() => selectRelationship(rel.id)}
-              className={`${chipBase} ${value.relationship === rel.id ? chipSelected : chipDefault}`}
-            >
-              <div className="font-semibold text-xs">{rel.label}</div>
-              <div className="text-[10px] opacity-60 mt-0.5">{rel.desc}</div>
-            </button>
-          ))}
+  // ─── Custom input mode ───
+  if (isCustom) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 dark:text-slate-400">직접 입력</span>
+          <button
+            onClick={clearSituation}
+            className="text-xs text-teal-500 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer"
+          >
+            돌아가기
+          </button>
         </div>
-      )}
-
-      {/* Custom relationship input */}
-      {step >= 2 && value.relationship === "custom" && (
         <input
           type="text"
           value={value.relationshipCustom}
           onChange={(e) => update({ relationshipCustom: e.target.value })}
-          placeholder="상대방이 누구인지 적어주세요 (예: 동네 반장님)"
+          placeholder="상대방 (예: 동네 반장님, 택배기사)"
           maxLength={30}
-          className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
+          autoFocus
+          className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
         />
-      )}
-
-      {/* Step 2: Purpose */}
-      {step === 2 && value.relationship && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {purposes.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => selectPurpose(p.id)}
-              className={`${chipBase} ${value.purpose === p.id ? chipSelected : chipDefault}`}
-            >
-              <div className="font-semibold text-xs">{p.label}</div>
-              <div className="text-[10px] opacity-60 mt-0.5">{p.desc}</div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Custom purpose input */}
-      {step >= 3 && value.purpose === "custom" && (
         <input
           type="text"
           value={value.purposeCustom}
           onChange={(e) => update({ purposeCustom: e.target.value })}
-          placeholder="어떤 답장을 원하시나요? (예: 약속을 미루고 싶어)"
+          placeholder="어떤 답장? (예: 약속을 미루고 싶어)"
           maxLength={50}
-          className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
+          className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
         />
-      )}
+        {value.relationshipCustom.trim() && value.purposeCustom.trim() && (
+          <div>
+            <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 block">
+              전략 <span className="text-slate-400 dark:text-slate-500">(선택)</span>
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {STRATEGIES.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => selectStrategy(s.id)}
+                  className={`${chipBase} ${value.strategy === s.id ? chipSelected : chipDefault}`}
+                >
+                  <div className="font-semibold text-xs">{s.label}</div>
+                  <div className="text-[10px] opacity-60 mt-0.5">{s.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
-      {/* Step 3: Strategy */}
-      {step === 3 && value.purpose && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {strategies.map((s) => (
+  // ─── Situation selected view ───
+  if (hasSituation) {
+    const relLabel = getRelationshipLabel(value.relationship!);
+    const purposeLabel = getPurposeLabel(value.purpose!);
+
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-slate-500 dark:text-slate-400">선택한 상황</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-300 dark:border-teal-700 text-sm font-medium text-teal-700 dark:text-teal-300">
+            {relLabel} — {purposeLabel}
             <button
-              key={s.id}
-              onClick={() => selectStrategy(s.id)}
-              className={`${chipBase} ${value.strategy === s.id ? chipSelected : chipDefault}`}
+              onClick={clearSituation}
+              className="ml-0.5 text-teal-400 hover:text-teal-600 dark:hover:text-teal-200 transition-colors cursor-pointer"
             >
-              <div className="font-semibold text-xs">{s.label}</div>
-              <div className="text-[10px] opacity-60 mt-0.5">{s.desc}</div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
             </button>
-          ))}
+          </div>
         </div>
-      )}
+        <div>
+          <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 block">
+            전략 <span className="text-slate-400 dark:text-slate-500">(선택)</span>
+          </span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {strategies.map(s => (
+              <button
+                key={s.id}
+                onClick={() => selectStrategy(s.id)}
+                className={`${chipBase} ${value.strategy === s.id ? chipSelected : chipDefault}`}
+              >
+                <div className="font-semibold text-xs">{s.label}</div>
+                <div className="text-[10px] opacity-60 mt-0.5">{s.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-      {/* Skip button */}
-      {step < 3 && step > 1 && (
-        <button
-          onClick={() => setStep((step + 1) as 2 | 3)}
-          className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
-        >
-          건너뛰기 →
-        </button>
+  // ─── Selection view (default) ───
+  return (
+    <div className="space-y-4">
+      {/* Search */}
+      <div className="relative">
+        <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+        </svg>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); setSelectedCategory(null); }}
+          placeholder="상황 검색 (예: 거절, 상사, 데이트...)"
+          className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
+        />
+      </div>
+
+      {/* Search results */}
+      {searchQuery.trim() ? (
+        searchResults.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {searchResults.slice(0, 12).map(s => (
+              <button
+                key={`${s.relationship}-${s.purpose}`}
+                onClick={() => selectSituation(s.relationship, s.purpose)}
+                className={`${chipBase} ${chipDefault}`}
+              >
+                <div className="font-semibold text-xs">{s.relLabel} — {s.purposeLabel}</div>
+                <div className="text-[10px] opacity-60 mt-0.5">{s.purposeDesc}</div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-3">
+            <p className="text-xs text-slate-400 dark:text-slate-500">검색 결과가 없습니다</p>
+            <button
+              onClick={enterCustomMode}
+              className="mt-1.5 text-xs text-teal-500 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer"
+            >
+              직접 입력하기
+            </button>
+          </div>
+        )
+      ) : (
+        <>
+          {/* Popular situations */}
+          {!selectedCategory && (
+            <div>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 block">인기 상황</span>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {POPULAR_SITUATIONS.map(s => (
+                  <button
+                    key={`pop-${s.relationship}-${s.purpose}`}
+                    onClick={() => selectSituation(s.relationship, s.purpose)}
+                    className="shrink-0 px-3 py-2 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20 text-teal-700 dark:text-teal-300 text-xs font-medium hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Categories */}
+          <div>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 block">카테고리</span>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                    selectedCategory === cat.id
+                      ? "bg-teal-600 text-white"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+              <button
+                onClick={enterCustomMode}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-600 hover:border-teal-300 dark:hover:border-teal-700 transition-all cursor-pointer"
+              >
+                직접 입력
+              </button>
+            </div>
+          </div>
+
+          {/* Category situations */}
+          {selectedCategory && (
+            <div className="space-y-3">
+              {categorySituations.map(group => (
+                <div key={group.relId}>
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5 block">{group.relLabel}</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {group.purposes.map(p => (
+                      <button
+                        key={`${group.relId}-${p.id}`}
+                        onClick={() => selectSituation(group.relId, p.id)}
+                        className={`${chipBase} ${chipDefault} py-2`}
+                      >
+                        <div className="font-semibold text-xs">{p.label}</div>
+                        <div className="text-[10px] opacity-60 mt-0.5">{p.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

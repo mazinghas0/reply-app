@@ -25,8 +25,8 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     target: "tour-context-selector",
-    title: "맞춤형 답장 — 관계 > 목적 > 전략",
-    description: "상대방과의 관계(11종), 답장 목적, 전략(6종)을 선택하면 훨씬 정확한 답장이 나와요.",
+    title: "상황 선택 — 원클릭으로 맞춤 답장",
+    description: "인기 상황을 바로 선택하거나, 카테고리에서 찾거나, 검색으로 빠르게 고르세요. 전략까지 선택하면 더 정확해요.",
   },
   {
     target: "tour-tone-selector",

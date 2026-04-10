@@ -245,9 +245,9 @@ export default function GenerateTab({
           }}
         />
 
-        {/* Context Selector (3-step) */}
+        {/* Context Selector */}
         <div>
-          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">맞춤 설정 <span className="font-normal text-slate-400 dark:text-slate-500">(선택 — 더 정확한 답장)</span></label>
+          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">상황 선택 <span className="font-normal text-slate-400 dark:text-slate-500">(선택 — 더 정확한 답장)</span></label>
           <div data-tour="tour-context-selector">
             <ContextSelector value={context} onChange={setContext} />
           </div>
