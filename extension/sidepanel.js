@@ -1,39 +1,65 @@
-const REPLY_APP_URL = "https://www.aireply.co.kr/app";
-const LOAD_TIMEOUT_MS = 8000;
+const REPLY_APP_URL = "https://aireply.co.kr/app";
+const MAX_LENGTH = 1200;
 
-const iframe = document.getElementById("replyFrame");
-const loading = document.getElementById("loading");
-const fallback = document.getElementById("fallback");
-const openTabBtn = document.getElementById("openTabBtn");
+const textArea = document.getElementById("text");
+const sendBtn = document.getElementById("send");
+const charCount = document.getElementById("charCount");
+const modeBtns = document.querySelectorAll(".mode-btn");
+const openFullBtn = document.getElementById("openFull");
 
-let loaded = false;
+let selectedMode = "generate";
 
-function showFallback() {
-  if (loaded) return;
-  loading.classList.add("hidden");
-  iframe.classList.add("hidden");
-  fallback.classList.remove("hidden");
+function updateCharCount() {
+  const len = textArea.value.length;
+  charCount.textContent = `${len} / ${MAX_LENGTH}`;
+  charCount.classList.toggle("over", len > MAX_LENGTH);
+  sendBtn.disabled = !textArea.value.trim() || len > MAX_LENGTH;
 }
 
-function showIframe() {
-  loaded = true;
-  loading.classList.add("hidden");
-  fallback.classList.add("hidden");
-  iframe.classList.remove("hidden");
-}
-
-iframe.addEventListener("load", () => {
-  showIframe();
+modeBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    modeBtns.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedMode = btn.dataset.mode;
+  });
 });
 
-iframe.addEventListener("error", () => {
-  showFallback();
+textArea.addEventListener("input", updateCharCount);
+
+sendBtn.addEventListener("click", () => {
+  const text = textArea.value.trim();
+  if (!text) return;
+
+  const encoded = encodeURIComponent(text);
+  const url = `${REPLY_APP_URL}?shared=${encoded}&mode=${selectedMode}`;
+  chrome.tabs.create({ url });
 });
 
-setTimeout(() => {
-  if (!loaded) showFallback();
-}, LOAD_TIMEOUT_MS);
-
-openTabBtn.addEventListener("click", () => {
+openFullBtn.addEventListener("click", () => {
   chrome.tabs.create({ url: REPLY_APP_URL });
+});
+
+async function tryReadClipboard() {
+  if (textArea.value.trim().length > 0) return;
+  try {
+    const clip = await navigator.clipboard.readText();
+    if (clip && clip.trim().length >= 5 && clip.trim().length <= MAX_LENGTH) {
+      textArea.value = clip.trim();
+      updateCharCount();
+      textArea.select();
+    }
+  } catch {
+    // 클립보드 접근 권한 없으면 무시
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  tryReadClipboard();
+  textArea.focus();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    tryReadClipboard();
+  }
 });

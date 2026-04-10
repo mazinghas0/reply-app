@@ -7,30 +7,32 @@
   <link rel="stylesheet" href="sidepanel.css" />
 </head>
 <body>
-  <div id="loading" class="state-view">
-    <div class="spinner"></div>
-    <p class="state-text">리플라이를 불러오는 중...</p>
-  </div>
+  <header class="header">
+    <img src="icons/icon48.png" alt="리플라이" />
+    <h1>리플라이</h1>
+  </header>
 
-  <div id="fallback" class="state-view hidden">
-    <div class="fallback-card">
-      <img src="icons/icon48.png" alt="리플라이" class="fallback-icon" />
-      <h2 class="fallback-title">사이드 패널에서 열 수 없어요</h2>
-      <p class="fallback-desc">
-        로그인 상태나 브라우저 보안 정책 때문에 이 창 안에서는<br />
-        리플라이를 표시할 수 없습니다.
-      </p>
-      <button id="openTabBtn" class="primary-btn">새 탭에서 열기</button>
-      <p class="fallback-hint">로그인 후 다시 사이드 패널을 열면 정상 동작할 수 있어요.</p>
+  <main class="main">
+    <div class="textarea-wrap">
+      <textarea id="text" placeholder="답장할 메시지를 붙여넣으세요..." maxlength="1200"></textarea>
+      <span class="char-count" id="charCount">0 / 1200</span>
     </div>
-  </div>
 
-  <iframe
-    id="replyFrame"
-    src="https://www.aireply.co.kr/app"
-    title="리플라이 웹앱"
-    allow="clipboard-read; clipboard-write"
-  ></iframe>
+    <div class="modes">
+      <button class="mode-btn active" data-mode="generate">답장 만들기</button>
+      <button class="mode-btn" data-mode="review">검토</button>
+      <button class="mode-btn" data-mode="refine">다듬기</button>
+    </div>
+
+    <button class="send-btn" id="send" disabled>리플라이로 보내기</button>
+
+    <p class="hint">전송 시 새 탭에서 리플라이가 열립니다</p>
+  </main>
+
+  <footer class="footer">
+    <button class="link-btn" id="openFull">리플라이 전체 화면 열기</button>
+    <p class="sub-hint">텍스트를 선택 후 우클릭해도 사용할 수 있어요</p>
+  </footer>
 
   <script src="sidepanel.js"></script>
 </body>
