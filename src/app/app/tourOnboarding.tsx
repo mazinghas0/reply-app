@@ -29,6 +29,11 @@ const TOUR_STEPS: TourStep[] = [
     description: "인기 상황을 바로 선택하거나, 카테고리에서 찾거나, 검색으로 빠르게 고르세요. 전략까지 선택하면 더 정확해요.",
   },
   {
+    target: "tour-context-selector",
+    title: "가족 대화 예시 — 사춘기 자녀와",
+    description: "관계를 '가족', 목적을 '들어주기'로 고르면 판단 없이 공감만 담은 말투로 바꿔줘요. '격려'는 부담 없이 힘을 주고, '짚어주기'는 혼내지 않고 가르치는 톤이에요.",
+  },
+  {
     target: "tour-tone-selector",
     title: "답장 톤 선택",
     description: "정중, 단호, 유연, 친근 — 상황에 맞는 톤을 고르세요.",
