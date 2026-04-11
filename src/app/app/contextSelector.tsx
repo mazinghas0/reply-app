@@ -300,6 +300,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   const [customKeywords, setCustomKeywords] = useState<CustomKeywordItem[]>([]);
   const [isMaxPlan, setIsMaxPlan] = useState(false);
   const [showKeywordModal, setShowKeywordModal] = useState(false);
+  const [customTextInputMode, setCustomTextInputMode] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -332,7 +333,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
     [customKeywords]
   );
 
-  const isCustom = value.relationship === "custom";
+  const isCustom = customTextInputMode;
   const hasSituation = value.relationship !== null && value.purpose !== null && !isCustom;
 
   const update = (patch: Partial<ContextSelection>) => {
@@ -351,6 +352,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
     pushRecentPurpose(purpose);
     setSearchQuery("");
     setSelectedCategory(null);
+    setCustomTextInputMode(false);
   };
 
   const clearSituation = () => {
@@ -361,6 +363,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
       purposeCustom: "",
       strategy: null,
     });
+    setCustomTextInputMode(false);
   };
 
   const enterCustomMode = () => {
@@ -373,14 +376,13 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
     });
     setSelectedCategory(null);
     setSearchQuery("");
+    setCustomTextInputMode(true);
   };
 
   const selectCustomRelationship = (kw: CustomKeywordItem) => {
-    onChange({
+    update({
       relationship: "custom",
       relationshipCustom: kw.label,
-      purpose: "custom",
-      purposeCustom: value.purposeCustom,
       strategy: null,
     });
     setSelectedCategory(null);
@@ -388,9 +390,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   };
 
   const selectCustomPurpose = (kw: CustomKeywordItem) => {
-    onChange({
-      relationship: "custom",
-      relationshipCustom: value.relationshipCustom,
+    update({
       purpose: "custom",
       purposeCustom: kw.label,
       strategy: null,
@@ -486,8 +486,12 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
 
   // ─── Situation selected view ───
   if (hasSituation) {
-    const relLabel = getRelationshipLabel(value.relationship!);
-    const purposeLabel = getPurposeLabel(value.purpose!);
+    const relLabel = value.relationship === "custom"
+      ? (value.relationshipCustom || "기타")
+      : getRelationshipLabel(value.relationship!);
+    const purposeLabel = value.purpose === "custom"
+      ? (value.purposeCustom || "기타")
+      : getPurposeLabel(value.purpose!);
 
     return (
       <div className="space-y-3">
@@ -527,8 +531,53 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   }
 
   // ─── Selection view (default) ───
+  const partialRelLabel = value.relationship === "custom"
+    ? (value.relationshipCustom || "기타")
+    : value.relationship !== null
+      ? getRelationshipLabel(value.relationship)
+      : null;
+  const partialPurposeLabel = value.purpose === "custom"
+    ? (value.purposeCustom || "기타")
+    : value.purpose !== null
+      ? getPurposeLabel(value.purpose)
+      : null;
+  const hasPartial = partialRelLabel !== null || partialPurposeLabel !== null;
+
   return (
     <div className="space-y-4">
+      {hasPartial && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-slate-500 dark:text-slate-400">선택중</span>
+          {partialRelLabel !== null && (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-300 dark:border-teal-700 text-xs font-medium text-teal-700 dark:text-teal-300">
+              관계: {partialRelLabel}
+              <button
+                onClick={() => update({ relationship: null, relationshipCustom: "", strategy: null })}
+                className="text-teal-400 hover:text-teal-600 dark:hover:text-teal-200 cursor-pointer"
+                aria-label="관계 선택 취소"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+          {partialPurposeLabel !== null && (
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-300 dark:border-teal-700 text-xs font-medium text-teal-700 dark:text-teal-300">
+              상황: {partialPurposeLabel}
+              <button
+                onClick={() => update({ purpose: null, purposeCustom: "", strategy: null })}
+                className="text-teal-400 hover:text-teal-600 dark:hover:text-teal-200 cursor-pointer"
+                aria-label="상황 선택 취소"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
       {/* Search toggle */}
       {showSearch ? (
         <div className="relative">
