@@ -7,9 +7,9 @@ import TrialButton from "./trialButton";
 const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export const metadata: Metadata = {
-  title: "리플라이 — AI가 답장을 대신 써 드려요",
+  title: "리플라이 — 어떻게 말하면 좋을까, 그 고민을 AI가 돕습니다",
   description:
-    "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 비즈니스 메시지도 10초면 끝. 무료로 시작하세요.",
+    "상사 카톡, 썸 답장, 사춘기 자녀와의 대화 — 관계와 상황을 고르면 AI가 말투까지 맞춰 드려요. 답장 3초면 끝.",
   keywords: [
     "AI 답장",
     "답장 생성",
@@ -17,14 +17,19 @@ export const metadata: Metadata = {
     "카톡 답장",
     "비즈니스 메시지",
     "답장 도우미",
-    "AI 메신저",
     "거절 답장",
-    "답장 추천",
+    "사과 답장",
+    "사춘기 자녀 대화",
+    "부모 자녀 대화",
+    "감정 대화",
+    "말투 코칭",
+    "메시지 다듬기",
+    "답장 검토",
   ],
   openGraph: {
-    title: "리플라이 — AI 답장 도우미",
+    title: "리플라이 — 어떻게 말하면 좋을까, 그 고민을 AI가 돕습니다",
     description:
-      "받은 메시지를 붙여넣으면 AI가 톤에 맞는 답장 3개를 즉시 만들어 줍니다. 정중한, 단호한, 유연한, 친근한 — 원하는 톤으로.",
+      "상사 카톡도, 썸 답장도, 사춘기 자녀와의 대화도 — 관계와 상황을 고르면 AI가 말투까지 맞춰 드려요.",
     type: "website",
     url: "https://aireply.co.kr",
     siteName: "리플라이",
@@ -32,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "리플라이 — AI가 답장을 대신 써 드려요",
-    description: "받은 메시지 붙여넣기 한 번이면 답장 3개 완성. 무료.",
+    title: "리플라이 — 어떻게 말하면 좋을까, 그 고민을 AI가 돕습니다",
+    description: "상사 카톡, 썸 답장, 사춘기 자녀 대화까지. 말투 고민은 리플라이에 맡기세요.",
   },
   alternates: {
     canonical: "https://aireply.co.kr",
@@ -81,6 +86,13 @@ const PERSONAS = [
     situation: "답장이 너무 가벼워도, 무거워도 안 되는 미묘한 상황",
     solution: "답장을 만들고 '더 부드럽게' '더 짧게'로 강도를 조절할 수 있어요.",
     feature: "답장 확장",
+  },
+  {
+    emoji: "family-heart",
+    who: "청소년 자녀 부모",
+    situation: "사춘기 딸한테서 '아빠 짜증나' — 혼낼 수도, 그냥 넘길 수도 없을 때",
+    solution: "관계를 '가족'으로, 상황을 '위로'나 '격려'로 고르면 아이 마음에 닿는 말투로 바꿔줘요.",
+    feature: "가족 대화",
   },
 ];
 
@@ -146,6 +158,16 @@ function PersonaIcon({ type }: { type: string }) {
           </svg>
         </div>
       );
+    case "family-heart":
+      return (
+        <div className={`${cls} bg-emerald-950/50 text-emerald-400`}>
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M19 8.5c.5-.8 1.4-1.5 2.5-1.5 1.5 0 2.5 1.2 2.5 2.6 0 2.1-3 4.4-5 5.9-2-1.5-5-3.8-5-5.9 0-1.4 1-2.6 2.5-2.6 1.1 0 2 .7 2.5 1.5z" />
+          </svg>
+        </div>
+      );
     default:
       return null;
   }
@@ -190,17 +212,21 @@ export default function LandingPage() {
 
         <div className="relative max-w-2xl mx-auto text-center mb-16">
           <p className="text-sm font-semibold text-teal-400 tracking-wide mb-4">
-            AI 답장 도우미
+            답장 고민, 이제 끝
           </p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
-            답장 고민,{" "}
-            <span className="text-teal-400">10초면</span>{" "}
-            해결돼요
+          <h1 className="text-3xl sm:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
+            <span className="text-teal-400">&ldquo;어떻게 말하면 좋을까?&rdquo;</span>
+            <br />
+            이제 그 고민은 날려버리세요.
+            <br />
+            <span className="text-white">리플라이</span>가 돕겠습니다.
           </h1>
           <p className="text-lg text-slate-400 mb-10 leading-relaxed">
-            메시지를 붙여넣으면 AI가 톤별 답장 3개를 바로 만들어 줍니다.
+            상사 카톡도, 썸 답장도,
             <br className="hidden sm:block" />
-            상사 카톡도, 썸 답장도, 거래처 메일도.
+            <span className="text-slate-300">사춘기 딸의 &ldquo;아빠 짜증나&rdquo; 한 마디</span>에도 —
+            <br className="hidden sm:block" />
+            관계와 상황을 고르면 AI가 말투까지 맞춰 드려요.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -247,34 +273,34 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ChatGPT와 다른 점 */}
+      {/* 그냥 AI와 다른 점 */}
       <section className="px-4 py-24 border-t border-slate-800/50">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-center text-white mb-4">
-            &ldquo;ChatGPT에 시키면 되지 않나요?&rdquo;
+            &ldquo;그냥 AI에게 물어보면 되지 않나요?&rdquo;
           </h2>
           <p className="text-center text-slate-400 mb-14">
-            범용 AI와 답장 전용 도구는 다릅니다
+            답장 고민은 &lsquo;뭐라고 쓸지&rsquo;가 아니라 &lsquo;어떻게 말할지&rsquo;예요
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50">
-              <p className="text-sm font-semibold text-slate-500 mb-4">ChatGPT / 범용 AI</p>
+              <p className="text-sm font-semibold text-slate-500 mb-4">그냥 AI</p>
               <ul className="space-y-3 text-sm text-slate-400">
                 <li className="flex items-start gap-2">
                   <span className="text-slate-600 shrink-0 mt-0.5">-</span>
-                  프롬프트를 직접 작성해야 함
+                  &ldquo;정중하게 거절해줘&rdquo;라고 직접 설명해야 해요
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-slate-600 shrink-0 mt-0.5">-</span>
-                  답장이 교과서체 &middot; 번역체
+                  번역체 &middot; 교과서체가 은근히 섞여요
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-slate-600 shrink-0 mt-0.5">-</span>
-                  관계 &middot; 상황 맥락 매번 설명
+                  매번 상황을 다시 설명해야 해요
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-slate-600 shrink-0 mt-0.5">-</span>
-                  결과를 직접 복사 &middot; 붙여넣기
+                  답장은 한 개뿐 &middot; 직접 복사 &middot; 붙여넣기
                 </li>
               </ul>
             </div>
@@ -348,7 +374,20 @@ export default function LandingPage() {
           <p className="text-center text-slate-400 mb-14">
             그냥 AI가 아니라, 답장 전문 AI입니다
           </p>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="p-5 rounded-2xl bg-slate-900 border border-emerald-800/40 relative">
+              <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 tracking-wide">NEW</span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-950/50 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9.94 14.34 4 20.28l-.28.72.72-.28 5.94-5.94" />
+                  <path d="M15 4 20 9l-5.5 5.5-5-5L15 4Z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-2">AI 상황 자동 감지</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                메시지를 붙여넣으면 AI가 관계와 답장 목적을 자동으로 찾아드려요. 고민은 짧게, 답장은 빠르게.
+              </p>
+            </div>
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
               <div className="w-10 h-10 rounded-xl bg-teal-950/50 flex items-center justify-center mb-4">
                 <svg className="w-5 h-5 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -369,7 +408,7 @@ export default function LandingPage() {
               </div>
               <h3 className="font-semibold text-white mb-2">11가지 관계 맞춤</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                상사, 동료, 거래처, 친구, 연인까지. 관계를 고르면 격식과 뉘앙스를 자동으로 맞춰 줍니다.
+                상사, 동료, 거래처, 친구, 연인, 가족까지. 관계를 고르면 격식과 뉘앙스를 자동으로 맞춰 줍니다.
               </p>
             </div>
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
@@ -378,9 +417,24 @@ export default function LandingPage() {
                   <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-white mb-2">검토 & 다듬기</h3>
+              <h3 className="font-semibold text-white mb-2">검토 &amp; 다듬기</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
                 내가 쓴 답장의 맞춤법, 톤, 상대방 인상까지 분석. 대충 쓴 문장도 깔끔하게 다듬어 줍니다.
+              </p>
+            </div>
+            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
+              <div className="w-10 h-10 rounded-xl bg-rose-950/50 flex items-center justify-center mb-4">
+                <svg className="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+                  <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+                  <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                  <path d="M9 12h6" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-white mb-2">확장 &amp; 축소</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                &ldquo;더 짧게&rdquo;, &ldquo;더 부드럽게&rdquo;, &ldquo;더 정중하게&rdquo; — 답장의 세기와 길이를 자유롭게 조절하세요.
               </p>
             </div>
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
