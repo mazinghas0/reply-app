@@ -376,6 +376,7 @@ export default function Home() {
         {/* ═══ Archive Mode ═══ */}
         <div className={mode !== "archive" ? "hidden" : "contents"}>
           <ArchiveTab
+            active={mode === "archive"}
             onPick={(pick) => {
               setMode("generate");
               setQuickPick(pick);

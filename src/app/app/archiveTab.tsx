@@ -6,13 +6,15 @@ import { loadQuickActions } from "./shared";
 
 interface ArchiveTabProps {
   onPick: (pick: QuickPick) => void;
+  active: boolean;
 }
 
-export default function ArchiveTab({ onPick }: ArchiveTabProps) {
+export default function ArchiveTab({ onPick, active }: ArchiveTabProps) {
   const [isEmpty, setIsEmpty] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (!active) return;
     const data = loadQuickActions();
     const hasDraft =
       data.lastDraft !== null && data.lastDraft.inputMessage.trim().length > 0;
@@ -20,7 +22,7 @@ export default function ArchiveTab({ onPick }: ArchiveTabProps) {
       data.recentRelationships.length > 0 || data.recentPurposes.length > 0;
     setIsEmpty(!hasDraft && !hasRecent);
     setMounted(true);
-  }, []);
+  }, [active]);
 
   if (!mounted) return null;
 
