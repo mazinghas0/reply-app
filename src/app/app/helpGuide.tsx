@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { type AppMode } from "./shared";
 
 interface HelpGuideProps {
   onClose: () => void;
-  currentTab: "generate" | "review" | "refine";
+  currentTab: AppMode;
 }
 
 interface GuideSection {
-  id: "generate" | "review" | "refine";
+  id: AppMode;
   title: string;
   description: string;
   tips: string[];
@@ -51,6 +52,18 @@ const SECTIONS: GuideSection[] = [
       "3가지 버전: 핵심 전달형 / 공감·배려형 / 상황 맞춤형",
     ],
   },
+  {
+    id: "archive",
+    title: "기록",
+    description: "최근에 고른 관계·상황과 마지막으로 쓰던 초안을 한 자리에서 이어갈 수 있어요.",
+    tips: [
+      "최근 관계: 지난 답장에서 고른 관계를 다시 눌러 빠르게 시작",
+      "최근 상황: 자주 쓰는 상황을 한 번의 탭으로 불러오기",
+      "마지막 초안 이어가기: 도중에 중단한 메시지를 그대로 복구",
+      "카드를 누르면 자동으로 '만들기' 탭으로 이동해서 바로 작성 가능",
+      "기기별로 저장되므로 PC와 모바일은 따로 쌓여요",
+    ],
+  },
 ];
 
 const GENERAL_TIPS = [
@@ -60,7 +73,7 @@ const GENERAL_TIPS = [
 ];
 
 export default function HelpGuide({ onClose, currentTab }: HelpGuideProps) {
-  const [activeTab, setActiveTab] = useState<"generate" | "review" | "refine">(currentTab);
+  const [activeTab, setActiveTab] = useState<AppMode>(currentTab);
   const activeSection = SECTIONS.find((s) => s.id === activeTab)!;
 
   return (

@@ -15,8 +15,8 @@ interface TourStep {
 const TOUR_STEPS: TourStep[] = [
   {
     target: "tour-tab-bar",
-    title: "3가지 기능을 탭으로 전환",
-    description: "답장 만들기, 검토, 말 다듬기 — 원하는 기능을 탭으로 바꿀 수 있어요.",
+    title: "4가지 기능을 탭으로 전환",
+    description: "만들기, 검토, 다듬기, 기록 — 원하는 기능을 탭으로 바꿀 수 있어요. '기록'에는 최근 쓰던 관계·상황과 마지막 초안이 쌓여요.",
   },
   {
     target: "tour-message-input",

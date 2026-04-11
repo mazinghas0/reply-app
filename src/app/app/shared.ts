@@ -1,6 +1,6 @@
 // ─── Types ───────────────────────────────────────
 
-export type AppMode = "generate" | "review" | "refine";
+export type AppMode = "generate" | "review" | "refine" | "archive";
 
 export interface Reply {
   label: string;

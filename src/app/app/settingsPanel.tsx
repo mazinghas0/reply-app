@@ -16,6 +16,7 @@ const TAB_OPTIONS: Array<{ id: AppMode; label: string }> = [
   { id: "generate", label: "답장 만들기" },
   { id: "review", label: "답장 검토" },
   { id: "refine", label: "말 다듬기" },
+  { id: "archive", label: "기록" },
 ];
 
 interface SettingsPanelProps {
@@ -47,7 +48,7 @@ export default function SettingsPanel({ onClose, onResetTour, plan }: SettingsPa
     if (savedSpeed && SPEEDS.some((s) => s.id === savedSpeed)) setDefaultSpeed(savedSpeed);
 
     const savedTab = localStorage.getItem("reply-default-tab") as AppMode | null;
-    if (savedTab && ["generate", "review", "refine"].includes(savedTab)) setDefaultTab(savedTab);
+    if (savedTab && ["generate", "review", "refine", "archive"].includes(savedTab)) setDefaultTab(savedTab);
 
     if (localStorage.getItem("reply-clipboard-detect") === "off") setClipboardDetect(false);
 

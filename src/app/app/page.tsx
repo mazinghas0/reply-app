@@ -5,7 +5,8 @@ import Link from "next/link";
 import RefineTab from "./refineTab";
 import ReviewTab from "./reviewTab";
 import GenerateTab from "./generateTab";
-import QuickActions, { type QuickPick } from "./quickActions";
+import { type QuickPick } from "./quickActions";
+import ArchiveTab from "./archiveTab";
 import { NavAuth, CLERK_ENABLED } from "./planBadge";
 import InstallBanner from "./installBanner";
 import TourOnboarding from "./tourOnboarding";
@@ -79,7 +80,7 @@ export default function Home() {
 
     // 기본 시작 탭
     const savedTab = localStorage.getItem("reply-default-tab");
-    if (savedTab && ["generate", "review", "refine"].includes(savedTab)) {
+    if (savedTab && ["generate", "review", "refine", "archive"].includes(savedTab)) {
       const params = new URLSearchParams(window.location.search);
       if (!params.get("shared")) setMode(savedTab as AppMode);
     }
@@ -309,12 +310,19 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center px-4 py-8 max-w-xl mx-auto w-full">
         {/* Mode Tabs */}
         <div data-tour="tour-tab-bar" className="w-full flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
-          <button onClick={() => setMode("generate")} className={tabClass(mode === "generate")}>답장 만들기</button>
-          <button onClick={() => setMode("review")} className={tabClass(mode === "review")}>답장 검토</button>
-          <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>말 다듬기</button>
+          <button onClick={() => setMode("generate")} className={tabClass(mode === "generate")}>만들기</button>
+          <button onClick={() => setMode("review")} className={tabClass(mode === "review")}>검토</button>
+          <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>다듬기</button>
+          <button onClick={() => setMode("archive")} className={tabClass(mode === "archive")}>기록</button>
         </div>
         <p className="w-full text-center text-xs text-slate-400 dark:text-slate-500 mt-1.5 mb-5">
-          {mode === "generate" ? "받은 메시지를 넣으면 답장 3개를 만들어요" : mode === "review" ? "내가 쓴 답장의 톤과 맞춤법을 분석해요" : "하고 싶은 말을 완성된 메시지 3개로 만들어요"}
+          {mode === "generate"
+            ? "받은 메시지를 넣으면 답장 3개를 만들어요"
+            : mode === "review"
+            ? "내가 쓴 답장의 톤과 맞춤법을 분석해요"
+            : mode === "refine"
+            ? "하고 싶은 말을 완성된 메시지 3개로 만들어요"
+            : "최근 고른 관계·상황과 마지막 초안을 이어갈 수 있어요"}
         </p>
 
         {/* 웰컴 메시지 */}
@@ -338,12 +346,6 @@ export default function Home() {
 
         {/* ═══ Generate Mode ═══ */}
         <div className={mode !== "generate" ? "hidden" : "contents"}>
-          <QuickActions
-            onPick={(pick) => {
-              setMode("generate");
-              setQuickPick(pick);
-            }}
-          />
           <GenerateTab
             inputMessage={inputMessage}
             onInputChange={setInputMessage}
@@ -369,6 +371,16 @@ export default function Home() {
         {/* ═══ Refine Mode ═══ */}
         <div className={mode !== "refine" ? "hidden" : "contents"}>
           <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />
+        </div>
+
+        {/* ═══ Archive Mode ═══ */}
+        <div className={mode !== "archive" ? "hidden" : "contents"}>
+          <ArchiveTab
+            onPick={(pick) => {
+              setMode("generate");
+              setQuickPick(pick);
+            }}
+          />
         </div>
 
         {/* Footer */}
