@@ -119,8 +119,18 @@ export const EXAMPLE_SCENARIOS: ExampleScenario[] = [
 
 export const REFERRAL_BONUS = 20;
 
-export const HISTORY_KEY = "reply-history";
+export const HISTORY_KEY_GENERATE = "reply-history";
+export const HISTORY_KEY_REVIEW = "reply-history-review";
+export const HISTORY_KEY_REFINE = "reply-history-refine";
 export const MAX_HISTORY = 10;
+
+export interface ReviewHistoryEntry {
+  id: string;
+  draft: string;
+  context: string;
+  result: ReviewResult;
+  createdAt: string;
+}
 const STREAK_KEY = "reply-streak";
 
 export interface StreakData {
@@ -156,10 +166,10 @@ export function updateStreak(): StreakData {
 
 // ─── Utility Functions ───────────────────────────
 
-export function loadHistory(): HistoryEntry[] {
+export function loadHistory(key: string = HISTORY_KEY_GENERATE): HistoryEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(HISTORY_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return [];
     return JSON.parse(raw) as HistoryEntry[];
   } catch {
@@ -167,11 +177,30 @@ export function loadHistory(): HistoryEntry[] {
   }
 }
 
-export function saveToHistory(entry: HistoryEntry): HistoryEntry[] {
-  const history = loadHistory();
+export function saveToHistory(entry: HistoryEntry, key: string = HISTORY_KEY_GENERATE): HistoryEntry[] {
+  const history = loadHistory(key);
   history.unshift(entry);
   if (history.length > MAX_HISTORY) history.pop();
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  localStorage.setItem(key, JSON.stringify(history));
+  return history;
+}
+
+export function loadReviewHistory(): ReviewHistoryEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY_REVIEW);
+    if (!raw) return [];
+    return JSON.parse(raw) as ReviewHistoryEntry[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveReviewHistory(entry: ReviewHistoryEntry): ReviewHistoryEntry[] {
+  const history = loadReviewHistory();
+  history.unshift(entry);
+  if (history.length > MAX_HISTORY) history.pop();
+  localStorage.setItem(HISTORY_KEY_REVIEW, JSON.stringify(history));
   return history;
 }
 

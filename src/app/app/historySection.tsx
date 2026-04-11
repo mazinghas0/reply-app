@@ -6,7 +6,6 @@ import {
   type StreakData,
   TONES,
   SPEED_LABELS,
-  HISTORY_KEY,
   formatTime,
   loadFavorites,
   toggleFavorite,

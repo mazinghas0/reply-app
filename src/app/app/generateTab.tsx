@@ -18,7 +18,7 @@ import {
   TONES,
   TONE_STYLES,
   SPEEDS,
-  HISTORY_KEY,
+  HISTORY_KEY_GENERATE,
   loadHistory,
   saveToHistory,
   saveLastDraft,
@@ -187,7 +187,7 @@ export default function GenerateTab({
   };
 
   const handleClearHistory = () => {
-    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(HISTORY_KEY_GENERATE);
     setHistory([]);
   };
 

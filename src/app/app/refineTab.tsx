@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ContextSelector, {
   type ContextSelection,
   getRelationshipLabel,
   getPurposeLabel,
   getStrategyPrompt,
 } from "./contextSelector";
-import { type Reply, type ToneId, TONES, TONE_STYLES, TONE_COLORS } from "./shared";
+import {
+  type Reply,
+  type ToneId,
+  type HistoryEntry,
+  type StreakData,
+  TONES,
+  TONE_STYLES,
+  TONE_COLORS,
+  HISTORY_KEY_REFINE,
+  loadHistory,
+  saveToHistory,
+} from "./shared";
 import ShareMenu from "./shareMenu";
+import HistorySection from "./historySection";
 import { IconCopy, IconCheck } from "./icons";
 
 // ─── Example Tags ───────────────────────────────
@@ -74,6 +86,23 @@ export default function RefineTab({
   const [error, setError] = useState("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(initialCredits);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const emptyStreak: StreakData = { lastDate: "", count: 0 };
+
+  useEffect(() => {
+    setHistory(loadHistory(HISTORY_KEY_REFINE));
+  }, []);
+
+  useEffect(() => {
+    if (initialText && initialText.trim()) {
+      setIntent(initialText);
+    }
+  }, [initialText]);
+
+  const handleClearHistory = () => {
+    localStorage.removeItem(HISTORY_KEY_REFINE);
+    setHistory([]);
+  };
 
   const handleGenerate = async () => {
     if (!intent.trim()) return;
@@ -112,7 +141,17 @@ export default function RefineTab({
       }
 
       if (typeof data.remaining === "number") setRemaining(data.remaining);
-      setReplies(data.replies as Reply[]);
+      const newReplies = data.replies as Reply[];
+      setReplies(newReplies);
+      const entry: HistoryEntry = {
+        id: String(Date.now()),
+        inputMessage: intent.trim(),
+        tone,
+        speed: "quality",
+        replies: newReplies,
+        createdAt: new Date().toISOString(),
+      };
+      setHistory(saveToHistory(entry, HISTORY_KEY_REFINE));
       onSuccess?.();
     } catch {
       setError("네트워크 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -305,6 +344,14 @@ export default function RefineTab({
           ))}
         </section>
       )}
+
+      <HistorySection
+        history={history}
+        streak={emptyStreak}
+        copiedKey={copiedKey}
+        onCopy={handleCopy}
+        onClearHistory={handleClearHistory}
+      />
     </>
   );
 }

@@ -362,10 +362,14 @@ export default function Home() {
         </div>
 
         {/* ═══ Review Mode ═══ */}
-        {mode === "review" && <ReviewTab initialDraft={sharedReviewDraft} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />}
+        <div className={mode !== "review" ? "hidden" : "contents"}>
+          <ReviewTab initialDraft={sharedReviewDraft} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />
+        </div>
 
         {/* ═══ Refine Mode ═══ */}
-        {mode === "refine" && <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />}
+        <div className={mode !== "refine" ? "hidden" : "contents"}>
+          <RefineTab initialText={sharedRefineText} initialCredits={remaining} onSuccess={() => setStreak(updateStreak())} maxInputLength={maxInputLength} isAuthenticated={isAuthenticated} />
+        </div>
 
         {/* Footer */}
         <footer className="mt-16 mb-4 w-full">

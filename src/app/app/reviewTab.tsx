@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { type ReviewResult } from "./shared";
-import { IconSpinner, IconError } from "./icons";
+import { useState, useEffect } from "react";
+import {
+  type ReviewResult,
+  type ReviewHistoryEntry,
+  loadReviewHistory,
+  saveReviewHistory,
+  formatTime,
+  HISTORY_KEY_REVIEW,
+} from "./shared";
+import { IconSpinner, IconError, IconClock, IconChevron, IconTrash } from "./icons";
 
 interface ReviewTabProps {
   initialDraft?: string;
@@ -19,6 +26,32 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState("");
   const [remaining, setRemaining] = useState<number | null>(initialCredits);
+  const [history, setHistory] = useState<ReviewHistoryEntry[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setHistory(loadReviewHistory());
+  }, []);
+
+  useEffect(() => {
+    if (initialDraft && initialDraft.trim()) {
+      setReviewDraft(initialDraft);
+    }
+  }, [initialDraft]);
+
+  const handleClearHistory = () => {
+    localStorage.removeItem(HISTORY_KEY_REVIEW);
+    setHistory([]);
+  };
+
+  const handleLoadFromHistory = (entry: ReviewHistoryEntry) => {
+    setReviewDraft(entry.draft);
+    setReviewContext(entry.context);
+    setReviewResult(entry.result);
+    setShowHistory(false);
+    setExpandedId(null);
+  };
 
   const handleReview = async () => {
     if (!reviewDraft.trim()) return;
@@ -38,6 +71,14 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
       if (!res.ok) throw new Error(data.error || "검토에 실패했습니다");
       if (typeof data.remaining === "number") setRemaining(data.remaining);
       setReviewResult(data.review);
+      const entry: ReviewHistoryEntry = {
+        id: String(Date.now()),
+        draft: reviewDraft.trim(),
+        context: reviewContext.trim(),
+        result: data.review,
+        createdAt: new Date().toISOString(),
+      };
+      setHistory(saveReviewHistory(entry));
       onSuccess();
     } catch (err) {
       setReviewError(err instanceof Error ? err.message : "오류가 발생했습니다");
@@ -217,6 +258,70 @@ export default function ReviewTab({ initialDraft = "", initialCredits = null, on
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {history.length > 0 && (
+        <section className="w-full mt-10">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+            >
+              <IconClock />
+              검토 기록 ({history.length})
+              <IconChevron open={showHistory} />
+            </button>
+            <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+          </div>
+          {showHistory && (
+            <div className="space-y-2">
+              {history.map((entry) => {
+                const isExpanded = expandedId === entry.id;
+                const toneLabel = entry.result.tone?.label ?? "";
+                return (
+                  <div key={entry.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : entry.id)}
+                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    >
+                      <div className="flex-1 min-w-0 mr-2">
+                        <p className="text-sm text-slate-800 dark:text-slate-200 truncate">{entry.draft}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          {toneLabel ? `${toneLabel} · ` : ""}{formatTime(entry.createdAt)}
+                        </p>
+                      </div>
+                      <IconChevron open={isExpanded} />
+                    </button>
+                    {isExpanded && (
+                      <div className="px-4 pb-3 border-t border-slate-50 dark:border-slate-800 space-y-2">
+                        {entry.context && (
+                          <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">받은 메시지</p>
+                            <p className="text-sm text-slate-700 dark:text-slate-200">{entry.context}</p>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => handleLoadFromHistory(entry)}
+                          className="w-full mt-2 py-2 text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                        >
+                          이 검토 결과 다시 보기
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <button
+                onClick={handleClearHistory}
+                className="flex items-center gap-1.5 mx-auto mt-2 text-xs text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 transition-colors cursor-pointer"
+              >
+                <IconTrash />
+                기록 모두 삭제
+              </button>
             </div>
           )}
         </section>
