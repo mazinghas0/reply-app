@@ -247,8 +247,14 @@ export function toggleFavorite(id: string): Set<string> {
 const RECENT_RELATIONSHIPS_KEY = "reply-recent-relationships";
 const RECENT_PURPOSES_KEY = "reply-recent-purposes";
 const RECENT_SEARCH_QUERIES_KEY = "reply-recent-search-queries";
+const RECENT_SITUATIONS_KEY = "reply-recent-situations";
 const LAST_DRAFT_KEY = "reply-last-draft";
 const RECENT_MAX = 5;
+
+export interface RecentSituation {
+  relationship: string;
+  purpose: string;
+}
 
 export interface LastDraft {
   inputMessage: string;
@@ -297,6 +303,34 @@ export function loadRecentSearchQueries(): string[] {
     const raw = localStorage.getItem(RECENT_SEARCH_QUERIES_KEY);
     if (!raw) return [];
     return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
+}
+
+export function pushRecentSituation(relationship: string, purpose: string): void {
+  if (typeof window === "undefined") return;
+  if (!relationship || !purpose) return;
+  try {
+    const raw = localStorage.getItem(RECENT_SITUATIONS_KEY);
+    const list: RecentSituation[] = raw ? (JSON.parse(raw) as RecentSituation[]) : [];
+    const filtered = list.filter(
+      (s) => !(s.relationship === relationship && s.purpose === purpose)
+    );
+    filtered.unshift({ relationship, purpose });
+    if (filtered.length > RECENT_MAX) filtered.length = RECENT_MAX;
+    localStorage.setItem(RECENT_SITUATIONS_KEY, JSON.stringify(filtered));
+  } catch {
+    // 무시
+  }
+}
+
+export function loadRecentSituations(): RecentSituation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(RECENT_SITUATIONS_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as RecentSituation[];
   } catch {
     return [];
   }

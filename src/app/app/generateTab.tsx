@@ -293,37 +293,6 @@ export default function GenerateTab({
             <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Enter</kbd>
             <span className="ml-0.5">로 바로 생성</span>
           </p>
-          {isAuthenticated && (
-            <div className="mt-2.5 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={handleDetectContext}
-                disabled={!inputMessage.trim() || detecting}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 text-xs font-semibold hover:bg-teal-100 dark:hover:bg-teal-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              >
-                {detecting ? (
-                  <>
-                    <IconSpinner />
-                    감지 중
-                  </>
-                ) : (
-                  <>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9.94 14.34 4 20.28l-.28.72.72-.28 5.94-5.94" />
-                      <path d="M15 4 20 9l-5.5 5.5-5-5L15 4Z" />
-                    </svg>
-                    AI 상황 감지
-                  </>
-                )}
-              </button>
-              {detectRemaining !== null && !detectError && (
-                <span className="text-[11px] text-slate-400 dark:text-slate-500">오늘 {detectRemaining}회 남음</span>
-              )}
-              {detectError && (
-                <span className="text-[11px] text-rose-500 dark:text-rose-400">{detectError}</span>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Preset */}
@@ -355,7 +324,16 @@ export default function GenerateTab({
         <div>
           <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2.5">상황 선택 <span className="font-normal text-slate-400 dark:text-slate-500">(선택 — 더 정확한 답장)</span></label>
           <div data-tour="tour-context-selector">
-            <ContextSelector value={context} onChange={setContext} />
+            <ContextSelector
+              value={context}
+              onChange={setContext}
+              inputMessage={inputMessage}
+              onDetectContext={handleDetectContext}
+              detecting={detecting}
+              detectError={detectError}
+              detectRemaining={detectRemaining}
+              isAuthenticated={isAuthenticated}
+            />
           </div>
         </div>
 

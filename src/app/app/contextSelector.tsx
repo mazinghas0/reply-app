@@ -6,8 +6,12 @@ import {
   pushRecentPurpose,
   pushRecentSearchQuery,
   loadRecentSearchQueries,
+  pushRecentSituation,
+  loadRecentSituations,
+  type RecentSituation,
 } from "./shared";
 import CustomKeywordModal from "./customKeywordModal";
+import { IconSpinner } from "./icons";
 
 interface CustomKeywordItem {
   id: string;
@@ -295,9 +299,24 @@ export function getStrategyPrompt(id: StrategyId): string {
 interface ContextSelectorProps {
   value: ContextSelection;
   onChange: (value: ContextSelection) => void;
+  inputMessage?: string;
+  onDetectContext?: () => void;
+  detecting?: boolean;
+  detectError?: string;
+  detectRemaining?: number | null;
+  isAuthenticated?: boolean;
 }
 
-export default function ContextSelector({ value, onChange }: ContextSelectorProps) {
+export default function ContextSelector({
+  value,
+  onChange,
+  inputMessage,
+  onDetectContext,
+  detecting,
+  detectError,
+  detectRemaining,
+  isAuthenticated,
+}: ContextSelectorProps) {
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [openRelGroup, setOpenRelGroup] = useState<RelationshipId | null>(null);
@@ -307,9 +326,11 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   const [showKeywordModal, setShowKeywordModal] = useState(false);
   const [customTextInputMode, setCustomTextInputMode] = useState(false);
   const [recentSearchQueries, setRecentSearchQueries] = useState<string[]>([]);
+  const [recentSituations, setRecentSituations] = useState<RecentSituation[]>([]);
 
   useEffect(() => {
     setRecentSearchQueries(loadRecentSearchQueries());
+    setRecentSituations(loadRecentSituations());
   }, []);
 
   useEffect(() => {
@@ -360,6 +381,8 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
     });
     pushRecentRelationship(rel);
     pushRecentPurpose(purpose);
+    pushRecentSituation(rel, purpose);
+    setRecentSituations(loadRecentSituations());
     const trimmedQuery = searchQuery.trim();
     if (trimmedQuery) {
       pushRecentSearchQuery(trimmedQuery);
@@ -593,6 +616,67 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
           </div>
         </div>
       )}
+      {/* AI 감지 + 최근 조합 — 아무것도 선택되지 않았을 때 핵심 진입점 */}
+      {!hasSituation && !hasPartial && (onDetectContext || recentSituations.length > 0) && (
+        <div className="space-y-2.5">
+          {onDetectContext && isAuthenticated && (
+            <div>
+              <button
+                type="button"
+                onClick={onDetectContext}
+                disabled={!inputMessage?.trim() || !!detecting}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-teal-400 dark:border-teal-600 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-sm font-semibold shadow-sm hover:from-teal-600 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-300 dark:disabled:from-slate-700 dark:disabled:to-slate-700 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                {detecting ? (
+                  <>
+                    <IconSpinner />
+                    상황 감지 중
+                  </>
+                ) : (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9.94 14.34 4 20.28l-.28.72.72-.28 5.94-5.94" />
+                      <path d="M15 4 20 9l-5.5 5.5-5-5L15 4Z" />
+                    </svg>
+                    받은 메시지로 상황 자동 감지
+                  </>
+                )}
+              </button>
+              <div className="mt-1 flex items-center justify-between text-[11px]">
+                <span className="text-slate-400 dark:text-slate-500">
+                  {!inputMessage?.trim() ? "메시지를 먼저 입력하면 AI가 상황을 찾아줘요" : "AI가 관계와 답장 목적을 찾아줘요"}
+                </span>
+                {detectRemaining !== null && detectRemaining !== undefined && !detectError && (
+                  <span className="text-slate-400 dark:text-slate-500">오늘 {detectRemaining}회 남음</span>
+                )}
+              </div>
+              {detectError && (
+                <p className="mt-1 text-[11px] text-rose-500 dark:text-rose-400">{detectError}</p>
+              )}
+            </div>
+          )}
+          {recentSituations.length > 0 && (
+            <div>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">최근 선택한 상황</span>
+              <div className="flex flex-wrap gap-1.5">
+                {recentSituations.slice(0, 3).map((s) => {
+                  const relLabel = getRelationshipLabel(s.relationship as RelationshipId);
+                  const purposeLabel = getPurposeLabel(s.purpose as PurposeId);
+                  return (
+                    <button
+                      key={`recent-situ-${s.relationship}-${s.purpose}`}
+                      onClick={() => selectSituation(s.relationship as RelationshipId, s.purpose as PurposeId)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
+                    >
+                      {relLabel} — {purposeLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       {/* Search toggle */}
       {showSearch ? (
         <div className="relative">
@@ -761,7 +845,14 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
           </div>
         </>
       ) : (
-        <>
+        <details className="group rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
+          <summary className="flex items-center justify-between px-3 py-2.5 cursor-pointer list-none text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+            <span>직접 고르기 — 카테고리 · 내 키워드</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200 group-open:rotate-180">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <div className="p-3 pt-0 space-y-4">
           {/* My custom keywords (Max only) */}
           {(customRelationships.length > 0 || customPurposes.length > 0 || isMaxPlan) && (
             <div className="rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/20 p-3 space-y-2">
@@ -817,24 +908,6 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
                   자주 쓰는 관계나 상황을 직접 등록해 두면 매번 빠르게 사용할 수 있어요.
                 </p>
               )}
-            </div>
-          )}
-
-          {/* Popular situations */}
-          {!selectedCategory && (
-            <div>
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 block">인기 상황</span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {POPULAR_SITUATIONS.map(s => (
-                  <button
-                    key={`pop-${s.relationship}-${s.purpose}`}
-                    onClick={() => selectSituation(s.relationship, s.purpose)}
-                    className="px-3 py-2 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20 text-teal-700 dark:text-teal-300 text-xs font-medium hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer text-center"
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
             </div>
           )}
 
@@ -908,7 +981,8 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
               })}
             </div>
           )}
-        </>
+          </div>
+        </details>
       )}
 
       {showKeywordModal && (
