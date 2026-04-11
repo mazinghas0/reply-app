@@ -77,6 +77,9 @@ export default function GenerateTab({
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [showLoginNudge, setShowLoginNudge] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [detecting, setDetecting] = useState(false);
+  const [detectError, setDetectError] = useState("");
+  const [detectRemaining, setDetectRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     setHistory(loadHistory());
@@ -176,6 +179,36 @@ export default function GenerateTab({
     }
   };
 
+  const handleDetectContext = async () => {
+    const trimmed = inputMessage.trim();
+    if (!trimmed || detecting) return;
+    setDetecting(true);
+    setDetectError("");
+    try {
+      const res = await fetch("/api/detect-context", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmed }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "상황 감지에 실패했어요");
+      }
+      setContext({
+        relationship: data.relationship as RelationshipId,
+        relationshipCustom: "",
+        purpose: data.purpose as PurposeId,
+        purposeCustom: "",
+        strategy: null,
+      });
+      if (typeof data.remaining === "number") setDetectRemaining(data.remaining);
+    } catch (err) {
+      setDetectError(err instanceof Error ? err.message : "오류가 발생했어요");
+    } finally {
+      setDetecting(false);
+    }
+  };
+
   const handleCopy = async (content: string, key: string) => {
     await navigator.clipboard.writeText(content);
     setCopiedKey(key);
@@ -260,6 +293,37 @@ export default function GenerateTab({
             <kbd className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-mono">Enter</kbd>
             <span className="ml-0.5">로 바로 생성</span>
           </p>
+          {isAuthenticated && (
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleDetectContext}
+                disabled={!inputMessage.trim() || detecting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 text-xs font-semibold hover:bg-teal-100 dark:hover:bg-teal-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                {detecting ? (
+                  <>
+                    <IconSpinner />
+                    감지 중
+                  </>
+                ) : (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9.94 14.34 4 20.28l-.28.72.72-.28 5.94-5.94" />
+                      <path d="M15 4 20 9l-5.5 5.5-5-5L15 4Z" />
+                    </svg>
+                    AI 상황 감지
+                  </>
+                )}
+              </button>
+              {detectRemaining !== null && !detectError && (
+                <span className="text-[11px] text-slate-400 dark:text-slate-500">오늘 {detectRemaining}회 남음</span>
+              )}
+              {detectError && (
+                <span className="text-[11px] text-rose-500 dark:text-rose-400">{detectError}</span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Preset */}
