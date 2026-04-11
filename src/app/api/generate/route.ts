@@ -27,7 +27,7 @@ const TONE_LABELS: Record<GenerateRequest["tone"], string> = {
 
 const MODEL_MAP = {
   fast: "claude-haiku-4-5-20251001",
-  quality: "claude-sonnet-4-20250514",
+  quality: "claude-sonnet-4-6",
 } as const;
 
 import { checkAnonymousTotal } from "@/lib/rateLimit";

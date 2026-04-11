@@ -192,31 +192,19 @@ const STRATEGIES: StrategyOption[] = [
 ];
 
 function getRelevantStrategies(rel: RelationshipId, purpose: PurposeId): StrategyOption[] {
-  if (purpose === "reject" || purpose === "keepDistance") {
-    return [
-      STRATEGIES.find((s) => s.id === "softShield")!,
-      STRATEGIES.find((s) => s.id === "strategicVague")!,
-      STRATEGIES.find((s) => s.id === "warmPro")!,
-      STRATEGIES.find((s) => s.id === "straightforward")!,
-    ];
-  }
-  if (rel === "crush" || rel === "partner") {
-    return [
-      STRATEGIES.find((s) => s.id === "distanceControl")!,
-      STRATEGIES.find((s) => s.id === "subtleLead")!,
-      STRATEGIES.find((s) => s.id === "straightforward")!,
-      STRATEGIES.find((s) => s.id === "strategicVague")!,
-    ];
-  }
-  if (rel === "boss" || rel === "client" || rel === "professor") {
-    return [
-      STRATEGIES.find((s) => s.id === "warmPro")!,
-      STRATEGIES.find((s) => s.id === "softShield")!,
-      STRATEGIES.find((s) => s.id === "subtleLead")!,
-      STRATEGIES.find((s) => s.id === "straightforward")!,
-    ];
-  }
-  return STRATEGIES;
+  const priority: StrategyId[] = (() => {
+    if (purpose === "reject" || purpose === "keepDistance") {
+      return ["softShield", "strategicVague", "warmPro", "straightforward", "subtleLead", "distanceControl"];
+    }
+    if (rel === "crush" || rel === "partner") {
+      return ["distanceControl", "subtleLead", "straightforward", "strategicVague", "warmPro", "softShield"];
+    }
+    if (rel === "boss" || rel === "client" || rel === "professor") {
+      return ["warmPro", "softShield", "subtleLead", "straightforward", "strategicVague", "distanceControl"];
+    }
+    return STRATEGIES.map((s) => s.id);
+  })();
+  return priority.map((id) => STRATEGIES.find((s) => s.id === id)!);
 }
 
 // ─── Categories & Popular Situations ─────────────
