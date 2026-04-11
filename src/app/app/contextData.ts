@@ -33,6 +33,9 @@ export type PurposeId =
   | "appeal"
   | "react"
   | "greet"
+  | "listen"
+  | "encourage"
+  | "teach"
   | "custom";
 
 export type StrategyId =
@@ -169,10 +172,13 @@ export const PURPOSE_MAP: Record<RelationshipId, OptionItem<PurposeId>[]> = {
   family: [
     { id: "greet", label: "안부", desc: "잘 지내냐는 말" },
     { id: "ask", label: "부탁", desc: "도움 요청" },
+    { id: "listen", label: "들어주기", desc: "판단 없이 공감만" },
+    { id: "comfort", label: "위로", desc: "힘든 가족에게" },
+    { id: "encourage", label: "격려", desc: "힘내라는 말, 부담 없이" },
+    { id: "teach", label: "짚어주기", desc: "혼내지 않고 가르치기" },
     { id: "reject", label: "거절", desc: "사정이 안 돼서" },
     { id: "thank", label: "감사", desc: "고마움 표현" },
     { id: "apologize", label: "사과", desc: "미안한 마음" },
-    { id: "comfort", label: "위로", desc: "힘든 가족에게" },
   ],
   custom: [
     { id: "accept", label: "수락", desc: "OK" },

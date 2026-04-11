@@ -39,7 +39,10 @@ type PurposeId =
   | "keepDistance"
   | "appeal"
   | "react"
-  | "greet";
+  | "greet"
+  | "listen"
+  | "encourage"
+  | "teach";
 
 const VALID_RELATIONSHIPS: RelationshipId[] = [
   "boss",
@@ -74,6 +77,9 @@ const VALID_PURPOSES: PurposeId[] = [
   "appeal",
   "react",
   "greet",
+  "listen",
+  "encourage",
+  "teach",
 ];
 
 const ALLOWED_ORIGINS = [
@@ -193,13 +199,13 @@ export async function POST(request: NextRequest) {
 - report: 보고
 - suggest: 제안/의견 제시/지시
 - ask: 질문/부탁/확인
-- thank: 감사/격려
+- thank: 감사 (고마움 표현)
 - apologize: 사과
 - schedule: 일정 조율/약속 잡기
 - urge: 독촉
 - negotiate: 협상
 - complain: 클레임/불만 제기
-- comfort: 위로
+- comfort: 위로 (힘든 사람에게 괜찮다고)
 - congrats: 축하
 - reconcile: 화해
 - dateAsk: 데이트 신청
@@ -207,6 +213,9 @@ export async function POST(request: NextRequest) {
 - appeal: 호소/부탁
 - react: 리액션 (어떻게 답할지 애매)
 - greet: 안부 인사
+- listen: 들어주기 (판단·조언 없이 공감만. 자녀나 가까운 사람이 속마음을 털어놓을 때)
+- encourage: 격려/응원 (힘내라는 말, 시험·진로·도전 앞에서 부담 주지 않고)
+- teach: 짚어주기 (혼내지 않고 가르치기. 사춘기 자녀의 실수·늦은 귀가 등)
 
 받은 메시지:
 """
