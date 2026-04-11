@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { pushRecentRelationship, pushRecentPurpose } from "./shared";
+import {
+  pushRecentRelationship,
+  pushRecentPurpose,
+  pushRecentSearchQuery,
+  loadRecentSearchQueries,
+} from "./shared";
 import CustomKeywordModal from "./customKeywordModal";
 
 interface CustomKeywordItem {
@@ -296,11 +301,16 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   const [selectedCategory, setSelectedCategory] = useState<CategoryId | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [openRelGroup, setOpenRelGroup] = useState<RelationshipId | null>(null);
-  const [showSearch, setShowSearch] = useState(false);
+  const [showSearch, setShowSearch] = useState(true);
   const [customKeywords, setCustomKeywords] = useState<CustomKeywordItem[]>([]);
   const [isMaxPlan, setIsMaxPlan] = useState(false);
   const [showKeywordModal, setShowKeywordModal] = useState(false);
   const [customTextInputMode, setCustomTextInputMode] = useState(false);
+  const [recentSearchQueries, setRecentSearchQueries] = useState<string[]>([]);
+
+  useEffect(() => {
+    setRecentSearchQueries(loadRecentSearchQueries());
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -350,6 +360,11 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
     });
     pushRecentRelationship(rel);
     pushRecentPurpose(purpose);
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      pushRecentSearchQuery(trimmedQuery);
+      setRecentSearchQueries(loadRecentSearchQueries());
+    }
     setSearchQuery("");
     setSelectedCategory(null);
     setCustomTextInputMode(false);
@@ -404,12 +419,12 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
   };
 
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase();
-    return ALL_SITUATIONS.filter(
-      s => s.relLabel.includes(q) || s.relDesc.includes(q) ||
-           s.purposeLabel.includes(q) || s.purposeDesc.includes(q)
-    );
+    const tokens = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return [];
+    return ALL_SITUATIONS.filter((s) => {
+      const haystack = `${s.relLabel} ${s.relDesc} ${s.purposeLabel} ${s.purposeDesc}`.toLowerCase();
+      return tokens.every((t) => haystack.includes(t));
+    });
   }, [searchQuery]);
 
   const categorySituations = useMemo(() => {
@@ -588,7 +603,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
             type="text"
             value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setSelectedCategory(null); }}
-            placeholder="상황 검색 (예: 거절, 상사, 데이트...)"
+            placeholder="상대, 상황, 감정 — 예: 상사 거절, 친구 어색함, 사과"
             autoFocus
             className="w-full pl-9 pr-9 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
           />
@@ -624,7 +639,7 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
                 className={`${chipBase} ${chipDefault}`}
               >
                 <div className="font-semibold text-xs">{s.relLabel} — {s.purposeLabel}</div>
-                <div className="text-[10px] opacity-60 mt-0.5">{s.purposeDesc}</div>
+                <div className="text-[10px] opacity-60 mt-0.5 leading-snug">{s.relDesc} · {s.purposeDesc}</div>
               </button>
             ))}
           </div>
@@ -639,6 +654,112 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
             </button>
           </div>
         )
+      ) : showSearch ? (
+        <>
+          {recentSearchQueries.length > 0 && (
+            <div>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 block">최근 검색어</span>
+              <div className="flex flex-wrap gap-1.5">
+                {recentSearchQueries.map((q) => (
+                  <button
+                    key={`recent-${q}`}
+                    onClick={() => setSearchQuery(q)}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 block">자주 찾는 조합</span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {POPULAR_SITUATIONS.map((s) => {
+                const flat = ALL_SITUATIONS.find(
+                  (row) => row.relationship === s.relationship && row.purpose === s.purpose
+                );
+                return (
+                  <button
+                    key={`pop-search-${s.relationship}-${s.purpose}`}
+                    onClick={() => selectSituation(s.relationship, s.purpose)}
+                    className={`${chipBase} ${chipDefault}`}
+                  >
+                    <div className="font-semibold text-xs">{s.label}</div>
+                    {flat && (
+                      <div className="text-[10px] opacity-60 mt-0.5 leading-snug">{flat.relDesc} · {flat.purposeDesc}</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          {/* My custom keywords (Max only) — also visible while searching is open */}
+          {(customRelationships.length > 0 || customPurposes.length > 0 || isMaxPlan) && (
+            <div className="rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/40 dark:bg-teal-950/20 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">
+                  내 키워드
+                </span>
+                {isMaxPlan && (
+                  <button
+                    onClick={() => setShowKeywordModal(true)}
+                    className="text-[11px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 border border-teal-300 dark:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                  >
+                    + 내 키워드 추가
+                  </button>
+                )}
+              </div>
+              {customRelationships.length > 0 && (
+                <div>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">관계</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {customRelationships.map((kw) => (
+                      <button
+                        key={`crel-search-${kw.id}`}
+                        onClick={() => selectCustomRelationship(kw)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-teal-300 dark:border-teal-700 bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                        title={kw.description ?? undefined}
+                      >
+                        {kw.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {customPurposes.length > 0 && (
+                <div>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 block mb-1">상황</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {customPurposes.map((kw) => (
+                      <button
+                        key={`cpur-search-${kw.id}`}
+                        onClick={() => selectCustomPurpose(kw)}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-teal-300 dark:border-teal-700 bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors cursor-pointer"
+                        title={kw.description ?? undefined}
+                      >
+                        {kw.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {isMaxPlan && customRelationships.length === 0 && customPurposes.length === 0 && (
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  자주 쓰는 관계나 상황을 직접 등록해 두면 매번 빠르게 사용할 수 있어요.
+                </p>
+              )}
+            </div>
+          )}
+          <div>
+            <button
+              onClick={enterCustomMode}
+              className="text-xs text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
+            >
+              원하는 조합이 없나요? <span className="underline">직접 입력</span>
+            </button>
+          </div>
+        </>
       ) : (
         <>
           {/* My custom keywords (Max only) */}

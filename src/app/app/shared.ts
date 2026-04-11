@@ -246,6 +246,7 @@ export function toggleFavorite(id: string): Set<string> {
 
 const RECENT_RELATIONSHIPS_KEY = "reply-recent-relationships";
 const RECENT_PURPOSES_KEY = "reply-recent-purposes";
+const RECENT_SEARCH_QUERIES_KEY = "reply-recent-search-queries";
 const LAST_DRAFT_KEY = "reply-last-draft";
 const RECENT_MAX = 5;
 
@@ -284,6 +285,21 @@ export function pushRecentRelationship(value: string): void {
 
 export function pushRecentPurpose(value: string): void {
   pushRecent(RECENT_PURPOSES_KEY, value);
+}
+
+export function pushRecentSearchQuery(value: string): void {
+  pushRecent(RECENT_SEARCH_QUERIES_KEY, value);
+}
+
+export function loadRecentSearchQueries(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCH_QUERIES_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
 }
 
 export function saveLastDraft(draft: LastDraft): void {
