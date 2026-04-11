@@ -102,18 +102,6 @@ export default function GenerateTab({
         strategy: null,
       });
       if (TONES.some((t) => t.id === d.tone)) setSelectedTone(d.tone);
-    } else if (quickPick.type === "relationship" && quickPick.relationship) {
-      setContext((prev) => ({
-        ...prev,
-        relationship: quickPick.relationship!,
-        relationshipCustom: "",
-      }));
-    } else if (quickPick.type === "purpose" && quickPick.purpose) {
-      setContext((prev) => ({
-        ...prev,
-        purpose: quickPick.purpose!,
-        purposeCustom: "",
-      }));
     }
     onQuickPickConsumed?.();
   }, [quickPick, onInputChange, onQuickPickConsumed]);

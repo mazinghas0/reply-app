@@ -18,9 +18,7 @@ export default function ArchiveTab({ onPick, active }: ArchiveTabProps) {
     const data = loadQuickActions();
     const hasDraft =
       data.lastDraft !== null && data.lastDraft.inputMessage.trim().length > 0;
-    const hasRecent =
-      data.recentRelationships.length > 0 || data.recentPurposes.length > 0;
-    setIsEmpty(!hasDraft && !hasRecent);
+    setIsEmpty(!hasDraft);
     setMounted(true);
   }, [active]);
 
@@ -33,7 +31,7 @@ export default function ArchiveTab({ onPick, active }: ArchiveTabProps) {
           기록
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-          최근에 고른 관계·상황과 마지막으로 쓰던 초안을 한 자리에서 이어갈 수 있어요.
+          마지막으로 쓰던 초안을 이어서 작성할 수 있어요.
         </p>
       </div>
 
@@ -58,7 +56,7 @@ export default function ArchiveTab({ onPick, active }: ArchiveTabProps) {
             아직 기록이 없어요
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed max-w-xs">
-            답장 만들기 탭에서 한 번 써 보면 최근에 고른 관계·상황과 마지막 초안이 여기에 쌓여요.
+            답장 만들기 탭에서 한 번 써 보면 마지막 초안이 여기에 쌓여요.
           </p>
         </div>
       ) : (
