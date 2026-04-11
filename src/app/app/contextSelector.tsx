@@ -484,53 +484,18 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
     );
   }
 
-  // ─── Situation selected view ───
-  if (hasSituation) {
-    const relLabel = value.relationship === "custom"
-      ? (value.relationshipCustom || "기타")
-      : getRelationshipLabel(value.relationship!);
-    const purposeLabel = value.purpose === "custom"
-      ? (value.purposeCustom || "기타")
-      : getPurposeLabel(value.purpose!);
-
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-slate-500 dark:text-slate-400">선택한 상황</span>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-300 dark:border-teal-700 text-sm font-medium text-teal-700 dark:text-teal-300">
-            {relLabel} — {purposeLabel}
-            <button
-              onClick={clearSituation}
-              className="ml-0.5 text-teal-400 hover:text-teal-600 dark:hover:text-teal-200 transition-colors cursor-pointer"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div>
-          <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 block">
-            전략 <span className="text-slate-400 dark:text-slate-500">(선택)</span>
-          </span>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {strategies.map(s => (
-              <button
-                key={s.id}
-                onClick={() => selectStrategy(s.id)}
-                className={`${chipBase} ${value.strategy === s.id ? chipSelected : chipDefault}`}
-              >
-                <div className="font-semibold text-xs">{s.label}</div>
-                <div className="text-[10px] opacity-60 mt-0.5">{s.desc}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // ─── Selection view (default) ───
+  const combinedRelLabel = value.relationship === "custom"
+    ? (value.relationshipCustom || "기타")
+    : value.relationship !== null
+      ? getRelationshipLabel(value.relationship)
+      : "";
+  const combinedPurposeLabel = value.purpose === "custom"
+    ? (value.purposeCustom || "기타")
+    : value.purpose !== null
+      ? getPurposeLabel(value.purpose)
+      : "";
+
   const partialRelLabel = value.relationship === "custom"
     ? (value.relationshipCustom || "기타")
     : value.relationship !== null
@@ -545,7 +510,23 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
 
   return (
     <div className="space-y-4">
-      {hasPartial && (
+      {hasSituation ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-slate-500 dark:text-slate-400">선택한 상황</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/30 border border-teal-300 dark:border-teal-700 text-sm font-medium text-teal-700 dark:text-teal-300">
+            {combinedRelLabel} — {combinedPurposeLabel}
+            <button
+              onClick={clearSituation}
+              className="ml-0.5 text-teal-400 hover:text-teal-600 dark:hover:text-teal-200 transition-colors cursor-pointer"
+              aria-label="선택 해제"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ) : hasPartial && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-slate-500 dark:text-slate-400">선택중</span>
           {partialRelLabel !== null && (
@@ -576,6 +557,25 @@ export default function ContextSelector({ value, onChange }: ContextSelectorProp
               </button>
             </div>
           )}
+        </div>
+      )}
+      {hasSituation && (
+        <div>
+          <span className="text-xs text-slate-500 dark:text-slate-400 mb-2 block">
+            전략 <span className="text-slate-400 dark:text-slate-500">(선택)</span>
+          </span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {strategies.map(s => (
+              <button
+                key={s.id}
+                onClick={() => selectStrategy(s.id)}
+                className={`${chipBase} ${value.strategy === s.id ? chipSelected : chipDefault}`}
+              >
+                <div className="font-semibold text-xs">{s.label}</div>
+                <div className="text-[10px] opacity-60 mt-0.5">{s.desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
       {/* Search toggle */}
