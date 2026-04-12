@@ -244,8 +244,6 @@ export function toggleFavorite(id: string): Set<string> {
 
 // ─── Quick Actions (퀵액션 홈) ───────────────────
 
-const RECENT_RELATIONSHIPS_KEY = "reply-recent-relationships";
-const RECENT_PURPOSES_KEY = "reply-recent-purposes";
 const RECENT_SEARCH_QUERIES_KEY = "reply-recent-search-queries";
 const RECENT_SITUATIONS_KEY = "reply-recent-situations";
 const LAST_DRAFT_KEY = "reply-last-draft";
@@ -265,8 +263,6 @@ export interface LastDraft {
 }
 
 export interface QuickActionsData {
-  recentRelationships: string[];
-  recentPurposes: string[];
   lastDraft: LastDraft | null;
 }
 
@@ -283,14 +279,6 @@ function pushRecent(key: string, value: string): void {
   } catch {
     // 무시
   }
-}
-
-export function pushRecentRelationship(value: string): void {
-  pushRecent(RECENT_RELATIONSHIPS_KEY, value);
-}
-
-export function pushRecentPurpose(value: string): void {
-  pushRecent(RECENT_PURPOSES_KEY, value);
 }
 
 export function pushRecentSearchQuery(value: string): void {
@@ -345,20 +333,9 @@ export function saveLastDraft(draft: LastDraft): void {
   }
 }
 
-function loadList(key: string): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return [];
-    return JSON.parse(raw) as string[];
-  } catch {
-    return [];
-  }
-}
-
 export function loadQuickActions(): QuickActionsData {
   if (typeof window === "undefined") {
-    return { recentRelationships: [], recentPurposes: [], lastDraft: null };
+    return { lastDraft: null };
   }
   let lastDraft: LastDraft | null = null;
   try {
@@ -367,9 +344,5 @@ export function loadQuickActions(): QuickActionsData {
   } catch {
     lastDraft = null;
   }
-  return {
-    recentRelationships: loadList(RECENT_RELATIONSHIPS_KEY),
-    recentPurposes: loadList(RECENT_PURPOSES_KEY),
-    lastDraft,
-  };
+  return { lastDraft };
 }

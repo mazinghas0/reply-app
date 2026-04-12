@@ -2,8 +2,6 @@
 
 import { useState, useMemo, useEffect } from "react";
 import {
-  pushRecentRelationship,
-  pushRecentPurpose,
   pushRecentSearchQuery,
   loadRecentSearchQueries,
   pushRecentSituation,
@@ -123,8 +121,6 @@ export default function ContextSelector({
       purposeCustom: "",
       strategy: null,
     });
-    pushRecentRelationship(rel);
-    pushRecentPurpose(purpose);
     pushRecentSituation(rel, purpose);
     setRecentSituations(loadRecentSituations());
     const trimmedQuery = searchQuery.trim();
