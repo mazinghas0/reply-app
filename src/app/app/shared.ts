@@ -262,10 +262,6 @@ export interface LastDraft {
   savedAt: string;
 }
 
-export interface QuickActionsData {
-  lastDraft: LastDraft | null;
-}
-
 function pushRecent(key: string, value: string): void {
   if (typeof window === "undefined") return;
   if (!value) return;
@@ -333,16 +329,13 @@ export function saveLastDraft(draft: LastDraft): void {
   }
 }
 
-export function loadQuickActions(): QuickActionsData {
-  if (typeof window === "undefined") {
-    return { lastDraft: null };
-  }
-  let lastDraft: LastDraft | null = null;
+export function loadLastDraft(): LastDraft | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(LAST_DRAFT_KEY);
-    if (raw) lastDraft = JSON.parse(raw) as LastDraft;
+    if (!raw) return null;
+    return JSON.parse(raw) as LastDraft;
   } catch {
-    lastDraft = null;
+    return null;
   }
-  return { lastDraft };
 }

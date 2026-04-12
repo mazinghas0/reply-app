@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  type LastDraft,
-  loadQuickActions,
-} from "./shared";
+import { type LastDraft, loadLastDraft } from "./shared";
 
 export interface QuickPick {
   type: "draft";
@@ -20,7 +17,7 @@ export default function QuickActions({ onPick }: QuickActionsProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setLastDraft(loadQuickActions().lastDraft);
+    setLastDraft(loadLastDraft());
     setMounted(true);
   }, []);
 

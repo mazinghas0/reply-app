@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QuickActions, { type QuickPick } from "./quickActions";
-import { loadQuickActions } from "./shared";
+import { loadLastDraft } from "./shared";
 
 interface ArchiveTabProps {
   onPick: (pick: QuickPick) => void;
@@ -15,9 +15,9 @@ export default function ArchiveTab({ onPick, active }: ArchiveTabProps) {
 
   useEffect(() => {
     if (!active) return;
-    const data = loadQuickActions();
+    const lastDraft = loadLastDraft();
     const hasDraft =
-      data.lastDraft !== null && data.lastDraft.inputMessage.trim().length > 0;
+      lastDraft !== null && lastDraft.inputMessage.trim().length > 0;
     setIsEmpty(!hasDraft);
     setMounted(true);
   }, [active]);
