@@ -215,18 +215,16 @@ export default function LandingPage() {
             답장 고민, 이제 끝
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
-            <span className="text-teal-400">&ldquo;어떻게 말하면 좋을까?&rdquo;</span>
+            상사 카톡에 10분째 멈춰 있다면
             <br />
-            이제 그 고민은 날려버리세요.
-            <br />
-            <span className="text-white">리플라이</span>가 돕겠습니다.
+            <span className="text-teal-400">리플라이</span>가 대신 고민해 드릴게요
           </h1>
           <p className="text-lg text-slate-400 mb-10 leading-relaxed">
-            상사 카톡도, 썸 답장도,
+            썸 상대의 애매한 답장, 사춘기 딸의 &ldquo;아빠 짜증나&rdquo;,
             <br className="hidden sm:block" />
-            <span className="text-slate-300">사춘기 딸의 &ldquo;아빠 짜증나&rdquo; 한 마디</span>에도 —
+            거래처 거절 메일까지 —
             <br className="hidden sm:block" />
-            관계와 상황을 고르면 AI가 말투까지 맞춰 드려요.
+            <span className="text-slate-300">관계와 상황만 고르면 말투까지 맞춘 답장 3개</span>가 바로 나와요.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -440,12 +438,13 @@ export default function LandingPage() {
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
               <div className="w-10 h-10 rounded-xl bg-amber-950/50 flex items-center justify-center mb-4">
                 <svg className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" />
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  <path d="M14 9a2 2 0 0 0-2-2 2 2 0 0 0-2 2c0 1.1.9 2 2 2s2 .9 2 2a2 2 0 0 1-2 2 2 2 0 0 1-2-2" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-white mb-2">내 말투 학습</h3>
+              <h3 className="font-semibold text-white mb-2">자연스러운 한국어</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                답장을 수정할수록 AI가 내 문체를 학습합니다. 쓸수록 더 나다워지는 답장을 경험하세요.
+                번역체, 교과서체 없이 카톡에서 실제로 쓰는 말투로 답장을 만들어 줍니다. AI가 쓴 티가 나지 않아요.
               </p>
             </div>
           </div>
@@ -454,6 +453,63 @@ export default function LandingPage() {
               지금은 완전 무료 — 가입만 하면 월 10크레딧
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* 검토 기능 소개 */}
+      <section className="px-4 py-24 border-t border-slate-800/50">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold text-center text-white mb-4">
+            보내기 전에, 한 번 더 확인하세요
+          </h2>
+          <p className="text-center text-slate-400 mb-14">
+            내가 쓴 답장이 상대방에게 어떤 인상을 주는지 AI가 분석해 드려요
+          </p>
+          <div className="max-w-md mx-auto p-6 rounded-2xl bg-slate-900 border border-slate-800/60">
+            <div className="mb-5 p-4 rounded-xl bg-slate-800/50">
+              <p className="text-xs text-slate-500 mb-2">내가 쓴 답장</p>
+              <p className="text-sm text-slate-200 leading-relaxed">
+                &ldquo;네 알겠습니다. 그렇게 하겠습니다. 다음부터 주의하겠습니다.&rdquo;
+              </p>
+            </div>
+            <div className="space-y-5">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-slate-300">공손함</span>
+                  <span className="text-sm font-semibold text-teal-400">85%</span>
+                </div>
+                <div className="h-2 rounded-full bg-slate-800">
+                  <div className="h-2 rounded-full bg-teal-500" style={{ width: "85%" }} />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-slate-300">부담도</span>
+                  <span className="text-sm font-semibold text-amber-400">62%</span>
+                </div>
+                <div className="h-2 rounded-full bg-slate-800">
+                  <div className="h-2 rounded-full bg-amber-500" style={{ width: "62%" }} />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-slate-300">진심 전달</span>
+                  <span className="text-sm font-semibold text-rose-400">40%</span>
+                </div>
+                <div className="h-2 rounded-full bg-slate-800">
+                  <div className="h-2 rounded-full bg-rose-500" style={{ width: "40%" }} />
+                </div>
+              </div>
+            </div>
+            <div className="mt-5 p-3 rounded-lg bg-amber-950/30 border border-amber-800/30">
+              <p className="text-xs text-amber-300 leading-relaxed">
+                형식적으로 들릴 수 있어요. &ldquo;말씀해 주셔서 감사합니다&rdquo;를 앞에 붙이면 진심이 더 전달됩니다.
+              </p>
+            </div>
+          </div>
+          <p className="text-center text-sm text-slate-500 mt-8">
+            맞춤법, 톤, 상대방 인상까지 — 보내기 전 마지막 체크
+          </p>
         </div>
       </section>
 
@@ -487,7 +543,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-slate-400 flex-1">
                 <li className="flex items-start gap-2"><CheckIcon />월 70크레딧 (23회 사용)</li>
                 <li className="flex items-start gap-2"><CheckIcon />입력 800자로 확장</li>
-                <li className="flex items-start gap-2"><CheckIcon />내 말투 학습 50건</li>
+                <li className="flex items-start gap-2"><CheckIcon />내 말투 저장 50건 (출시 예정)</li>
               </ul>
             </div>
             <div className="p-6 rounded-2xl bg-teal-950/30 border border-teal-700/60 flex flex-col relative">
@@ -499,7 +555,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><CheckIcon />월 140크레딧 (46회 사용)</li>
                 <li className="flex items-start gap-2"><CheckIcon />Sonnet 고품질 AI</li>
                 <li className="flex items-start gap-2"><CheckIcon />입력 1,200자</li>
-                <li className="flex items-start gap-2"><CheckIcon />내 말투 학습 무제한</li>
+                <li className="flex items-start gap-2"><CheckIcon />내 말투 저장 무제한 (출시 예정)</li>
               </ul>
             </div>
             <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800/60 flex flex-col">
