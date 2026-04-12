@@ -312,7 +312,7 @@ export default function Home() {
         <div data-tour="tour-tab-bar" className="w-full flex rounded-xl border border-slate-200 dark:border-slate-700 p-1 bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
           <button onClick={() => setMode("generate")} className={tabClass(mode === "generate")}>만들기</button>
           <button onClick={() => setMode("review")} className={tabClass(mode === "review")}>검토</button>
-          <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>다듬기</button>
+          <button onClick={() => setMode("refine")} className={tabClass(mode === "refine")}>말하기</button>
           <button onClick={() => setMode("archive")} className={tabClass(mode === "archive")}>기록</button>
         </div>
         <p className="w-full text-center text-xs text-slate-400 dark:text-slate-500 mt-1.5 mb-5">
@@ -321,7 +321,7 @@ export default function Home() {
             : mode === "review"
             ? "내가 쓴 답장의 톤과 맞춤법을 분석해요"
             : mode === "refine"
-            ? "하고 싶은 말을 완성된 메시지 3개로 만들어요"
+            ? "하고 싶은 말을 톤에 맞는 메시지 3개로 만들어요"
             : "마지막 초안을 이어서 작성할 수 있어요"}
         </p>
 
@@ -332,7 +332,7 @@ export default function Home() {
               <div>
                 <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">가입을 환영해요!</p>
                 <p className="text-xs text-teal-600 dark:text-teal-400 mt-1 leading-relaxed">
-                  매달 10크레딧이 무료로 충전돼요. 답장 만들기, 검토, 말 다듬기 모두 3크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
+                  매달 10크레딧이 무료로 충전돼요. 답장 만들기, 검토, 말하기 모두 3크레딧이에요. 메시지를 붙여넣고 시작해 보세요!
                 </p>
               </div>
               <button onClick={() => setShowWelcome(false)} className="shrink-0 p-1 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors cursor-pointer">

@@ -42,7 +42,7 @@ const SECTIONS: GuideSection[] = [
   },
   {
     id: "refine",
-    title: "말 다듬기",
+    title: "말하기",
     description: "하고 싶은 말을 키워드나 메모로 입력하면 완성된 메시지 3개를 만들어요.",
     tips: [
       "자유 입력: 키워드, 메모, 대충 적은 문장 — 뭐든 OK",

@@ -42,7 +42,7 @@ const STEPS = [
     ),
   },
   {
-    title: "말 다듬기",
+    title: "말하기",
     subtitle: "하고 싶은 말을 완성된 메시지 3개로 만들어요",
     tips: [
       { icon: "tone", text: "키워드나 메모만 입력하면 AI가 완성된 문장으로" },

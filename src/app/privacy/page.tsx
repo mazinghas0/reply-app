@@ -39,7 +39,7 @@ export default function PrivacyPage() {
             <p>회사는 다음의 목적으로 개인정보를 수집·이용합니다.</p>
             <ul className="list-disc pl-5 mt-2 space-y-1 text-slate-400">
               <li>회원가입 및 본인 확인</li>
-              <li>서비스 제공 (AI 답장 생성, 검토, 다듬기)</li>
+              <li>서비스 제공 (AI 답장 생성, 검토, 말하기)</li>
               <li>크레딧 관리 및 사용량 제한</li>
               <li>서비스 개선 및 통계 분석</li>
               <li>고객 문의 대응</li>

@@ -16,7 +16,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     target: "tour-tab-bar",
     title: "4가지 기능을 탭으로 전환",
-    description: "만들기, 검토, 다듬기, 기록 — 원하는 기능을 탭으로 바꿀 수 있어요. '기록'에는 마지막으로 쓰던 초안이 저장돼요.",
+    description: "만들기, 검토, 말하기, 기록 — 원하는 기능을 탭으로 바꿀 수 있어요. '기록'에는 마지막으로 쓰던 초안이 저장돼요.",
   },
   {
     target: "tour-message-input",

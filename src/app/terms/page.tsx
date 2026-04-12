@@ -38,7 +38,7 @@ export default function TermsPage() {
 
           <Section title="제2조 (정의)">
             <ol className="list-decimal pl-5 space-y-2">
-              <li>&ldquo;서비스&rdquo;란 회사가 제공하는 AI 기반 메시지 답장 생성, 답장 검토, 답장 다듬기 등의 기능을 말합니다.</li>
+              <li>&ldquo;서비스&rdquo;란 회사가 제공하는 AI 기반 메시지 답장 생성, 답장 검토, 말하기 등의 기능을 말합니다.</li>
               <li>&ldquo;이용자&rdquo;란 본 약관에 따라 서비스를 이용하는 자를 말합니다.</li>
               <li>&ldquo;회원&rdquo;이란 서비스에 로그인하여 회원 자격을 취득한 이용자를 말합니다.</li>
               <li>&ldquo;크레딧&rdquo;이란 서비스 이용 시 차감되는 가상의 이용 단위를 말합니다.</li>
@@ -59,7 +59,7 @@ export default function TermsPage() {
                 <ul className="list-disc pl-5 mt-2 space-y-1 text-slate-400">
                   <li>AI 기반 메시지 답장 생성 (톤, 관계, 전략 맞춤)</li>
                   <li>답장 검토 (맞춤법, 톤 분석, 상대방 인상 예측)</li>
-                  <li>답장 다듬기 (톤별 문장 리팩토링)</li>
+                  <li>말하기 (톤별 메시지 완성)</li>
                   <li>답장 히스토리 관리</li>
                   <li>기타 회사가 정하는 서비스</li>
                 </ul>

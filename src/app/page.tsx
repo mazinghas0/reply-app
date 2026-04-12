@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "부모 자녀 대화",
     "감정 대화",
     "말투 코칭",
-    "메시지 다듬기",
+    "메시지 말하기",
     "답장 검토",
   ],
   openGraph: {
@@ -77,8 +77,8 @@ const PERSONAS = [
     emoji: "school",
     who: "대학생",
     situation: "교수님한테 메일 써야 하는데 격식체가 너무 어려워",
-    solution: "대충 쓴 문장을 넣고 '정중' 톤으로 다듬으면 예의 바른 메일이 완성돼요.",
-    feature: "다듬기",
+    solution: "하고 싶은 말을 넣고 '정중' 톤을 고르면 예의 바른 메일이 완성돼요.",
+    feature: "말하기",
   },
   {
     emoji: "heart",
@@ -417,9 +417,9 @@ export default function LandingPage() {
                   <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-white mb-2">검토 &amp; 다듬기</h3>
+              <h3 className="font-semibold text-white mb-2">검토 &amp; 말하기</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                내가 쓴 답장의 맞춤법, 톤, 상대방 인상까지 분석. 대충 쓴 문장도 깔끔하게 다듬어 줍니다.
+                내가 쓴 답장의 맞춤법, 톤, 상대방 인상까지 분석. 하고 싶은 말을 완성된 메시지로 만들어 줍니다.
               </p>
             </div>
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800/60">
@@ -476,7 +476,7 @@ export default function LandingPage() {
               <p className="text-xs text-slate-500 mb-5">현재 운영 중</p>
               <ul className="space-y-2 text-sm text-slate-400 flex-1">
                 <li className="flex items-start gap-2"><CheckIcon />월 10크레딧 (3회 사용)</li>
-                <li className="flex items-start gap-2"><CheckIcon />답장 만들기 · 검토 · 다듬기</li>
+                <li className="flex items-start gap-2"><CheckIcon />답장 만들기 · 검토 · 말하기</li>
                 <li className="flex items-start gap-2"><CheckIcon />입력 500자</li>
               </ul>
             </div>
