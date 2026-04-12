@@ -222,7 +222,18 @@ export async function POST(request: NextRequest) {
 ${trimmed}
 """
 
-반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트 금지:
+예시:
+
+메시지: "과장님 내일 회의 시간 변경 가능할까요?"
+→ {"relationship": "boss", "purpose": "schedule"}
+
+메시지: "엄마 요즘 많이 힘들지? 괜찮아 다 잘 될 거야"
+→ {"relationship": "family", "purpose": "comfort"}
+
+메시지: "ㅋㅋ 그래 토요일 저녁에 보자~"
+→ {"relationship": "friend", "purpose": "schedule"}
+
+반드시 위 JSON 형식으로만 응답하세요. 다른 텍스트 금지:
 {"relationship": "<id>", "purpose": "<id>"}`;
 
   let response: Anthropic.Message;

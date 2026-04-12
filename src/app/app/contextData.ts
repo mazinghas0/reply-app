@@ -239,6 +239,18 @@ export function getRelevantStrategies(rel: RelationshipId, purpose: PurposeId): 
     if (rel === "boss" || rel === "client" || rel === "professor") {
       return ["warmPro", "softShield", "subtleLead", "straightforward", "strategicVague", "distanceControl"];
     }
+    if (rel === "family") {
+      return ["straightforward", "softShield", "warmPro", "subtleLead", "strategicVague", "distanceControl"];
+    }
+    if (rel === "friend") {
+      return ["straightforward", "subtleLead", "softShield", "warmPro", "strategicVague", "distanceControl"];
+    }
+    if (rel === "colleague" || rel === "senior") {
+      return ["warmPro", "straightforward", "softShield", "subtleLead", "strategicVague", "distanceControl"];
+    }
+    if (rel === "subordinate") {
+      return ["warmPro", "straightforward", "subtleLead", "softShield", "strategicVague", "distanceControl"];
+    }
     return STRATEGIES.map((s) => s.id);
   })();
   return priority.map((id) => STRATEGIES.find((s) => s.id === id)!);
