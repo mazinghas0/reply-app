@@ -38,7 +38,6 @@ import { getPlanConfig, ANONYMOUS_MAX_INPUT, ANONYMOUS_TOTAL_USES } from "@/lib/
 const ALLOWED_ORIGINS = [
   "https://aireply.co.kr",
   "https://www.aireply.co.kr",
-  "https://reply-app-sepia.vercel.app",
   "http://localhost:3000",
   "http://localhost:3001",
 ];
@@ -208,6 +207,7 @@ ${contextBlock}${styleBlock}
 - 한국인이 카카오톡/업무 메신저에서 실제로 보내는 문체로 작성
 - 금지 표현: "~에 대해", "~의 경우", "~하는 것이", "또한", "따라서", "그러나", "이에", "~드리고자"
 - 금지 패턴: 과도한 존칭 나열, 불필요한 인사 반복, "감사합니다" 남발
+- 숫자 약속 금지: 구체적 수치(할인율, 금액, 날짜, 시간 등)를 임의로 넣지 마세요. 사용자가 직접 입력하지 않은 숫자는 절대 포함하지 않습니다.
 - OK 패턴: 조사 생략 ("보고서 보내드릴게요"), 자연스러운 종결 ("~할게요", "~할까요")
 - 메신저답게: 한 문장이 길면 끊어서 쓰기, 접속사 대신 마침표로 연결
 
