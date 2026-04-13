@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/sign-in", "/sign-up"],
+        disallow: ["/api/", "/app", "/sign-in", "/sign-up"],
       },
     ],
     sitemap: "https://aireply.co.kr/sitemap.xml",
