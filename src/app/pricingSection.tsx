@@ -47,7 +47,7 @@ function BuyButton({ plan, variant }: BuyButtonProps) {
       });
 
       if (res.status === 401) {
-        window.location.href = "/sign-in?redirect_url=/%23pricing";
+        window.location.href = "/sign-in?redirect_url=%2F%3Fintro%3D1%23pricing";
         return;
       }
 
@@ -91,7 +91,7 @@ function BuyButton({ plan, variant }: BuyButtonProps) {
   return (
     <div className="mt-5 space-y-2">
       <button onClick={handleClick} disabled={loading} className={cls}>
-        {loading ? "구독 시작 중..." : "구독 시작"}
+        {loading ? "구매 진행 중..." : "정기 구독 구매하기"}
       </button>
       {error && <p className="text-xs text-rose-400 text-left">{error}</p>}
     </div>
