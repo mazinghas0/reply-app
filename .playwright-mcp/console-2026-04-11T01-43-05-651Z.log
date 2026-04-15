@@ -1,0 +1,2 @@
+[     637ms] [WARNING] Manifest: Enctype should be set to either application/x-www-form-urlencoded or multipart/form-data. It currently defaults to application/x-www-form-urlencoded @ https://www.aireply.co.kr/manifest.webmanifest:0
+[     791ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://www.aireply.co.kr/app:0

@@ -2,6 +2,17 @@
 
 export type AppMode = "generate" | "review" | "refine" | "archive";
 
+export interface InitialAuth {
+  isAuthenticated: boolean;
+  plan: string | null;
+  credits: number | null;
+  monthlyCredits: number;
+  maxInputLength: number;
+  allowSonnet: boolean;
+  resetAt: string | null;
+  referralCode: string;
+}
+
 export interface Reply {
   label: string;
   content: string;

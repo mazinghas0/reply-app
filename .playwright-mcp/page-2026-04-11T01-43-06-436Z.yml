@@ -1,0 +1,107 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e9]: 리플라이
+        - generic [ref=e10]:
+          - button "새 소식" [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+          - button "더보기" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - link "로그인" [ref=e21] [cursor=pointer]:
+            - /url: /sign-in
+    - main [ref=e22]:
+      - generic [ref=e23]:
+        - button "답장 만들기" [ref=e24] [cursor=pointer]
+        - button "답장 검토" [ref=e25] [cursor=pointer]
+        - button "말 다듬기" [ref=e26] [cursor=pointer]
+      - paragraph [ref=e27]: 받은 메시지를 넣으면 답장 3개를 만들어요
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]: 받은 메시지
+            - generic [ref=e33]: 0 / 100
+          - textbox "받은 메시지" [ref=e34]:
+            - /placeholder: 답장하고 싶은 메시지를 여기에 붙여넣으세요...
+          - paragraph [ref=e35]:
+            - text: 체험판은 100자 제한 ·
+            - link "로그인하면 500자까지" [ref=e36] [cursor=pointer]:
+              - /url: /sign-in
+          - paragraph [ref=e37]:
+            - generic [ref=e38]: Ctrl
+            - generic [ref=e39]: +
+            - generic [ref=e40]: Enter
+            - generic [ref=e41]: 로 바로 생성
+        - generic [ref=e42]:
+          - generic [ref=e43]: 상황 선택 (선택 — 더 정확한 답장)
+          - generic [ref=e45]:
+            - button "상황 검색" [ref=e46] [cursor=pointer]:
+              - img [ref=e47]
+              - text: 상황 검색
+            - generic [ref=e50]:
+              - generic [ref=e51]: 인기 상황
+              - generic [ref=e52]:
+                - button "상사에게 거절" [ref=e53] [cursor=pointer]
+                - button "거래처에 독촉" [ref=e54] [cursor=pointer]
+                - button "썸 대화 이어가기" [ref=e55] [cursor=pointer]
+                - button "친구 위로" [ref=e56] [cursor=pointer]
+                - button "교수님께 질문" [ref=e57] [cursor=pointer]
+                - button "동료에게 부탁" [ref=e58] [cursor=pointer]
+                - button "애인에게 사과" [ref=e59] [cursor=pointer]
+                - button "가족에게 안부" [ref=e60] [cursor=pointer]
+            - generic [ref=e61]:
+              - generic [ref=e62]: 카테고리
+              - generic [ref=e63]:
+                - button "직장" [ref=e64] [cursor=pointer]
+                - button "비즈니스" [ref=e65] [cursor=pointer]
+                - button "학교" [ref=e66] [cursor=pointer]
+                - button "연애" [ref=e67] [cursor=pointer]
+                - button "친구" [ref=e68] [cursor=pointer]
+                - button "가족" [ref=e69] [cursor=pointer]
+                - button "직접 입력" [ref=e70] [cursor=pointer]
+        - generic [ref=e71]:
+          - generic [ref=e72]: 답장 톤
+          - generic [ref=e73]:
+            - button "정중한 예의 바르고 격식 있는" [ref=e74] [cursor=pointer]:
+              - generic [ref=e75]: 정중한
+              - generic [ref=e76]: 예의 바르고 격식 있는
+            - button "단호한 명확하고 프로페셔널한" [ref=e77] [cursor=pointer]:
+              - generic [ref=e78]: 단호한
+              - generic [ref=e79]: 명확하고 프로페셔널한
+            - button "유연한 열린 자세, 협상 가능한" [ref=e80] [cursor=pointer]:
+              - generic [ref=e81]: 유연한
+              - generic [ref=e82]: 열린 자세, 협상 가능한
+            - button "친근한 편하고 가벼운" [ref=e83] [cursor=pointer]:
+              - generic [ref=e84]: 친근한
+              - generic [ref=e85]: 편하고 가벼운
+        - generic [ref=e86]:
+          - generic [ref=e87]: 원하는 방향 (선택)
+          - 'textbox "예: 정중하게 거절, 조건부 수락, 감사 표현, 시간 달라고..." [ref=e88]'
+        - generic [ref=e89]:
+          - generic [ref=e90]: 답장 품질
+          - generic [ref=e91]:
+            - button "정교한 답장 (Pro) Pro 플랜 이상" [ref=e92]:
+              - generic [ref=e93]: 정교한 답장 (Pro)
+              - generic [ref=e94]: Pro 플랜 이상
+            - button "빠른 답장 일상적인 메시지" [ref=e95] [cursor=pointer]:
+              - generic [ref=e96]: 빠른 답장
+              - generic [ref=e97]: 일상적인 메시지
+        - button "답장 만들기" [disabled] [ref=e98]
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - link "이용약관" [ref=e102] [cursor=pointer]:
+            - /url: /terms
+          - generic [ref=e103]: "|"
+          - link "개인정보 처리방침" [ref=e104] [cursor=pointer]:
+            - /url: /privacy
+          - generic [ref=e105]: "|"
+          - link "문의하기" [ref=e106] [cursor=pointer]:
+            - /url: mailto:mazingha@kakao.com
+        - generic [ref=e107]:
+          - paragraph [ref=e108]: "끌랑(CLang) | 대표: 석광원 | 사업자등록번호: 737-69-00453"
+          - paragraph [ref=e109]: "통신판매업: 제 2026-충북증평-0008 호 | 전화: 070-8970-9571"
+          - paragraph [ref=e110]: 충북 증평군 증평읍 역전로 90, 1402호
+        - paragraph [ref=e111]: © 2026 Kevin AI Corp · v1.2.0
+  - alert [ref=e112]

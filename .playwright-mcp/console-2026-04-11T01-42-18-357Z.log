@@ -1,0 +1,13 @@
+[     495ms] [WARNING] Manifest: Enctype should be set to either application/x-www-form-urlencoded or multipart/form-data. It currently defaults to application/x-www-form-urlencoded @ https://reply-app-sepia.vercel.app/manifest.webmanifest:0
+[     797ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://reply-app-sepia.vercel.app/app:0
+[    1190ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://clerk.aireply.co.kr/v1/client?__clerk_api_version=2025-11-10&_clerk_js_version=6.6.0:0
+[    1192ms] [ERROR] e: Clerk: Production Keys are only allowed for domain "aireply.co.kr". 
+API Error: The Request HTTP Origin header must be equal to or a subdomain of the requesting URL.
+    at https://clerk.aireply.co.kr/npm/@clerk/clerk-js@6/dist/clerk.browser.js:17:8808
+    at t$._baseFetch (https://clerk.aireply.co.kr/npm/@clerk/clerk-js@6/dist/clerk.browser.js:18:38)
+    at async tL.execute (https://clerk.aireply.co.kr/npm/@clerk/clerk-js@6/dist/clerk.browser.js:17:6639)
+    at async iZ._baseGet (https://clerk.aireply.co.kr/npm/@clerk/clerk-js@6/dist/clerk.browser.js:18:497)
+    at async Promise.all (index 1)
+    at async #eg (https://clerk.aireply.co.kr/npm/@clerk/clerk-js@6/dist/clerk.browser.js:18:203642)
+    at async nL.load (https://clerk.aireply.co.kr/npm/@clerk/clerk-js@6/dist/clerk.browser.js:18:162663)
+    at async u.getEntryChunks (https://reply-app-sepia.vercel.app/_next/static/chunks/0ano0sstjo22e.js:2:40101) @ https://reply-app-sepia.vercel.app/_next/static/chunks/0ano0sstjo22e.js:1

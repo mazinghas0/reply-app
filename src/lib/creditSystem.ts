@@ -1,5 +1,6 @@
 import { getSupabase } from "./supabase";
-import { type PlanId, getPlanConfig, validatePlan, CREDIT_COST } from "./planConfig";
+import { type PlanId, getPlanConfig, validatePlan, CREDIT_COST, ANONYMOUS_MAX_INPUT } from "./planConfig";
+import type { InitialAuth } from "@/app/app/shared";
 
 const REFERRAL_BONUS = 20;
 
@@ -257,6 +258,47 @@ export async function applyReferralCode(
   });
 
   return { success: true, message: `${REFERRAL_BONUS} 크레딧을 받았어요!` };
+}
+
+export async function getUserCreditsForSSR(userId: string | null): Promise<InitialAuth> {
+  if (!userId) {
+    return {
+      isAuthenticated: false,
+      plan: null,
+      credits: null,
+      monthlyCredits: 0,
+      maxInputLength: ANONYMOUS_MAX_INPUT,
+      allowSonnet: false,
+      resetAt: null,
+      referralCode: "",
+    };
+  }
+
+  try {
+    const { credits, referralCode, resetAt, plan } = await getCredits(userId);
+    const planConfig = getPlanConfig(plan);
+    return {
+      isAuthenticated: true,
+      plan,
+      credits,
+      monthlyCredits: planConfig.monthlyCredits,
+      maxInputLength: planConfig.maxInputLength,
+      allowSonnet: planConfig.allowSonnet,
+      resetAt,
+      referralCode,
+    };
+  } catch {
+    return {
+      isAuthenticated: true,
+      plan: "free",
+      credits: null,
+      monthlyCredits: 0,
+      maxInputLength: ANONYMOUS_MAX_INPUT,
+      allowSonnet: false,
+      resetAt: null,
+      referralCode: "",
+    };
+  }
 }
 
 export { REFERRAL_BONUS };
