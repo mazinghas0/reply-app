@@ -131,6 +131,18 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral, plan, monthlyCre
           )}
           <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
             {!isPaid && (
+              <Link
+                href="/#pricing"
+                onClick={() => setOpen(false)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-teal-600 text-white hover:bg-teal-500 transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 10l4-4v3h10v2H7v3z" transform="rotate(180 10 10)" />
+                </svg>
+                요금제 업그레이드
+              </Link>
+            )}
+            {!isPaid && (
               waitlistStatus === "done" ? (
                 <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">{waitlistMsg}</p>
               ) : (
