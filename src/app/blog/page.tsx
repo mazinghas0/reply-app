@@ -39,6 +39,12 @@ export default function BlogListPage() {
           </Link>
           <span className="text-slate-700 text-sm">/</span>
           <span className="text-sm text-slate-300">블로그</span>
+          <Link
+            href="/#pricing"
+            className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal-600/90 text-white hover:bg-teal-500 transition-colors"
+          >
+            요금제 보기
+          </Link>
         </div>
       </header>
 

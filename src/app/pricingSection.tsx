@@ -91,7 +91,7 @@ function BuyButton({ plan, variant }: BuyButtonProps) {
   return (
     <div className="mt-5 space-y-2">
       <button onClick={handleClick} disabled={loading} className={cls}>
-        {loading ? "결제창 여는 중..." : "카카오페이로 구매"}
+        {loading ? "구독 시작 중..." : "구독 시작"}
       </button>
       {error && <p className="text-xs text-rose-400 text-left">{error}</p>}
     </div>

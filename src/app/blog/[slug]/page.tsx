@@ -54,6 +54,12 @@ export default async function BlogPostPage({ params }: PageProps) {
           </Link>
           <span className="text-slate-700 text-sm">/</span>
           <Link href="/blog" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">블로그</Link>
+          <Link
+            href="/#pricing"
+            className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal-600/90 text-white hover:bg-teal-500 transition-colors"
+          >
+            요금제 보기
+          </Link>
         </div>
       </header>
 
