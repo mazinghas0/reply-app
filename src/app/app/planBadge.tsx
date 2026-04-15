@@ -134,7 +134,7 @@ export function PlanBadge({ remaining, resetAt, onOpenReferral, plan, monthlyCre
               <button
                 onClick={() => {
                   setOpen(false);
-                  window.location.assign("/#pricing");
+                  window.location.assign("/?intro=1#pricing");
                 }}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-teal-600 text-white hover:bg-teal-500 transition-colors cursor-pointer"
               >

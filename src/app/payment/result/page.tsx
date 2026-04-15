@@ -103,7 +103,7 @@ export default async function PaymentResultPage({
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
-                  href="/#pricing"
+                  href="/?intro=1#pricing"
                   className="inline-block px-6 py-3 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-500 transition-all"
                 >
                   다시 시도하기
@@ -133,7 +133,7 @@ export default async function PaymentResultPage({
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link
-                  href="/#pricing"
+                  href="/?intro=1#pricing"
                   className="inline-block px-6 py-3 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-500 transition-all"
                 >
                   요금제 다시 보기

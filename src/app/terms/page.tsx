@@ -21,7 +21,7 @@ export default function TermsPage() {
             <span className="text-sm font-semibold text-slate-400">리플라이</span>
           </Link>
           <Link
-            href="/#pricing"
+            href="/?intro=1#pricing"
             className="ml-auto text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal-600/90 text-white hover:bg-teal-500 transition-colors"
           >
             요금제 보기
