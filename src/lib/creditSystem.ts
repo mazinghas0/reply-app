@@ -1,6 +1,6 @@
 import { getSupabase } from "./supabase";
 import { type PlanId, getPlanConfig, validatePlan, CREDIT_COST, ANONYMOUS_MAX_INPUT } from "./planConfig";
-import type { InitialAuth } from "@/app/app/shared";
+import type { InitialAuth } from "@/lib/authTypes";
 
 const REFERRAL_BONUS = 20;
 
