@@ -4,6 +4,12 @@ import { NextResponse } from "next/server";
 const isLandingPage = createRouteMatcher(["/"]);
 
 export default clerkMiddleware(async (auth, request) => {
+  const host = request.headers.get("host") ?? "";
+  if (host.includes("vercel.app")) {
+    const url = new URL(request.url);
+    return NextResponse.redirect(`https://aireply.co.kr${url.pathname}${url.search}`, 301);
+  }
+
   const { userId } = await auth();
   const hasIntroParam = new URL(request.url).searchParams.has("intro");
   if (userId && isLandingPage(request) && !hasIntroParam) {
