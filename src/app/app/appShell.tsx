@@ -127,19 +127,38 @@ export default function AppShell({ initialAuth }: AppShellProps) {
     // Web Share Target / Chrome 확장: URL 파라미터로 받은 텍스트 자동 입력
     const params = new URLSearchParams(window.location.search);
     const shared = params.get("shared");
-    if (shared) {
-      const modeParam = params.get("mode");
+
+    const applyShared = (text: string, modeParam: string | null) => {
       const validModes: AppMode[] = ["generate", "review", "refine"];
       const targetMode = validModes.includes(modeParam as AppMode) ? (modeParam as AppMode) : "generate";
       setMode(targetMode);
       if (targetMode === "review") {
-        setSharedReviewDraft(shared);
+        setSharedReviewDraft(text);
       } else if (targetMode === "refine") {
-        setSharedRefineText(shared);
+        setSharedRefineText(text);
       } else {
-        setInputMessage(shared);
+        setInputMessage(text);
       }
+    };
+
+    if (shared) {
+      const modeParam = params.get("mode");
+      // 로그인 후 복귀를 위해 sessionStorage에 보존
+      sessionStorage.setItem("reply-pending-shared", JSON.stringify({ text: shared, mode: modeParam ?? "generate" }));
+      applyShared(shared, modeParam);
       window.history.replaceState({}, "", "/app");
+    } else {
+      // 로그인 후 복귀: URL 파라미터 없지만 sessionStorage에 대기 데이터 존재
+      const pending = sessionStorage.getItem("reply-pending-shared");
+      if (pending) {
+        try {
+          const { text, mode: savedMode } = JSON.parse(pending) as { text: string; mode: string };
+          sessionStorage.removeItem("reply-pending-shared");
+          applyShared(text, savedMode);
+        } catch {
+          sessionStorage.removeItem("reply-pending-shared");
+        }
+      }
     }
 
     return () => {
