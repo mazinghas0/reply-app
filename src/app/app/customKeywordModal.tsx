@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-type KeywordKind = "relationship" | "purpose";
+type KeywordKind = "relationship" | "purpose" | "strategy";
 
 export interface CustomKeyword {
   id: string;
@@ -19,6 +19,7 @@ interface CustomKeywordModalProps {
 const KIND_TABS: Array<{ id: KeywordKind; label: string; placeholder: string }> = [
   { id: "relationship", label: "관계 키워드", placeholder: "예: 단골 손님, 동호회 회장" },
   { id: "purpose", label: "상황 키워드", placeholder: "예: 환불 요청, 공지 전달" },
+  { id: "strategy", label: "전략 키워드", placeholder: "예: 직접 협상, 간접 설득" },
 ];
 
 const KEYWORD_LIMIT = 30;
@@ -228,7 +229,7 @@ export default function CustomKeywordModal({ onClose }: CustomKeywordModalProps)
                 </div>
               ) : (
                 <p className="text-center text-xs text-slate-400 dark:text-slate-500 py-6">
-                  아직 등록한 {activeKind === "relationship" ? "관계" : "상황"} 키워드가 없어요
+                  아직 등록한 {activeKind === "relationship" ? "관계" : activeKind === "purpose" ? "상황" : "전략"} 키워드가 없어요
                 </p>
               )}
             </>

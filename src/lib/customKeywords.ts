@@ -1,6 +1,6 @@
 import { getSupabase } from "./supabase";
 
-export type KeywordKind = "relationship" | "purpose";
+export type KeywordKind = "relationship" | "purpose" | "strategy";
 
 export interface CustomKeyword {
   id: string;

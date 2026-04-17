@@ -16,7 +16,7 @@ interface SaveBody {
 }
 
 function isValidKind(value: string): value is KeywordKind {
-  return value === "relationship" || value === "purpose";
+  return value === "relationship" || value === "purpose" || value === "strategy";
 }
 
 export async function GET() {
