@@ -24,6 +24,7 @@ export default function manifest(): MetadataRoute.Manifest {
     share_target: {
       action: "/app",
       method: "GET",
+      enctype: "application/x-www-form-urlencoded",
       params: {
         text: "shared",
       },
