@@ -50,6 +50,10 @@ function isOriginAllowed(request: NextRequest): boolean {
     return true;
   }
 
+  if (origin && origin.startsWith("chrome-extension://")) {
+    return true;
+  }
+
   if (
     referer &&
     ALLOWED_ORIGINS.some((allowed) => referer.startsWith(allowed))

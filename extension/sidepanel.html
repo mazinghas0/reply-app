@@ -10,9 +10,19 @@
   <header class="header">
     <img src="icons/icon48.png" alt="리플라이" />
     <h1>리플라이</h1>
+    <span class="credits-badge" id="creditsBadge"></span>
   </header>
 
-  <main class="main">
+  <!-- 비로그인 상태 -->
+  <div class="auth-section" id="authSection" style="display:none">
+    <div class="auth-icon">🔐</div>
+    <p class="auth-title">로그인이 필요해요</p>
+    <p class="auth-desc">aireply.co.kr에 로그인하면<br>사이드패널에서 바로 사용할 수 있어요</p>
+    <button class="auth-btn" id="loginBtn">로그인하러 가기</button>
+  </div>
+
+  <!-- 메인 UI (로그인 상태) -->
+  <main class="main" id="mainSection" style="display:none">
     <div class="textarea-wrap">
       <textarea id="text" placeholder="답장할 메시지를 붙여넣으세요..." maxlength="1200"></textarea>
       <span class="char-count" id="charCount">0 / 1200</span>
@@ -21,17 +31,39 @@
     <div class="modes">
       <button class="mode-btn active" data-mode="generate">답장 만들기</button>
       <button class="mode-btn" data-mode="review">검토</button>
-      <button class="mode-btn" data-mode="refine">다듬기</button>
+      <button class="mode-btn" data-mode="refine">말하기</button>
     </div>
 
-    <button class="send-btn" id="send" disabled>리플라이로 보내기</button>
+    <div class="tone-row" id="toneRow">
+      <button class="tone-btn active" data-tone="polite">정중한</button>
+      <button class="tone-btn" data-tone="firm">단호한</button>
+      <button class="tone-btn" data-tone="flexible">유연한</button>
+      <button class="tone-btn" data-tone="friendly">친근한</button>
+    </div>
 
-    <p class="hint">전송 시 새 탭에서 리플라이가 열립니다</p>
+    <button class="send-btn" id="send" disabled>답장 만들기</button>
+
+    <!-- 로딩 -->
+    <div class="loading" id="loading" style="display:none">
+      <div class="spinner"></div>
+      <p>AI가 답장을 만들고 있어요...</p>
+    </div>
+
+    <!-- 결과 -->
+    <div class="results" id="results" style="display:none">
+      <div class="results-header">
+        <span class="results-title">답장 3개 생성됨</span>
+        <button class="back-btn" id="backBtn">다시 만들기</button>
+      </div>
+      <div class="reply-list" id="replyList"></div>
+    </div>
+
+    <!-- 오류 -->
+    <p class="error-msg" id="errorMsg" style="display:none"></p>
   </main>
 
   <footer class="footer">
-    <button class="link-btn" id="openFull">리플라이 전체 화면 열기</button>
-    <p class="sub-hint">텍스트를 선택 후 우클릭해도 사용할 수 있어요</p>
+    <button class="link-btn" id="openFull">전체 화면으로 열기</button>
   </footer>
 
   <script src="sidepanel.js"></script>
