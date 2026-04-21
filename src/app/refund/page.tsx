@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "환불 정책 — 리플라이",
-  description: "리플라이 유료 구독 환불 정책 및 청약철회 규정",
+  description: "리플라이 크레딧 충전 환불 정책 및 청약철회 규정",
 };
 
 export default function RefundPage() {
@@ -38,7 +38,7 @@ export default function RefundPage() {
           <Section title="제1조 (목적)">
             <p>
               본 환불 정책은 끌랑(CLang)(이하 &ldquo;회사&rdquo;)이 제공하는 리플라이 서비스(이하 &ldquo;서비스&rdquo;)의
-              유료 구독 상품 결제, 청약철회, 환불 및 해지에 관한 규정을 정함을 목적으로 합니다.
+              크레딧 충전 상품 결제, 청약철회 및 환불에 관한 규정을 정함을 목적으로 합니다.
               본 정책은 「전자상거래 등에서의 소비자보호에 관한 법률」 및 「콘텐츠산업진흥법」을 준수합니다.
             </p>
           </Section>
@@ -46,7 +46,7 @@ export default function RefundPage() {
           <Section title="제2조 (유료 상품의 구성)">
             <ol className="list-decimal pl-5 space-y-2">
               <li>
-                회사는 월 정기결제 방식의 구독 상품을 제공하며, 구독 상품별 월간 크레딧과 이용 가능 기능이 차등
+                회사는 1회 결제 방식의 크레딧 충전 상품을 제공하며, 상품별 크레딧 수량과 이용 가능 기능이 차등
                 제공됩니다. 세부 내역은 서비스 내 요금제 안내 페이지에 표시됩니다.
               </li>
               <li>
@@ -54,7 +54,7 @@ export default function RefundPage() {
                 타 서비스로 환전하거나 양도할 수 없습니다.
               </li>
               <li>
-                구독은 결제일로부터 1개월간 유효하며, 해지하지 않는 경우 동일한 조건으로 자동 갱신됩니다.
+                충전된 크레딧은 결제일로부터 1년간 유효합니다. 유효기간 내 미사용 크레딧은 소멸됩니다.
               </li>
             </ol>
           </Section>
@@ -84,43 +84,15 @@ export default function RefundPage() {
             </p>
             <ol className="list-decimal pl-5 space-y-2">
               <li>
-                해당 결제 주기에 지급된 크레딧을 <strong className="text-white">1회 이상 사용</strong>한 경우. 단,
+                충전된 크레딧을 <strong className="text-white">1회 이상 사용</strong>한 경우. 단,
                 회사의 귀책 사유로 서비스가 정상 제공되지 않은 경우는 예외로 합니다.
               </li>
-              <li>결제일로부터 7일이 경과한 경우 (단, 제5조의 월 중도 해지는 별도 적용)</li>
+              <li>결제일로부터 7일이 경과한 경우</li>
               <li>이용자의 고의 또는 과실로 서비스 이용 약관을 위반하여 이용이 제한된 경우</li>
             </ol>
           </Section>
 
-          <Section title="제5조 (월 중도 해지 및 부분 환불)">
-            <ol className="list-decimal pl-5 space-y-2">
-              <li>
-                이용자는 언제든지 서비스 내 설정 &gt; 구독 관리 메뉴에서 해지를 요청할 수 있습니다.
-              </li>
-              <li>
-                해지 요청 시 다음 결제일부터 자동 청구가 중단되며, 이미 결제한 당월 구독 기간은 그대로 이용이
-                가능합니다. 월 중도 해지의 경우 일할 계산에 의한 부분 환불은 제공되지 않습니다.
-              </li>
-              <li>
-                단, 회사의 귀책 사유(서비스 중단, 기능 장애 등)로 서비스를 제공받지 못한 경우에는 해당 기간에
-                대하여 일할 계산으로 환불합니다.
-              </li>
-            </ol>
-          </Section>
-
-          <Section title="제6조 (자동 갱신 실패 시 처리)">
-            <ol className="list-decimal pl-5 space-y-2">
-              <li>
-                정기결제 갱신일에 결제가 실패한 경우, 회사는 이메일 또는 서비스 내 알림으로 이용자에게 안내합니다.
-              </li>
-              <li>
-                결제 실패 후 3일 이내에 결제가 재개되지 않으면 구독은 자동으로 해지되며, 이용자 계정은 무료(Free)
-                플랜으로 전환됩니다.
-              </li>
-            </ol>
-          </Section>
-
-          <Section title="제7조 (결제 수단별 환불 처리)">
+          <Section title="제5조 (결제 수단별 환불 처리)">
             <ol className="list-decimal pl-5 space-y-2">
               <li>
                 <strong className="text-white">신용카드 결제</strong>: 카드 결제 취소 방식으로 환불되며, 카드사
@@ -133,11 +105,8 @@ export default function RefundPage() {
             </ol>
           </Section>
 
-          <Section title="제8조 (환불 요청 방법)">
+          <Section title="제6조 (환불 요청 방법)">
             <ol className="list-decimal pl-5 space-y-2">
-              <li>
-                <strong className="text-white">앱 내 요청</strong>: 서비스 로그인 &gt; 설정 &gt; 구독 관리 &gt; 환불 요청
-              </li>
               <li>
                 <strong className="text-white">이메일 요청</strong>: mazingha@kakao.com 으로 결제일, 결제 금액, 환불
                 사유를 기재하여 발송
@@ -149,7 +118,7 @@ export default function RefundPage() {
             </ol>
           </Section>
 
-          <Section title="제9조 (문의처)">
+          <Section title="제7조 (문의처)">
             <div className="space-y-1 text-slate-300">
               <p>상호: 끌랑(CLang)</p>
               <p>대표: 석광원</p>
@@ -162,7 +131,7 @@ export default function RefundPage() {
           </Section>
 
           <div className="pt-6 border-t border-slate-800/50 text-xs text-slate-500">
-            <p>본 환불 정책은 2026년 4월 10일부터 시행합니다.</p>
+            <p>본 환불 정책은 2026년 4월 21일부터 시행합니다.</p>
             <p className="text-slate-500 mt-1">
               정책 변경 시 서비스 내 공지사항을 통해 사전 안내합니다.
             </p>

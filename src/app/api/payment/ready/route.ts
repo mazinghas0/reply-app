@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
   const planConfig = PLANS[body.plan];
   const partnerOrderId = `reply_${userId}_${Date.now()}`;
-  const itemName = `리플라이 ${planConfig.label} 플랜 (월 정기결제)`;
+  const itemName = `리플라이 ${planConfig.label} 크레딧 ${planConfig.monthlyCredits}개 충전`;
 
   const kakaoBody = {
     cid,

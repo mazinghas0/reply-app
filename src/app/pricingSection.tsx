@@ -91,7 +91,7 @@ function BuyButton({ plan, variant }: BuyButtonProps) {
   return (
     <div className="mt-5 space-y-2">
       <button onClick={handleClick} disabled={loading} className={cls}>
-        {loading ? "구매 진행 중..." : "정기 구독 구매하기"}
+        {loading ? "결제 진행 중..." : "크레딧 충전하기"}
       </button>
       {error && <p className="text-xs text-rose-400 text-left">{error}</p>}
     </div>
@@ -142,7 +142,7 @@ export default function PricingSection() {
             <p className="text-3xl font-bold text-white mb-1">
               {formatPrice(plus.price)}원<span className="text-sm font-normal text-slate-500">/월</span>
             </p>
-            <p className="text-xs text-slate-500 mb-5">월 자동 갱신</p>
+            <p className="text-xs text-slate-500 mb-5">1회 충전 · 1년 유효</p>
             <ul className="space-y-2 text-sm text-slate-400 flex-1">
               <li className="flex items-start gap-2"><CheckIcon />월 {plus.monthlyCredits}크레딧 (23회 사용)</li>
               <li className="flex items-start gap-2"><CheckIcon />입력 800자로 확장</li>
@@ -160,7 +160,7 @@ export default function PricingSection() {
             <p className="text-3xl font-bold text-white mb-1">
               {formatPrice(pro.price)}원<span className="text-sm font-normal text-slate-500">/월</span>
             </p>
-            <p className="text-xs text-slate-500 mb-5">월 자동 갱신</p>
+            <p className="text-xs text-slate-500 mb-5">1회 충전 · 1년 유효</p>
             <ul className="space-y-2 text-sm text-slate-300 flex-1">
               <li className="flex items-start gap-2"><CheckIcon />월 {pro.monthlyCredits}크레딧 (46회 사용)</li>
               <li className="flex items-start gap-2"><CheckIcon />Sonnet 고품질 AI</li>
@@ -176,7 +176,7 @@ export default function PricingSection() {
             <p className="text-3xl font-bold text-white mb-1">
               {formatPrice(max.price)}원<span className="text-sm font-normal text-slate-500">/월</span>
             </p>
-            <p className="text-xs text-slate-500 mb-5">월 자동 갱신</p>
+            <p className="text-xs text-slate-500 mb-5">1회 충전 · 1년 유효</p>
             <ul className="space-y-2 text-sm text-slate-400 flex-1">
               <li className="flex items-start gap-2"><CheckIcon />월 {max.monthlyCredits}크레딧 (106회 사용)</li>
               <li className="flex items-start gap-2"><CheckIcon />Pro의 모든 기능</li>
@@ -187,7 +187,7 @@ export default function PricingSection() {
           </div>
         </div>
         <p className="text-center text-xs text-slate-500 mt-8">
-          모든 플랜: 월 자동 갱신 · 언제든 해지 가능 · 결제 7일 이내 미사용 시 전액 환불 · 자세한 내용은{" "}
+          크레딧 충전 후 1년간 유효 · 결제 7일 이내 미사용 시 전액 환불 · 자세한 내용은{" "}
           <Link href="/refund" className="text-teal-400 hover:text-teal-300 underline">환불 정책</Link>
           {" "}참고
         </p>
